@@ -1,3 +1,4 @@
+import { arrondissement } from '../domain/rules';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Moment, dateLabel, euros } from '../domain/rules';
@@ -92,12 +93,12 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress }: {
       </Text>
       <View style={s.timeFace}>
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>{Array.from({ length: 12 }, (_, i) => <View key={i} style={{ position: 'absolute', right: 18 - i * 8, top: 24 - i * 8, width: 70 + i * 16, height: 70 + i * 16, borderRadius: 200, borderWidth: 0.5, borderColor: '#BCAF9C', opacity: 0.35, transform: [{ scaleY: 0.55 }, { rotate: '25deg' }] }} />)}</View>
-        <Text aria-hidden style={s.district}>{m.district}e</Text>
+        <Text aria-hidden style={s.district}>{arrondissement(m.district)}</Text>
         <Text style={s.time} adjustsFontSizeToFit numberOfLines={1}>
           {time}
         </Text></View>
     </View>
-    <Text style={s.body}>{dateLabel(m.startsAt)} · avec {m.host}</Text>
+    <Text style={s.body}>{dateLabel(m.startsAt)} · {m.host === 'Vous' ? 'votre place' : `avec ${m.host}`}</Text>
     <Tear />
     <SeatRow total={m.seats} taken={taken} />
     <View style={s.row}>
@@ -150,19 +151,20 @@ const s = StyleSheet.create({
   timeFace: { position: 'relative', overflow: 'hidden' },
   district: {
     position: 'absolute',
-    right: -9,
-    bottom: -28,
-    fontFamily: display,
-    fontSize: 170,
-    color: '#E9DFD0',
-    letterSpacing: -10
+    right: 0,
+    bottom: -18,
+    fontFamily: serif,
+    fontSize: 120,
+    lineHeight: 140,
+    color: '#EADFCF',
+    letterSpacing: -4
   },
   title: {
     fontFamily: serif,
-    fontSize: 34,
-    lineHeight: 42,
+    fontSize: 30,
+    lineHeight: 36,
     color: c.ink,
-    maxWidth: 245,
+    maxWidth: 290,
     marginTop: 12
   },
   time: {
@@ -200,5 +202,5 @@ const s = StyleSheet.create({
   }
 });
 export function serialOf(id: string) {
-  return id.startsWith('place-') ? String(4120 + Number(id.slice(6))).padStart(5, '0') : `05${id.replace(/\D/g, '').slice(-3)}`;
+  return id.startsWith('place-') ? String(4120 + Number(id.slice(6))).padStart(5, '0') : `0${(5000 + Number(id.replace(/\D/g, '').slice(-3) || 0)) % 10000}`.padStart(5, '0');
 }

@@ -1,3 +1,4 @@
+import { arrondissement } from '../domain/rules';
 import { StyleSheet, Text, View } from 'react-native';
 import { dateLabel } from '../domain/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
@@ -14,7 +15,7 @@ export function Carnet({ journey }: {
     <Text style={s.title}>Les moments restent.</Text>
     <Copy small>{visited} arrondissement{visited > 1 ? 's' : ''} découvert{visited > 1 ? 's' : ''}</Copy>
     {entries.map(({ booking, moment }) => <View key={moment.id} style={s.stub}>
-      <View style={{ flex: 1, gap: 6 }}><Text style={s.label}>N° {serialOf(moment.id)} / {moment.district}e</Text><Text style={s.body}>{moment.title}</Text><Text style={s.label}>{dateLabel(moment.startsAt)}</Text></View>
+      <View style={{ flex: 1, gap: 6 }}><Text style={s.label}>N° {serialOf(moment.id)} / {arrondissement(moment.district)}</Text><Text style={s.body}>{moment.title}</Text><Text style={s.label}>{dateLabel(moment.startsAt)}</Text></View>
       <Text style={s.stamp}>{booking.status === 'present' ? 'PRÉSENT' : booking.status === 'cancelled' ? 'RENDU' : moment.startsAt < journey.store.now ? 'PASSÉ' : 'À VENIR'}</Text>
     </View>)}
   </View>;

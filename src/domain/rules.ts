@@ -77,3 +77,5 @@ export type ChatMessage = {
   text: string;
   sentAt: number;
 };
+
+export const arrondissement = (d: number) => (d === 1 ? '1er' : `${d}e`);

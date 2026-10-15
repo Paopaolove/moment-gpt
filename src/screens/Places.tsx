@@ -1,3 +1,4 @@
+import { arrondissement } from '../domain/rules';
 import { Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { Pulse } from '../components/MotionDetails';
 import { Copy, Link, Pills } from '../components/Primitives';
@@ -19,7 +20,7 @@ export function Places({ journey }: {
     </View>
     {tonight && <Pressable accessibilityRole="button" onPress={() => { setId(tonight.id); go('detail'); }} style={[s.note, { borderColor: c.light }]}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Pulse /><Text style={s.label}>CE SOIR, 1 PLACE</Text></View><Text style={[s.hero, { fontSize: 30, lineHeight: 36 }]}>{tonight.title}</Text>
-      <Copy>{tonight.district}e · avec {tonight.host}</Copy><Text accessibilityRole="timer" style={[s.body, { fontVariant: ['tabular-nums'] }]}>{until ? `Dans ${String(Math.floor(until / 60)).padStart(2, '0')}:${String(until % 60).padStart(2, '0')}` : 'Le moment commence · encore une place'}</Text>
+      <Copy>{arrondissement(tonight.district)} · avec {tonight.host}</Copy><Text accessibilityRole="timer" style={[s.body, { fontVariant: ['tabular-nums'] }]}>{until ? `Dans ${String(Math.floor(until / 60)).padStart(2, '0')}:${String(until % 60).padStart(2, '0')}` : 'Le moment commence · encore une place'}</Text>
     </Pressable>}
     <Pills items={['Tout', 'Table', 'Sport', 'Culture']} value={filter} onChange={setFilter} />
     <View style={s.row}>
