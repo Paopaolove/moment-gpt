@@ -7,11 +7,10 @@ import React, {
 } from 'react';
 import { initialState, reducer } from './domain/reducer';
 import { monthKey, type Moment } from './domain/rules';
-import { additionalInvitations } from './data/invitations';
 import { seed } from './domain/seed';
 function useMomentStore() {
   const [state, dispatch] = useReducer(reducer, undefined, () =>
-    initialState([...seed(Date.now()), ...additionalInvitations(Date.now())]),
+    initialState(seed(Date.now())),
   );
   const [offset, setOffset] = useState(0);
   const [clock, setClock] = useState(Date.now);

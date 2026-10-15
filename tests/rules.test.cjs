@@ -32,9 +32,9 @@ test('renouvellement du Joker selon le mois civil à Paris', () => {
 });
 
 test('adresse et catégorie : rejeter hors Paris et incohérences postales', () => {
-  const m = { title: 'Table', address: '18 rue Paul Bert, 75011 Paris', district: 11, seats: 2, price: 2000, startsAt: start + 1, category: 'Resto' };
-  for (const patch of [{address: 'Paris, 92100'}, {address: 'Lyon'}, {address: '75012 Paris'}, {category: 'Culture'}, {seats: 1.5}, {price: NaN}, {startsAt: Infinity}]) assert.ok(r.validateMoment({...m, ...patch}, start));
-  assert.equal(r.validateMoment({...m, category: 'Bar'}, start), null);
+  const m = { title: 'Table', address: '18 rue Paul Bert, 75011 Paris', district: 11, seats: 2, price: 2000, startsAt: start + 1, category: 'Table' };
+  for (const patch of [{address: 'Paris, 92100'}, {address: 'Lyon'}, {address: '75012 Paris'}, {category: 'Autre'}, {seats: 1.5}, {price: NaN}, {startsAt: Infinity}]) assert.ok(r.validateMoment({...m, ...patch}, start));
+  assert.equal(r.validateMoment({...m, category: 'Sport'}, start), null);
 });
 test('le fuseau de Paris suit aussi le passage à l’heure d’été', () => {
   assert.notEqual(r.monthKey(Date.UTC(2026, 5, 30, 21, 59)), r.monthKey(Date.UTC(2026, 5, 30, 22, 0)));
@@ -56,4 +56,20 @@ test('les heures affichées suivent Paris même pendant les changements saisonni
   assert.match(r.dateLabel(Date.UTC(2026, 2, 29, 1, 30)), /03:30/);
   assert.match(r.dateLabel(Date.UTC(2026, 9, 25, 0, 30)), /02:30/);
   assert.match(r.dateLabel(Date.UTC(2026, 9, 25, 1, 30)), /02:30/);
+});
+
+test('Table, Sport et Culture : seed parisien valide et diversifié', () => {
+  const { seed } = require('./load.cjs')('src/domain/seed.ts');
+  assert.deepEqual(r.RULES.categories, ['Table', 'Sport', 'Culture']);
+  const moments = seed(start);
+  assert.equal(new Set(moments.map(m => m.id)).size, moments.length);
+  for (const category of r.RULES.categories) {
+    assert.ok(moments.filter(m => m.category === category).length >= 2);
+    assert.equal(r.validateMoment({title:'Place',address:'18 rue Paul Bert, 75011 Paris',district:11,seats:1,price:1000,startsAt:start+1,category}, start), null);
+  }
+  for (const moment of moments) {
+    assert.equal(r.validateMoment(moment, start), null);
+    assert.ok(moment.subtype);
+  }
+  for (const subtype of ['Padel', 'Footing', 'Piscine', 'Cinéma', 'Concert', 'Exposition', 'Théâtre']) assert.ok(moments.some(m => m.subtype === subtype));
 });

@@ -2,7 +2,7 @@ export const RULES = {
     deposit: 2000, momentShare: 690, hostShare: 1310, confirmationMinutes: 10,
     jokerPerMonth: 1, urgentBeforeMinutes: 90, urgentAfterMinutes: 30, presenceBeforeMinutes: 15,
     minSeats: 1, maxSeats: 3, maxInvitation: 5000, pricePills: [1000, 2000, 3000, 4000],
-    categories: ['Resto', 'Bar'], timezone: 'Europe/Paris', hostSubscription: 0,
+    categories: ['Table', 'Sport', 'Culture'], timezone: 'Europe/Paris', hostSubscription: 0,
 } as const;
 export type Category = typeof RULES.categories[number];
 export type Participation = 'requested' | 'accepted' | 'confirmed' | 'present' | 'cancelled' | 'expired';
@@ -10,6 +10,7 @@ export type Moment = {
     id: string;
     title: string;
     category: Category;
+    subtype?: string;
     host: string;
     hostId: string;
     district: number;
@@ -51,7 +52,7 @@ export function validateMoment(m: Pick<Moment, 'title' | 'address' | 'district' 
     if (!Number.isInteger(m.price) || m.price < 0 || m.price > RULES.maxInvitation)
         return 'L’invitation est limitée à 50 €.';
     if (m.category !== undefined && !RULES.categories.some(c => c === m.category))
-        return 'Choisissez Resto ou Bar.';
+        return 'Choisissez Table, Sport ou Culture.';
     if (!Number.isFinite(m.startsAt) || m.startsAt <= now)
         return 'Choisissez un horaire à venir.';
     return null;

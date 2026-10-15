@@ -52,7 +52,7 @@ export function reducer(state: State, action: Action): State {
         const error = validateMoment(action.moment, action.now);
         if (error || action.moment.hostId !== 'me' || state.moments.some(m => m.id === action.moment.id))
             return { ...state, message: error || 'Invitation non autorisée.' };
-        return { ...state, moments: [action.moment, ...state.moments], message: 'Votre invitation est publiée. À bientôt autour de la table.' };
+        return { ...state, moments: [action.moment, ...state.moments], message: 'Votre invitation est publiée. Une place de plus à Paris.' };
     }
     const expired = state.bookings.map(b => b.status === 'accepted' && b.acceptedAt !== undefined && confirmationExpired(b.acceptedAt, action.now) ? { ...b, status: 'expired' as const } : b);
     const current = expired.some((b, i) => b !== state.bookings[i]) ? { ...state, bookings: expired } : state;

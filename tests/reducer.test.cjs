@@ -2,7 +2,7 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { reducer, initialState } = require('./load.cjs')('src/domain/reducer.ts');
 const t = Date.UTC(2026, 9, 15, 16);
-const moment = { id: 'a', hostId: 'host', host: 'Camille', title: 'Table', address: '18 rue Paul Bert, 75011 Paris', district: 11, category: 'Resto', startsAt: t + 3600000, seats: 2, price: 2000, womenOnly: false, description: '' };
+const moment = { id: 'a', hostId: 'host', host: 'Camille', title: 'Table', address: '18 rue Paul Bert, 75011 Paris', district: 11, category: 'Table', startsAt: t + 3600000, seats: 2, price: 2000, womenOnly: false, description: '' };
 const act = (s, type, actor = 'me', now = t) => reducer(s, { type, actor, now, id: 'a' });
 function accepted() { return act(act(initialState([moment]), 'request'), 'accept', 'host'); }
 function confirmed() { return act(accepted(), 'confirm'); }
