@@ -1,11 +1,11 @@
-# Moment — La place libre
+# Moment GPT 2
 
 Prototype Expo SDK 57 / TypeScript, direction C de [VISION.md](VISION.md).
 Quelqu’un a une place à côté de lui : au bistrot, sur un terrain, dans une salle.
 
 Le parcours : accueil-manifeste en trois temps → Les places → Le billet → Prendre la place → Billet confirmé. Deux onglets seulement : **Les places** et **Offrir une place**. Le logo ouvre le manifeste ; les billets en cours restent accessibles dans Les places.
 
-Billets crème, perforations et sièges dessinés en View, aucun portrait ni photo. Une seule action abricot par écran. Animated fait glisser le billet, détache le talon et remplit les sièges ; la préférence système de réduction des mouvements désactive les transitions.
+Billets crème, perforations et sièges dessinés en View, aucun portrait ni photo. Fond encre nocturne, grands chiffres serif, filigranes d’arrondissement et une seule action vermillon par écran. Animated fait glisser le billet, détache le talon et remplit les sièges ; la préférence système de réduction des mouvements désactive les transitions.
 
 ## Essayer le parcours
 

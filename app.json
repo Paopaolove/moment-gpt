@@ -1,10 +1,20 @@
 {
   "expo": {
-    "name": "Moment", "slug": "moment-paris", "version": "1.0.0",
-    "orientation": "portrait", "userInterfaceStyle": "light",
-    "backgroundColor": "#F7F1EA",
-    "ios": { "supportsTablet": true, "bundleIdentifier": "fr.moment.paris" },
-    "android": { "package": "fr.moment.paris" },
-    "web": { "name": "Moment — Un moment à partager." }
+    "name": "Moment GPT 2",
+    "slug": "moment-paris",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "backgroundColor": "#15110E",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "fr.moment.paris"
+    },
+    "android": {
+      "package": "fr.moment.paris"
+    },
+    "web": {
+      "name": "Moment GPT 2 — La place libre"
+    }
   }
 }
