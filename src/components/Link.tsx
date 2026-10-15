@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { c, sans } from '../theme/tokens';
+import { c, medium, sans } from '../theme/tokens';
 export function Link({ label, onPress }: {
   label: string;
   onPress: () => void;
@@ -16,7 +16,7 @@ const s = StyleSheet.create({
   },
   linkText: {
     color: c.light,
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 14,
     lineHeight: 21,
     textDecorationLine: 'underline'

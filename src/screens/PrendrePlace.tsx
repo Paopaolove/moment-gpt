@@ -5,7 +5,7 @@ import { Action, Copy, Tear } from '../components/Primitives';
 import { Stamp } from '../components/Stamp';
 import { Ticket, TicketShell } from '../components/Ticket';
 import { euros } from '../domain/rules';
-import { c, sans, serif } from '../theme/tokens';
+import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function PrendrePlace({ journey }: {
   journey: Journey;
@@ -67,7 +67,7 @@ const s = StyleSheet.create({
     gap: 22
   },
   label: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,
@@ -78,7 +78,7 @@ const s = StyleSheet.create({
   hero: {
     fontFamily: serif,
     fontSize: 52,
-    lineHeight: 56,
+    lineHeight: 62,
     letterSpacing: -1.8,
     color: c.light
   },

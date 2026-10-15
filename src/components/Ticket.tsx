@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Moment, dateLabel, euros } from '../domain/rules';
-import { c, sans, serif } from '../theme/tokens';
+import { c, display, medium, sans, serif } from '../theme/tokens';
 import { feedback } from './haptics';
 import { Perforation } from './Perforation';
 import { PaperContext, SeatRow, Tear } from './Primitives';
@@ -27,7 +27,8 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel }
     return () => animation.stop();
   }, [reduced, index, arrival]);
   const press = (value: number) => Animated.spring(lift, {
-    toValue: reduced ? 1 : value,
+    toValue: value,
+    ...(reduced ? { overshootClamping: true } : {}),
     useNativeDriver: true,
     friction: 7
   }).start();
@@ -41,10 +42,13 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel }
             outputRange: [32, 0]
           })
         }, {
-          rotate: arrival.interpolate({
-            inputRange: [0, 1],
-            outputRange: ['-3deg', '0deg']
+          rotate: lift.interpolate({
+            inputRange: [1, 1.018],
+            outputRange: [onPress ? (index % 2 === 0 ? '-1.2deg' : '0.8deg') : '0deg', '0deg'],
+            extrapolate: 'clamp'
           })
+        }, {
+          translateX: lift.interpolate({ inputRange: [1, 1.018], outputRange: [onPress ? (index % 2 === 0 ? -2 : 2) : 0, 0], extrapolate: 'clamp' })
         }, {
           scale: lift
         }]
@@ -133,7 +137,7 @@ const s = StyleSheet.create({
     gap: 10
   },
   label: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13,
     lineHeight: 20,
     letterSpacing: 1.2,
@@ -148,7 +152,7 @@ const s = StyleSheet.create({
     position: 'absolute',
     right: -9,
     bottom: -28,
-    fontFamily: serif,
+    fontFamily: display,
     fontSize: 170,
     color: '#E9DFD0',
     letterSpacing: -10
@@ -156,13 +160,13 @@ const s = StyleSheet.create({
   title: {
     fontFamily: serif,
     fontSize: 34,
-    lineHeight: 38,
+    lineHeight: 42,
     color: c.ink,
     maxWidth: 245,
     marginTop: 12
   },
   time: {
-    fontFamily: serif,
+    fontFamily: display,
     fontSize: 100,
     lineHeight: 116,
     letterSpacing: -6,

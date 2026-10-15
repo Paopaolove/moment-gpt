@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { c, sans } from '../theme/tokens';
+import { c, medium, sans } from '../theme/tokens';
 export function Pills({ items, value, onChange, compact = false }: {
   compact?: boolean;
   items: string[];
@@ -35,7 +35,7 @@ const s = StyleSheet.create({
   },
   pillText: {
     color: c.light,
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13
   },
   selectedText: {

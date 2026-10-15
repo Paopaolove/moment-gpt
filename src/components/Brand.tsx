@@ -23,7 +23,7 @@ const s = StyleSheet.create({
     color: c.light
   },
   large: {
-    fontFamily: sans,
+    fontFamily: serif,
     fontSize: 72,
     letterSpacing: -5
   },

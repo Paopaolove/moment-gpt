@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, View } from 'react-native';
-import { c, serif } from '../theme/tokens';
+import { c, display } from '../theme/tokens';
 import { useReducedMotion } from './useReducedMotion';
 export function Pulse({ dots = false }: {
   dots?: boolean;
@@ -27,7 +27,7 @@ export function Countdown({ seconds }: {
   }, [seconds, reduced, flip]);
   const value = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
   return <View accessibilityRole="timer" accessibilityLabel={value} style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 18 }}>
-    {value.split('').map((digit, i) => <Animated.Text key={`${i}-${digit}`} style={{ fontFamily: serif, fontSize: 76, color: c.ink, fontVariant: ['tabular-nums'], transform: [{ rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: ['55deg', '0deg'] }) }] }}>{digit}</Animated.Text>)}
+    {value.split('').map((digit, i) => <Animated.Text key={`${i}-${digit}`} style={{ fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: [{ rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: ['55deg', '0deg'] }) }] }}>{digit}</Animated.Text>)}
   </View>;
 }
 

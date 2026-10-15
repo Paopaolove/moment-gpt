@@ -4,7 +4,7 @@ import { Action, Copy, Input, Pills } from '../components/Primitives';
 import { Ticket } from '../components/Ticket';
 import { addDays, offerHours, parisDay, parisTime } from '../domain/parisTime';
 import { Category } from '../domain/rules';
-import { c, sans, serif } from '../theme/tokens';
+import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 const subtypes: Record<Category, string[]> = {
   Table: ['Bistrot', 'Terrasse', 'Cuisine française'],
@@ -32,10 +32,8 @@ export function Offrir({ journey }: {
     <Text style={s.label}>DE L’AUTRE CÔTÉ DU BILLET</Text>
     <Text style={s.hero}>À côté de vous, une place.</Text>
     <Copy>Offrir une place est gratuit. Sans abonnement hôte.</Copy>
-    <View style={s.row}>{['Quoi', 'Où et quand', 'Pour qui'].map((label, i) => <View key={label} style={{ flex: 1, borderTopWidth: 2, borderColor: i <= stage ? c.accent : c.muted, paddingTop: 10 }}><Text style={s.label}>{i + 1} {label}</Text></View>)}</View>
+    <View style={{ flexDirection: 'row', gap: 8 }}>{['Quoi', 'Où · quand', 'Pour qui'].map((label, i) => <View key={label} accessibilityLabel={label + (i === stage ? ', étape active' : i < stage ? ', terminée' : ', à venir')} style={{ flex: 1, opacity: i > stage ? 0.5 : 1, borderBottomWidth: i === stage ? 2 : 0, borderColor: c.light, paddingBottom: 8 }}><Text numberOfLines={1} style={{ fontFamily: medium, fontSize: 13, lineHeight: 22, textAlign: 'center', color: i === stage ? c.ink : c.light, backgroundColor: i === stage ? c.light : 'transparent', paddingVertical: 8 }}>{i < stage ? '✓ ' : ''}{label}</Text></View>)}</View>
     {stage === 0 && <>
-      <Text style={s.label}>UN RACCOURCI POUR COMMENCER</Text>
-      <Pills items={['Une table', 'Une séance', 'Un terrain']} value="" onChange={v => { const index = ['Une table', 'Une séance', 'Un terrain'].indexOf(v); const cat = (['Table', 'Culture', 'Sport'] as const)[index]!; setCategory(cat); setSubtype(subtypes[cat][0]!); setTitle(v === 'Une table' ? 'Une place à ma table' : v === 'Une séance' ? 'Le siège à côté du mien' : 'Il manque une raquette'); }} />
       <Pills items={['Table', 'Sport', 'Culture']} value={category} onChange={v => {
         setCategory(v as Category);
         setSubtype(subtypes[v as Category][0]!);
@@ -90,7 +88,7 @@ const s = StyleSheet.create({
     gap: 26
   },
   label: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,
@@ -101,7 +99,7 @@ const s = StyleSheet.create({
   hero: {
     fontFamily: serif,
     fontSize: 52,
-    lineHeight: 56,
+    lineHeight: 62,
     letterSpacing: -1.8,
     color: c.light
   },

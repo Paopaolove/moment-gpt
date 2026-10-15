@@ -5,7 +5,7 @@ import { Stamp } from '../components/Stamp';
 import { Stub } from '../components/Stub';
 import { serialOf, Ticket } from '../components/Ticket';
 import { canAttend } from '../domain/rules';
-import { c, sans, serif } from '../theme/tokens';
+import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function Talon({ journey }: {
   journey: Journey;
@@ -44,7 +44,7 @@ export function Talon({ journey }: {
       <Action label={canAttend(m.startsAt, store.now) ? 'Je suis là · rendre ma caution' : 'Présence disponible à H−15'} disabled={!canAttend(m.startsAt, store.now)} onPress={() => store.act(id, 'present')} />
       <View style={s.note}>
         <Text style={s.label}>UN IMPRÉVU ?</Text>
-        <Copy>Un imprévu ? Votre joker du mois rend la place sans frais : la caution de 20 € vous est entièrement libérée. Sans joker, une annulation répartit la caution : 6,90 € Moment, 13,10 € hôte.</Copy>
+        <Copy>Votre joker du mois rend la place sans frais : la caution de 20 € vous est entièrement libérée. Sans joker, une annulation répartit la caution : 6,90 € Moment, 13,10 € hôte.</Copy>
         {store.jokerUsed ? <Copy small>Votre joker du mois a déjà été utilisé.</Copy> : <Link label="Utiliser mon joker · rendre la place" onPress={() => {
           store.act(id, 'joker');
         }} />}
@@ -59,7 +59,7 @@ const s = StyleSheet.create({
     gap: 22
   },
   label: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,
@@ -70,7 +70,7 @@ const s = StyleSheet.create({
   hero: {
     fontFamily: serif,
     fontSize: 52,
-    lineHeight: 56,
+    lineHeight: 62,
     letterSpacing: -1.8,
     color: c.light
   },

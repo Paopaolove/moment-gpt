@@ -1,7 +1,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const load = require('./load.cjs');
-const { seed } = load('src/domain/seed.ts');
+const { seed, seedHistory } = load('src/domain/seed.ts');
 const { isUrgent } = load('src/domain/rules.ts');
 const { parisDay, parisTime, nextSlot, offerHours } = load('src/domain/parisTime.ts');
 const clock = t => new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).format(t);
@@ -29,4 +29,14 @@ test('créneau par défaut futur, demain après le dernier horaire ; conversion 
     assert.notEqual(parisDay(slot), day);
     assert.equal(clock(slot), '08:00');
   }
+});
+
+test('carnet de démonstration : trois souches passées dans trois arrondissements', () => {
+  const now = Date.parse('2026-10-16T18:00:00Z');
+  const history = seedHistory(now);
+  assert.equal(history.moments.length, 3);
+  assert.equal(new Set(history.moments.map(m => m.district)).size, 3);
+  assert.ok(history.moments.every(m => m.startsAt < now));
+  assert.equal(history.bookings.length, 3);
+  assert.ok(history.bookings.every(b => b.status === 'present' && b.deposit === 'released' && history.moments.some(m => m.id === b.momentId)));
 });

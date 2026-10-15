@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
-import { c, sans } from '../theme/tokens';
+import { c, medium, sans } from '../theme/tokens';
 import { feedback } from './haptics';
 import { useReducedMotion } from './useReducedMotion';
 export function Stamp({ label = 'RÉSERVÉ' }: {
@@ -42,16 +42,16 @@ const s = StyleSheet.create({
   stamp: {
     alignSelf: 'flex-end',
     borderWidth: 3,
-    borderColor: c.muted,
+    borderColor: c.accent,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginVertical: 8
   },
   text: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 23,
     letterSpacing: 3,
     fontWeight: '800',
-    color: c.muted
+    color: c.accent
   }
 });

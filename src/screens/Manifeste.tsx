@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Brand } from '../components/Brand';
 import { Action, Copy, SeatRow, Tear } from '../components/Primitives';
 import { TicketShell } from '../components/Ticket';
-import { c, sans, serif } from '../theme/tokens';
+import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function Manifeste({ journey }: {
   journey: Journey;
@@ -30,7 +30,7 @@ const s = StyleSheet.create({
     gap: 22
   },
   label: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,
@@ -41,7 +41,7 @@ const s = StyleSheet.create({
   hero: {
     fontFamily: serif,
     fontSize: 52,
-    lineHeight: 56,
+    lineHeight: 62,
     letterSpacing: -1.8,
     color: c.light
   }

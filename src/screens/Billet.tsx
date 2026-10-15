@@ -2,7 +2,7 @@ import { StyleSheet, Switch, Text, View } from 'react-native';
 import { Action, Copy } from '../components/Primitives';
 import { MovingTicket, TicketBack } from '../components/TicketTransition';
 import { euros } from '../domain/rules';
-import { c, sans } from '../theme/tokens';
+import { c, medium, sans } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function Billet({ journey }: {
   journey: Journey;
@@ -47,7 +47,7 @@ const s = StyleSheet.create({
     gap: 22
   },
   label: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,

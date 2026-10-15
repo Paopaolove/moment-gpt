@@ -2,9 +2,13 @@ import React, { createContext, useContext, useEffect, useReducer, useState, } fr
 import { feedback } from './components/haptics';
 import { initialState, reducer } from './domain/reducer';
 import { monthKey, type Moment } from './domain/rules';
-import { seed } from './domain/seed';
+import { seed, seedHistory } from './domain/seed';
 function useMomentStore() {
-  const [state, dispatch] = useReducer(reducer, undefined, () => initialState(seed(Date.now())));
+  const [state, dispatch] = useReducer(reducer, undefined, () => {
+    const now = Date.now();
+    const history = seedHistory(now);
+    return { ...initialState([...seed(now), ...history.moments]), bookings: history.bookings };
+  });
   const [offset, setOffset] = useState(0);
   const [clock, setClock] = useState(Date.now);
   const now = clock + offset;

@@ -86,9 +86,10 @@ export function TicketTransitions({ journey, children }: {
     </View>
   </Context.Provider>;
 }
-export function MovingTicket({ m, detail = false, taken = 0 }: {
+export function MovingTicket({ m, detail = false, taken = 0, index = 0 }: {
   m: Moment;
   detail?: boolean;
+  index?: number;
   taken?: number;
 }) {
   const node = useRef<View>(null);
@@ -96,7 +97,7 @@ export function MovingTicket({ m, detail = false, taken = 0 }: {
   return <View ref={node} collapsable={false} onLayout={() => {
     if(detail)
       transition?.measure(node.current);
-  }}><Ticket m={m} taken={taken} onPress={detail ? undefined : () => transition?.open(m, node.current)} /></View>;
+  }}><Ticket m={m} index={index} taken={taken} onPress={detail ? undefined : () => transition?.open(m, node.current)} /></View>;
 }
 export function TicketBack() {
   const transition = useContext(Context);

@@ -3,7 +3,7 @@ import { Pulse } from '../components/MotionDetails';
 import { Copy, Link, Pills } from '../components/Primitives';
 import { MovingTicket } from '../components/TicketTransition';
 import { isUrgent } from '../domain/rules';
-import { c, sans, serif } from '../theme/tokens';
+import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function Places({ journey }: {
   journey: Journey;
@@ -17,8 +17,8 @@ export function Places({ journey }: {
       <Text style={s.hero}>Il reste une place.</Text>
       <Copy>Paris se partage, un siège à la fois.</Copy>
     </View>
-    {tonight && <Pressable accessibilityRole="button" onPress={() => { setId(tonight.id); go('detail'); }} style={[s.note, { borderColor: c.accent }]}>
-      <Text style={s.label}>CE SOIR, 1 PLACE</Text><Text style={[s.hero, { fontSize: 30, lineHeight: 36 }]}>{tonight.title}</Text>
+    {tonight && <Pressable accessibilityRole="button" onPress={() => { setId(tonight.id); go('detail'); }} style={[s.note, { borderColor: c.light }]}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Pulse /><Text style={s.label}>CE SOIR, 1 PLACE</Text></View><Text style={[s.hero, { fontSize: 30, lineHeight: 36 }]}>{tonight.title}</Text>
       <Copy>{tonight.district}e · avec {tonight.host}</Copy><Text accessibilityRole="timer" style={[s.body, { fontVariant: ['tabular-nums'] }]}>{until ? `Dans ${String(Math.floor(until / 60)).padStart(2, '0')}:${String(until % 60).padStart(2, '0')}` : 'Le moment commence · encore une place'}</Text>
     </Pressable>}
     <Pills items={['Tout', 'Table', 'Sport', 'Culture']} value={filter} onChange={setFilter} />
@@ -32,14 +32,14 @@ export function Places({ journey }: {
         true: c.muted
       }} thumbColor={c.card} />
     </View>
-    {store.bookings.some(b => ['accepted', 'confirmed', 'present'].includes(b.status)) && <View style={s.note}>
+    {store.bookings.some(b => ['accepted', 'confirmed', 'present'].includes(b.status) && !b.momentId.startsWith('demo-past-')) && <View style={s.note}>
       <Text style={s.label}>VOS BILLETS</Text>
-      {store.bookings.filter(b => ['accepted', 'confirmed', 'present'].includes(b.status)).map(b => <Link key={b.momentId} label={store.moments.find(x => x.id === b.momentId)!.title} onPress={() => {
+      {store.bookings.filter(b => ['accepted', 'confirmed', 'present'].includes(b.status) && !b.momentId.startsWith('demo-past-')).map(b => <Link key={b.momentId} label={store.moments.find(x => x.id === b.momentId)!.title} onPress={() => {
         setId(b.momentId);
         go(b.status === 'accepted' ? 'take' : 'confirmed');
       }} />)}
     </View>}
-    {store.moments.filter(x => (filter === 'Tout' || x.category === filter) && (!urgent || isUrgent(x.startsAt, store.now)) && store.now <= x.startsAt + 30 * 60000).map(x => <MovingTicket key={x.id} m={x} taken={store.bookings.some(b => b.momentId === x.id && ['confirmed', 'present'].includes(b.status)) ? 1 : 0} />)}
+    {store.moments.filter(x => (filter === 'Tout' || x.category === filter) && (!urgent || isUrgent(x.startsAt, store.now)) && store.now <= x.startsAt + 30 * 60000).map((x, index) => <MovingTicket index={index} key={x.id} m={x} taken={store.bookings.some(b => b.momentId === x.id && ['confirmed', 'present'].includes(b.status)) ? 1 : 0} />)}
     {!store.moments.some(x => (filter === 'Tout' || x.category === filter) && (!urgent || isUrgent(x.startsAt, store.now)) && store.now <= x.startsAt + 30 * 60000) && <Copy>Aucune place pour ce filtre. Essayez une autre catégorie.</Copy>}
     <Copy small>Des invitations fictives, inspirées de lieux parisiens. Aucune réservation réelle.</Copy>
   </View>;
@@ -49,7 +49,7 @@ const s = StyleSheet.create({
     gap: 22
   },
   label: {
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,
@@ -60,7 +60,7 @@ const s = StyleSheet.create({
   hero: {
     fontFamily: serif,
     fontSize: 52,
-    lineHeight: 56,
+    lineHeight: 62,
     letterSpacing: -1.8,
     color: c.light
   },

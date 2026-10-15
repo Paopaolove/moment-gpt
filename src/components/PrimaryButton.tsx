@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { c, sans } from '../theme/tokens';
+import { c, medium, sans } from '../theme/tokens';
 export function Action({ label, onPress, disabled = false }: {
   label: string;
   onPress: () => void;
@@ -24,7 +24,7 @@ const s = StyleSheet.create({
   actionText: {
     color: c.ink,
     fontWeight: '700',
-    fontFamily: sans,
+    fontFamily: medium,
     fontSize: 16,
     textAlign: 'center'
   }
