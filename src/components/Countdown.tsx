@@ -1,20 +1,103 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import { RULES, confirmationRemaining } from '../domain/rules';
-import { colors, styles as s } from '../theme';
-export function Countdown({ acceptedAt, now }: {
-    acceptedAt: number;
-    now: number;
-}) {
-    const seconds = confirmationRemaining(acceptedAt, now);
-    const pulse = useRef(new Animated.Value(1)).current;
-    const progress = useRef(new Animated.Value(seconds / (RULES.confirmationMinutes * 60))).current;
-    useEffect(() => { Animated.sequence([Animated.timing(pulse, { toValue: .94, duration: 160, useNativeDriver: true }), Animated.spring(pulse, { toValue: 1, useNativeDriver: true })]).start(); Animated.timing(progress, { toValue: seconds / (RULES.confirmationMinutes * 60), duration: 700, useNativeDriver: true }).start(); }, [seconds, pulse, progress]);
-    return <View style={{ gap: 20, alignItems: 'center', paddingVertical: 24 }}>
-    <Text style={s.eyebrow}>Votre place vous attend</Text>
-    <Animated.Text accessibilityLabel={`${Math.floor(seconds / 60)} minutes ${seconds % 60} secondes restantes`} style={[s.title, { fontSize: 76, lineHeight: 90, fontVariant: ['tabular-nums'], transform: [{ scale: pulse }] }]}>{Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, '0')}</Animated.Text>
-    <View style={{ height: 4, width: '100%', backgroundColor: colors.line, overflow: 'hidden' }}>
-    <Animated.View style={{ height: 4, backgroundColor: colors.accent, transform: [{ scaleX: progress }] }}/>
+import { colors, serif } from '../theme';
+import { useReducedMotion } from './useReducedMotion';
+export function Countdown({ acceptedAt, now }: { acceptedAt: number; now: number }) {
+  const seconds = confirmationRemaining(acceptedAt, now);
+  const reduced = useReducedMotion();
+  const progress = useRef(
+    new Animated.Value(seconds / (RULES.confirmationMinutes * 60)),
+  ).current;
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: seconds / (RULES.confirmationMinutes * 60),
+      duration: reduced ? 0 : 850,
+      useNativeDriver: false,
+    }).start();
+    return () => progress.stopAnimation();
+  }, [seconds, reduced, progress]);
+  return (
+    <View style={local.container}>
+      <Text style={local.caption}>
+        {seconds ? 'Votre place vous est réservée' : 'Le délai est écoulé'}
+      </Text>
+      <Text
+        accessibilityRole="timer"
+        accessibilityLabel={`${Math.floor(seconds / 60)} minutes ${seconds % 60} secondes restantes`}
+        style={[local.clock, seconds <= 60 && local.urgent]}
+      >{`${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`}</Text>
+      <View
+        accessibilityRole="progressbar"
+        accessibilityValue={{
+          min: 0,
+          max: 600,
+          now: seconds,
+        }}
+        style={local.track}
+      >
+        <Animated.View
+          style={[
+            local.fill,
+            {
+              width: progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0%', '100%'],
+              }),
+            },
+          ]}
+        />
+      </View>
+      <View style={local.limits}>
+        <Text style={local.label}>À vous de confirmer</Text>
+        <Text style={local.label}>10 min au total</Text>
+      </View>
     </View>
-    </View>;
+  );
 }
+const local = StyleSheet.create({
+  container: {
+    paddingVertical: 32,
+    gap: 20,
+    alignItems: 'center',
+  },
+  caption: {
+    fontSize: 10,
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+    color: colors.muted,
+  },
+  clock: {
+    fontFamily: serif,
+    fontSize: 88,
+    lineHeight: 104,
+    color: colors.ink,
+    letterSpacing: -4,
+    fontVariant: ['tabular-nums'],
+  },
+  urgent: {
+    color: colors.accent,
+  },
+  track: {
+    height: 5,
+    width: '100%',
+    backgroundColor: colors.line,
+    overflow: 'hidden',
+    borderRadius: 5,
+  },
+  fill: {
+    height: 5,
+    backgroundColor: colors.accent,
+    borderRadius: 5,
+  },
+  limits: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  label: {
+    fontSize: 11,
+    color: colors.muted,
+  },
+});
