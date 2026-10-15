@@ -21,12 +21,12 @@ export function Journey() {
   const Screen = screens[journey.page];
   return <View style={s.root}>
     <View style={s.header}>
-      <Pressable accessibilityRole="button" accessibilityLabel="Accueil Moment GPT 2" onPress={() => {
+      {journey.page !== 'home' && <Pressable accessibilityRole="button" accessibilityLabel="Accueil Moment GPT 2" onPress={() => {
         journey.setStep(0);
         journey.go('home');
       }}>
         <Brand />
-      </Pressable>
+      </Pressable>}
       <Text style={s.label}>PARIS / LA PLACE LIBRE</Text>
     </View>
     <ScrollView key={journey.page} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
@@ -34,9 +34,9 @@ export function Journey() {
     </ScrollView>
     {journey.page !== 'home' && <View style={s.nav}>
       {(['list', 'offer'] as const).map((page, i) => <Pressable key={page} accessibilityRole="tab" accessibilityState={{
-        selected: journey.page === page
-      }} onPress={() => journey.go(page)} style={[s.tab, journey.page === page && s.active]}>
-        <Text style={s.navText}>
+        selected: (page === 'offer' ? journey.page === 'offer' : journey.page !== 'offer')
+      }} onPress={() => journey.go(page)} style={[s.tab, (page === 'offer' ? journey.page === 'offer' : journey.page !== 'offer') && s.active]}>
+        <Text style={[s.navText, (page === 'offer' ? journey.page === 'offer' : journey.page !== 'offer') && s.navTextActive]}>
           {i === 0 ? 'Les places' : 'Offrir une place'}
         </Text>
       </Pressable>)}
@@ -85,10 +85,11 @@ const s = StyleSheet.create({
     borderTopColor: 'transparent'
   },
   active: {
-    borderTopColor: c.light
+    borderTopColor: c.accent
   },
+  navTextActive: { color: c.light },
   navText: {
-    color: c.light,
+    color: 'rgba(243,234,219,0.55)',
     fontSize: 14
   }
 });

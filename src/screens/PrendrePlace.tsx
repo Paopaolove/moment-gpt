@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { c, serif } from '../theme/tokens';
-import { Copy, Action, Tear } from '../components/Primitives';
-import { TicketShell } from '../components/Ticket';
+import { Copy, Action, Link, Tear } from '../components/Primitives';
+import { Ticket, TicketShell } from '../components/Ticket';
 import { Stamp } from '../components/Stamp';
 import { euros } from '../domain/rules';
 import { Journey } from '../useJourney';
@@ -19,6 +19,13 @@ export function PrendrePlace({
     remaining,
     expired
   } = journey;
+  if (journey.booking?.status === 'requested') return <View style={s.screen}>
+    <Text style={s.label}>03 / DEMANDE ENVOYÉE</Text>
+    <Text style={s.hero}>L’hôte vous répond.</Text>
+    <Ticket m={m}><Stamp label="EN ATTENTE" /></Ticket>
+    <Copy>Votre demande a été envoyée à {m.host}. Le délai de confirmation commencera après son acceptation.</Copy>
+    <Link label="Démo · simuler l’acceptation de l’hôte" onPress={() => store.act(id, 'accept', true)} />
+  </View>;
   return <View style={s.screen}>
     <Text style={s.label}>03 / PRENDRE LA PLACE</Text>
     <Text style={s.hero}>

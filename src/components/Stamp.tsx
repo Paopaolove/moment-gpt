@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
 import { c } from '../theme/tokens';
 import { useReducedMotion } from './useReducedMotion';
-export function Stamp() {
+export function Stamp({ label = 'RÉSERVÉ' }: { label?: string }) {
   const reduced = useReducedMotion();
   const hit = useRef(new Animated.Value(1)).current;
   useEffect(() => {
@@ -30,14 +30,14 @@ export function Stamp() {
       })
     }]
   }]}>
-    <Text style={s.text}>RÉSERVÉ</Text>
+    <Text style={s.text}>{label}</Text>
   </Animated.View>;
 }
 const s = StyleSheet.create({
   stamp: {
     alignSelf: 'flex-end',
     borderWidth: 3,
-    borderColor: c.accent,
+    borderColor: c.muted,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginVertical: 8
@@ -46,6 +46,6 @@ const s = StyleSheet.create({
     fontSize: 23,
     letterSpacing: 3,
     fontWeight: '800',
-    color: '#A63215'
+    color: c.muted
   }
 });

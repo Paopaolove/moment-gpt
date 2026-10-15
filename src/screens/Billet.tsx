@@ -46,7 +46,7 @@ export function Billet({
     <Copy>
       {booking.status === 'cancelled' ? 'Cette place a été rendue.' : booking.status === 'expired' ? 'Le délai de confirmation est écoulé.' : 'Votre billet vous attend.'}
     </Copy>
-    <Action label={['confirmed', 'present'].includes(booking.status) ? 'Voir mon talon' : booking.status === 'accepted' ? 'Confirmer ma place' : 'Voir les autres places'} onPress={() => go(['confirmed', 'present'].includes(booking.status) ? 'confirmed' : booking.status === 'accepted' ? 'take' : 'list')} />
+    <Action label={['confirmed', 'present'].includes(booking.status) ? 'Voir mon talon' : booking.status === 'requested' ? 'Voir ma demande' : booking.status === 'accepted' ? 'Confirmer ma place' : 'Voir les autres places'} onPress={() => go(['confirmed', 'present'].includes(booking.status) ? 'confirmed' : ['requested', 'accepted'].includes(booking.status) ? 'take' : 'list')} />
     </> : <Action label="Prendre la place" disabled={m.womenOnly && !store.woman || store.now > m.startsAt + 30 * 60000} onPress={reserve} />}
     <Copy small>Prototype local · acceptation de l’hôte simulée à l’étape suivante.</Copy>
   </View>;

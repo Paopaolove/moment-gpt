@@ -4,8 +4,10 @@ import { c } from '../theme/tokens';
 export function Pills({
   items,
   value,
-  onChange
+  onChange,
+  compact = false
 }: {
+  compact?: boolean;
   items: string[];
   value: string;
   onChange: (value: string) => void;
@@ -13,7 +15,7 @@ export function Pills({
   return <View style={s.wrap}>
     {items.map(item => <Pressable key={item} accessibilityRole="button" accessibilityState={{
       selected: item === value
-    }} onPress={() => onChange(item)} style={[s.pill, item === value && s.selected]}>
+    }} onPress={() => onChange(item)} style={[s.pill, compact && s.compact, item === value && s.selected]}>
       <Text style={[s.pillText, item === value && s.selectedText]}>
         {item}
       </Text>
@@ -33,6 +35,7 @@ const s = StyleSheet.create({
     paddingVertical: 12,
     borderRadius: 30
   },
+  compact: { width: '17%', paddingHorizontal: 0, alignItems: 'center', paddingVertical: 10 },
   selected: {
     backgroundColor: c.card
   },

@@ -1,3 +1,4 @@
+import { serialOf } from '../components/Ticket';
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { c, serif } from '../theme/tokens';
@@ -27,7 +28,7 @@ export function Talon({
     <Stub>
       <Text style={[s.label, {
         color: c.muted
-      }]}>MOMENT / {id.toUpperCase()} / 01</Text>
+      }]}>TALON N° {serialOf(id)} · MOMENT GPT 2</Text>
       <Copy>
         {m.address}
       </Copy>

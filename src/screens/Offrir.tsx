@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { addDays, parisDay, parisTime, offerHours } from '../domain/parisTime';
 import { View, Text, Switch, StyleSheet } from 'react-native';
 import { c, serif } from '../theme/tokens';
 import { Copy, Action, Pills, Input } from '../components/Primitives';
@@ -38,6 +39,16 @@ export function Offrir({
     setWomen,
     publish
   } = journey;
+  const today = parisDay(journey.store.now);
+  const days = Array.from({ length: 7 }, (_, i) => addDays(today, i));
+  const hoursFor = (date: string) => offerHours.filter(h => parisTime(date, h) > journey.store.now);
+  const availableDays = days.filter(d => hoursFor(d).length);
+  const hours = hoursFor(day);
+  useEffect(() => {
+    if (!availableDays.includes(day)) setDay(availableDays[0]!);
+    else if (!hours.includes(hour)) setHour(hours[0]!);
+  }, [day, hour, today, journey.store.now]);
+  const dayLabels = availableDays.map(d => d === today ? 'Aujourd’hui' : d === addDays(today, 1) ? 'Demain' : new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long', day: 'numeric' }).format(Date.parse(d + 'T12:00:00Z')));
   return <View style={s.screen}>
     <Text style={s.label}>DE L’AUTRE CÔTÉ DU BILLET</Text>
     <Text style={s.hero}>À côté de vous, une place.</Text>
@@ -50,9 +61,18 @@ export function Offrir({
     <Pills items={subtypes[category]} value={subtype} onChange={setSubtype} />
     <Input label="Le nom de votre moment" value={title} set={setTitle} />
     <Input label="Lieu · adresse à Paris intramuros" value={address} set={setAddress} />
-    <Input label="Arrondissement · 1 à 20" value={district} set={setDistrict} keyboardType="numeric" />
-    <Input label="Date · AAAA-MM-JJ · heure de Paris" value={day} set={setDay} />
-    <Input label="Heure · HH:MM" value={hour} set={setHour} />
+    <View style={s.group}>
+      <Text style={s.label}>ARRONDISSEMENT</Text>
+      <Pills compact items={Array.from({ length: 20 }, (_, i) => String(i + 1))} value={district} onChange={setDistrict} />
+    </View>
+    <View style={s.group}>
+      <Text style={s.label}>LE JOUR · HEURE DE PARIS</Text>
+      <Pills items={dayLabels} value={dayLabels[availableDays.indexOf(day)] ?? ''} onChange={v => setDay(availableDays[dayLabels.indexOf(v)]!)} />
+    </View>
+    <View style={s.group}>
+      <Text style={s.label}>LE CRÉNEAU</Text>
+      <Pills items={hours} value={hour} onChange={setHour} />
+    </View>
     <Text style={s.label}>PLACES LIBRES</Text>
     <Pills items={['1', '2', '3']} value={seats} onChange={setSeats} />
     <Text style={s.label}>VOTRE INVITATION · PAR PLACE</Text>
@@ -74,8 +94,9 @@ export function Offrir({
   </View>;
 }
 const s = StyleSheet.create({
+  group: { gap: 12, marginVertical: 4 },
   screen: {
-    gap: 22
+    gap: 26
   },
   label: {
     fontSize: 13,

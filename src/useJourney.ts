@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { nextSlot, offerHours, parisDay } from './domain/parisTime';
 import { BackHandler } from 'react-native';
 import { useStore } from './store';
 import { Category, confirmationRemaining, Moment, validateMoment } from './domain/rules';
@@ -21,10 +22,9 @@ export function useJourney() {
   const [title, setTitle] = useState('Une place à ma table');
   const [address, setAddress] = useState('18 rue Paul Bert, 75011 Paris');
   const [district, setDistrict] = useState('11');
-  const [day, setDay] = useState(new Intl.DateTimeFormat('sv-SE', {
-    timeZone: 'Europe/Paris'
-  }).format(Date.now()));
-  const [hour, setHour] = useState('20:00');
+  const initialSlot = nextSlot(store.now, offerHours);
+  const [day, setDay] = useState(() => parisDay(initialSlot));
+  const [hour, setHour] = useState(() => new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(initialSlot));
   const [seats, setSeats] = useState('1');
   const [price, setPrice] = useState('20');
   const [women, setWomen] = useState(false);
@@ -44,7 +44,6 @@ export function useJourney() {
   }, [page]);
   function reserve() {
     store.act(id, 'request');
-    store.act(id, 'accept', true);
     go('take');
   }
   function publish() {

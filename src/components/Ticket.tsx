@@ -92,13 +92,15 @@ export function Ticket({
       <Text style={s.label}>P / {String(m.district).padStart(2, '0')}</Text>
     </View>
     <View style={s.face}>
-      <Text accessibilityElementsHidden style={s.district}>{m.district}e</Text>
+      
       <Text style={s.title}>
         {m.title}
       </Text>
+      <View style={s.timeFace}>
+      <Text accessibilityElementsHidden style={s.district}>{m.district}e</Text>
       <Text style={s.time} adjustsFontSizeToFit numberOfLines={1}>
         {time}
-      </Text>
+      </Text></View>
     </View>
     <Text style={s.body}>{dateLabel(m.startsAt)} · avec {m.host}</Text>
     <Tear />
@@ -111,7 +113,7 @@ export function Ticket({
     </View>
     {m.womenOnly && <Text style={s.label}>Femmes uniquement</Text>}
     <View style={s.serial}>
-      <Text style={s.label}>N° {m.id.replace('place-', '000')} / PARIS</Text>
+      <Text style={s.label}>N° {serialOf(m.id)} / PARIS</Text>
       <View style={s.punch} />
     </View>
     {children}
@@ -149,13 +151,14 @@ const s = StyleSheet.create({
   face: {
     position: 'relative'
   },
+  timeFace: { position: 'relative', overflow: 'hidden' },
   district: {
     position: 'absolute',
     right: -9,
-    top: -15,
+    bottom: -28,
     fontFamily: serif,
-    fontSize: 138,
-    color: '#D9CBB7',
+    fontSize: 170,
+    color: '#E9DFD0',
     letterSpacing: -10
   },
   title: {
@@ -199,3 +202,7 @@ const s = StyleSheet.create({
     backgroundColor: c.paper
   }
 });
+
+export function serialOf(id: string) {
+  return id.startsWith('place-') ? String(4120 + Number(id.slice(6))).padStart(5, '0') : `05${id.replace(/\D/g, '').slice(-3)}`;
+}

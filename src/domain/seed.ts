@@ -1,4 +1,6 @@
+import { isUrgent } from './rules';
 import type { Moment, Category } from './rules';
+import { nextSlot } from './parisTime';
 export function seed(now: number): Moment[] {
  const rows: [string, Category, string, string, number, string, number, number, number, boolean, string][] = [
  ['Bistrot Paul Bert', 'Table', 'Bistrot', 'Camille', 11, '18 rue Paul Bert, 75011 Paris', 55, 2, 3000, false, 'Une table réservée, une chaise de libre. Je vous invite à hauteur de 30 € ; le supplément éventuel reste à votre charge.'],
@@ -11,5 +13,10 @@ export function seed(now: number): Moment[] {
  ['Le théâtre à deux', 'Culture', 'Théâtre', 'Émile', 6, 'Place de l’Odéon, 75006 Paris', 240, 1, 4000, false, 'Une place voisine à l’Odéon. Représentation fictive pour découvrir le parcours.'],
  ['La table du quartier', 'Table', 'Cuisine française', 'Sarah', 11, '80 rue de Charonne, 75011 Paris', 210, 3, 3000, true, 'Au Bistrot des Fées, des assiettes de saison et trois places à partager. Femmes uniquement.'],
  ];
- return rows.map(([title,category,subtype,host,district,address,minutes,seats,price,womenOnly,description], i) => ({id:`place-${i}`,hostId:`host-${i}`,title,category,subtype,host,district,address,startsAt:now+minutes*60000,seats,price,womenOnly,description}));
+ const slots = [['19:30', '20:30', '21:00'], ['12:30', '19:00'], ['20:15'], ['08:00', '19:00'], ['12:30'], ['20:00'], ['18:30'], ['20:00'], ['19:30', '20:30', '21:00']];
+ const moments: Moment[] = rows.map(([title,category,subtype,host,district,address,minutes,seats,price,womenOnly,description], i) => ({id:`place-${i}`,hostId:`host-${i}`,title,category,subtype,host,district,address,startsAt:nextSlot(now, slots[i]!),seats,price,womenOnly,description}));
+ if (!moments.some(m => isUrgent(m.startsAt, now))) moments.push({
+   id: 'place-9', hostId: 'host-9', title: 'Paris à toute heure', category: 'Culture', subtype: 'Photographie', host: 'Claude', district: 4, address: 'Place de l’Hôtel de Ville, 75004 Paris', startsAt: Math.ceil(now / 900000) * 900000, seats: 2, price: 1000, womenOnly: false, description: 'Une promenade photo, de jour comme de nuit, autour de l’Hôtel de Ville. Une boisson offerte. Moment de démonstration disponible à toute heure.'
+ });
+ return moments;
 }
