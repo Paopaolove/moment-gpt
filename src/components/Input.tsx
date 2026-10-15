@@ -1,12 +1,6 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
-import { c } from '../theme/tokens';
-export function Input({
-  label,
-  value,
-  set,
-  keyboardType = 'default'
-}: {
+import { c, sans } from '../theme/tokens';
+export function Input({ label, value, set, keyboardType = 'default' }: {
   label: string;
   value: string;
   set: (value: string) => void;
@@ -25,6 +19,7 @@ const s = StyleSheet.create({
   },
   label: {
     color: c.light,
+    fontFamily: sans,
     fontSize: 13,
     lineHeight: 20,
     letterSpacing: 1
@@ -33,6 +28,7 @@ const s = StyleSheet.create({
     backgroundColor: c.card,
     color: c.ink,
     padding: 16,
+    fontFamily: sans,
     fontSize: 16,
     borderWidth: 1,
     borderColor: c.line

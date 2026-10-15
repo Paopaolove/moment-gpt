@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { nextSlot, offerHours, parisDay } from './domain/parisTime';
 import { BackHandler } from 'react-native';
-import { useStore } from './store';
+import { nextSlot, offerHours, parisDay } from './domain/parisTime';
 import { Category, confirmationRemaining, Moment, validateMoment } from './domain/rules';
+import { useStore } from './store';
 const subtypes: Record<Category, string[]> = {
   Table: ['Bistrot', 'Terrasse', 'Cuisine française'],
   Sport: ['Padel', 'Footing', 'Piscine'],
@@ -13,6 +13,7 @@ export function useJourney() {
   const store = useStore();
   const [page, setPage] = useState<Page>('home');
   const [step, setStep] = useState(0);
+  const [offerStep, setOfferStep] = useState(0);
   const [id, setId] = useState('place-0');
   const [filter, setFilter] = useState('Tout');
   const [urgent, setUrgent] = useState(false);
@@ -36,7 +37,8 @@ export function useJourney() {
   };
   useEffect(() => {
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
-      if (page === 'home') return false;
+      if(page === 'home')
+        return false;
       go(page === 'take' ? 'detail' : 'list');
       return true;
     });
@@ -49,7 +51,7 @@ export function useJourney() {
   function publish() {
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day);
     const hm = /^(\d{2}):(\d{2})$/.exec(hour);
-    if (!match || !hm || Number(hm[1]) > 23 || Number(hm[2]) > 59) {
+    if(!match || !hm || Number(hm[1]) > 23 || Number(hm[2]) > 59) {
       setError('Indiquez une date AAAA-MM-JJ et une heure HH:MM.');
       return;
     }
@@ -68,7 +70,7 @@ export function useJourney() {
     const shifted = Date.UTC(Number(p.year), Number(p.month) - 1, Number(p.day), Number(p.hour), Number(p.minute));
     const startsAt = wall - (shifted - wall);
     const actual = parts(startsAt);
-    if (`${actual.year}-${actual.month}-${actual.day}` !== day || `${actual.hour}:${actual.minute}` !== hour) {
+    if(`${actual.year}-${actual.month}-${actual.day}` !== day || `${actual.hour}:${actual.minute}` !== hour) {
       setError('Cette date ou heure n’existe pas à Paris.');
       return;
     }
@@ -89,7 +91,7 @@ export function useJourney() {
       description: 'Une place offerte par vous. Retrouvez votre invité au lieu indiqué.'
     };
     const e = validateMoment(item, store.now);
-    if (e) {
+    if(e) {
       setError(e);
       return;
     }
@@ -103,6 +105,8 @@ export function useJourney() {
     store,
     page,
     setPage,
+    offerStep,
+    setOfferStep,
     step,
     setStep,
     id,

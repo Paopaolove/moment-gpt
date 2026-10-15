@@ -85,3 +85,19 @@ test('expiration de plusieurs réservations via tick sans réservation de cautio
   assert.equal(act(expired, 'confirm'), expired);
   assert.equal(expired.momentCredits, 0);
 });
+
+
+test('joker : frontière du mois à Paris et aucune répartition de caution', () => {
+  const before = Date.UTC(2026, 9, 31, 22, 59, 59); // 23:59:59 à Paris
+  const after = before + 1000;
+  const first = act(confirmed(), 'joker', 'me', before);
+  assert.equal(first.bookings[0].deposit, 'released');
+  assert.deepEqual(first.credits, {});
+  assert.equal(first.momentCredits, 0);
+  const next = { ...confirmed(), jokerMonths: first.jokerMonths };
+  assert.equal(act(next, 'joker', 'me', before), next);
+  assert.equal(act(next, 'joker', 'me', after).jokerMonths.length, 2);
+  assert.equal(act(confirmed(), 'joker', 'stranger').jokerMonths.length, 0);
+  assert.equal(act(initialState([moment]), 'joker').jokerMonths.length, 0);
+  assert.equal(act(first, 'cancel'), first);
+});

@@ -1,12 +1,6 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { c } from '../theme/tokens';
-export function Pills({
-  items,
-  value,
-  onChange,
-  compact = false
-}: {
+import { c, sans } from '../theme/tokens';
+export function Pills({ items, value, onChange, compact = false }: {
   compact?: boolean;
   items: string[];
   value: string;
@@ -41,6 +35,7 @@ const s = StyleSheet.create({
   },
   pillText: {
     color: c.light,
+    fontFamily: sans,
     fontSize: 13
   },
   selectedText: {

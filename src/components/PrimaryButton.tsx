@@ -1,11 +1,6 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { c } from '../theme/tokens';
-export function Action({
-  label,
-  onPress,
-  disabled = false
-}: {
+import { c, sans } from '../theme/tokens';
+export function Action({ label, onPress, disabled = false }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
@@ -29,6 +24,7 @@ const s = StyleSheet.create({
   actionText: {
     color: c.ink,
     fontWeight: '700',
+    fontFamily: sans,
     fontSize: 16,
     textAlign: 'center'
   }

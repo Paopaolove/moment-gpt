@@ -1,11 +1,16 @@
 import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
-import { c } from '../theme/tokens';
+import { c, sans } from '../theme/tokens';
+import { feedback } from './haptics';
 import { useReducedMotion } from './useReducedMotion';
-export function Stamp({ label = 'RÉSERVÉ' }: { label?: string }) {
+export function Stamp({ label = 'RÉSERVÉ' }: {
+  label?: string;
+}) {
   const reduced = useReducedMotion();
   const hit = useRef(new Animated.Value(1)).current;
   useEffect(() => {
+    if(label === 'ACCEPTÉ' || label === 'RÉSERVÉ')
+      void feedback('stamp');
     hit.setValue(reduced ? 1 : 0);
     const animation = Animated.spring(hit, {
       toValue: 1,
@@ -15,7 +20,7 @@ export function Stamp({ label = 'RÉSERVÉ' }: { label?: string }) {
     });
     animation.start();
     return () => animation.stop();
-  }, [hit, reduced]);
+  }, [hit, reduced, label]);
   return <Animated.View style={[s.stamp, {
     opacity: hit,
     transform: [{
@@ -43,6 +48,7 @@ const s = StyleSheet.create({
     marginVertical: 8
   },
   text: {
+    fontFamily: sans,
     fontSize: 23,
     letterSpacing: 3,
     fontWeight: '800',

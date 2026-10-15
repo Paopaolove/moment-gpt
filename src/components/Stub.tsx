@@ -1,12 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet } from 'react-native';
 import { c } from '../theme/tokens';
-import { PaperContext } from './Primitives';
 import { Perforation } from './Perforation';
+import { PaperContext } from './Primitives';
 import { useReducedMotion } from './useReducedMotion';
-export function Stub({
-  children
-}: {
+export function Stub({ children }: {
   children: React.ReactNode;
 }) {
   const reduced = useReducedMotion();

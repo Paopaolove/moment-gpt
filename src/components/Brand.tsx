@@ -1,14 +1,12 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { c, serif } from '../theme/tokens';
-export function Brand({
-  large = false
-}: {
+import { c, sans, serif } from '../theme/tokens';
+export function Brand({ large = false }: {
   large?: boolean;
 }) {
-  return <View accessibilityLabel="Moment GPT 2" style={s.brand}>
+  return <View accessibilityLabel="Moment GPT 3" style={s.brand}>
     <Text style={[s.word, large && s.large]}>moment</Text>
     <View style={[s.seal, large && s.largeSeal]}>
-      <Text style={s.sealText}>GPT{'\n'}2</Text>
+      <Text style={s.sealText}>GPT{'\n'}3</Text>
     </View>
   </View>;
 }
@@ -25,6 +23,7 @@ const s = StyleSheet.create({
     color: c.light
   },
   large: {
+    fontFamily: sans,
     fontSize: 72,
     letterSpacing: -5
   },
@@ -48,6 +47,7 @@ const s = StyleSheet.create({
   },
   sealText: {
     color: c.light,
+    fontFamily: sans,
     fontSize: 13,
     fontWeight: '700',
     textAlign: 'center',

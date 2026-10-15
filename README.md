@@ -1,4 +1,4 @@
-# Moment GPT 2
+# Moment GPT 3
 
 Prototype Expo SDK 57 / TypeScript, direction C de [VISION.md](VISION.md).
 Quelqu’un a une place à côté de lui : au bistrot, sur un terrain, dans une salle.
@@ -32,3 +32,16 @@ L’export statique est produit dans `dist/`. Aucun serveur n’est nécessaire 
 `src/domain` conserve les règles et le reducer : caution 20 €, split 6,90 € Moment / 13,10 € hôte en cas d’annulation sans joker après confirmation, délai 10 minutes, joker 1/mois, urgence H−90→H+30, présence H−15, Paris, restrictions et plafonds. Les catégories sont Table / Sport / Culture. Les tests couvrent notamment les bornes temporelles, autorisations, montants, catégories et seed.
 
 Tout est local en mémoire : un rechargement réinitialise la démonstration. Aucun compte, paiement, réservation de lieu, géocodage, messagerie distante ni backend. L’acceptation de l’hôte est un stub, sans délai réseau. Les anciens écrans carte, disponibilités, abonnements et profils ont été retirés pour concentrer le prototype sur la place.
+
+
+## Nouveautés v3
+
+- Fraunces optique 144 et Inter Tight, papier grainé, guilloché et tampon GPT 3.
+- Sièges individuels : une réservation remplit exactement un siège.
+- Offre en trois étapes, raccourcis et aperçu du billet avant publication.
+- Acceptation automatique de démonstration après 2,5 secondes, tampon ACCEPTÉ et délai de 10 minutes.
+- Transition mesurée entre carte et détail, retour inverse, option système de réduction des animations et haptique native facultative.
+- « Ce soir, 1 place » dans la fenêtre H−90 → H+30 et carnet personnel de souches.
+- Joker réservé à l’invité confirmé, une fois par mois civil à Paris : caution libérée intégralement. Annulation sans joker : 6,90 € Moment / 13,10 € hôte.
+
+Les données et paiements restent des simulations locales. Le carnet compte uniquement les arrondissements où une présence a été signalée.

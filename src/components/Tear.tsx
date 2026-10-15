@@ -1,4 +1,3 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { c } from '../theme/tokens';
 export function Tear() {

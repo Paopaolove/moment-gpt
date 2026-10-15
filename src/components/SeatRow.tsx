@@ -1,11 +1,8 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
-import { c } from '../theme/tokens';
+import { c, sans } from '../theme/tokens';
 import { useReducedMotion } from './useReducedMotion';
-function Seat({
-  filled,
-  index
-}: {
+function Seat({ filled, index }: {
   filled: boolean;
   index: number;
 }) {
@@ -34,20 +31,14 @@ function Seat({
     </View>
   </View>;
 }
-export function Seats({
-  count,
-  filled = false
-}: {
-  count: number;
-  filled?: boolean;
+export function SeatRow({ total, taken = 0 }: {
+  total: number;
+  taken?: number;
 }) {
-  return <View accessibilityLabel={`${count} places ${filled ? 'réservées' : 'libres'}`} style={s.seats}>
-    {Array.from({
-      length: count
-    }, (_, i) => <Seat key={i} filled={filled} index={i} />)}
-    <Text style={s.seatLabel}>
-      {filled ? 'Votre siège est gardé' : `${count} place${count > 1 ? 's' : ''} libre${count > 1 ? 's' : ''}`}
-    </Text>
+  const reserved = Math.max(0, Math.min(total, Math.floor(taken)));
+  return <View accessibilityLabel={`${reserved} place réservée, ${total - reserved} places libres`} style={s.seats}>
+    {Array.from({ length: total }, (_, i) => <Seat key={i} filled={i < reserved} index={i} />)}
+    <Text style={s.seatLabel}>{reserved ? `${reserved} réservée · ${total - reserved} libre${total - reserved > 1 ? 's' : ''}` : `${total} place${total > 1 ? 's' : ''} libre${total > 1 ? 's' : ''}`}</Text>
   </View>;
 }
 const s = StyleSheet.create({
@@ -90,6 +81,7 @@ const s = StyleSheet.create({
     backgroundColor: c.ink
   },
   seatLabel: {
+    fontFamily: sans,
     fontSize: 13,
     color: c.muted,
     flexShrink: 1

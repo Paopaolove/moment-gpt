@@ -1,10 +1,6 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text } from 'react-native';
-import { c } from '../theme/tokens';
-export function Link({
-  label,
-  onPress
-}: {
+import { c, sans } from '../theme/tokens';
+export function Link({ label, onPress }: {
   label: string;
   onPress: () => void;
 }) {
@@ -20,6 +16,7 @@ const s = StyleSheet.create({
   },
   linkText: {
     color: c.light,
+    fontFamily: sans,
     fontSize: 14,
     lineHeight: 21,
     textDecorationLine: 'underline'

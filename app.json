@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Moment GPT 2",
+    "name": "Moment GPT 3",
     "slug": "moment-paris",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -14,7 +14,7 @@
       "package": "fr.moment.paris"
     },
     "web": {
-      "name": "Moment GPT 2 — La place libre"
+      "name": "Moment GPT 3 — La place libre"
     }
   }
 }

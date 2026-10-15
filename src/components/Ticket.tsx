@@ -1,16 +1,12 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Moment, dateLabel, euros } from '../domain/rules';
-import { c, serif } from '../theme/tokens';
-import { useReducedMotion } from './useReducedMotion';
+import { c, sans, serif } from '../theme/tokens';
+import { feedback } from './haptics';
 import { Perforation } from './Perforation';
-import { PaperContext, Seats, Tear } from './Primitives';
-export function TicketShell({
-  children,
-  index = 0,
-  onPress,
-  accessibilityLabel
-}: {
+import { PaperContext, SeatRow, Tear } from './Primitives';
+import { useReducedMotion } from './useReducedMotion';
+export function TicketShell({ children, index = 0, onPress, accessibilityLabel }: {
   children: React.ReactNode;
   index?: number;
   onPress?: () => void;
@@ -20,7 +16,7 @@ export function TicketShell({
   const arrival = useRef(new Animated.Value(1)).current;
   const lift = useRef(new Animated.Value(1)).current;
   useEffect(() => {
-    arrival.setValue(reduced ? 1 : 0);
+    arrival.setValue(reduced || !onPress ? 1 : 0);
     const animation = Animated.timing(arrival, {
       toValue: 1,
       duration: reduced ? 0 : 580,
@@ -36,7 +32,7 @@ export function TicketShell({
     friction: 7
   }).start();
   return <PaperContext.Provider value>
-    <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress} onPressIn={() => press(1.018)} onPressOut={() => press(1)}>
+    <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress ? () => { void feedback('selection'); onPress(); } : undefined} onPressIn={() => press(1.018)} onPressOut={() => press(1)}>
       <Animated.View style={[s.paper, {
         opacity: arrival,
         transform: [{
@@ -47,7 +43,7 @@ export function TicketShell({
         }, {
           rotate: arrival.interpolate({
             inputRange: [0, 1],
-            outputRange: ['-3deg', index % 2 ? '1deg' : '-1deg']
+            outputRange: ['-3deg', '0deg']
           })
         }, {
           scale: lift
@@ -67,16 +63,10 @@ export function TicketShell({
     </Pressable>
   </PaperContext.Provider>;
 }
-export function Ticket({
-  m,
-  children,
-  filled = false,
-  index = 0,
-  onPress
-}: {
+export function Ticket({ m, children, taken = 0, index = 0, onPress }: {
   m: Moment;
   children?: React.ReactNode;
-  filled?: boolean;
+  taken?: number;
   index?: number;
   onPress?: () => void;
   accessibilityLabel?: string;
@@ -92,19 +82,20 @@ export function Ticket({
       <Text style={s.label}>P / {String(m.district).padStart(2, '0')}</Text>
     </View>
     <View style={s.face}>
-      
+
       <Text style={s.title}>
         {m.title}
       </Text>
       <View style={s.timeFace}>
-      <Text accessibilityElementsHidden style={s.district}>{m.district}e</Text>
-      <Text style={s.time} adjustsFontSizeToFit numberOfLines={1}>
-        {time}
-      </Text></View>
+        <View pointerEvents="none" style={StyleSheet.absoluteFill}>{Array.from({ length: 12 }, (_, i) => <View key={i} style={{ position: 'absolute', right: 18 - i * 8, top: 24 - i * 8, width: 70 + i * 16, height: 70 + i * 16, borderRadius: 200, borderWidth: 0.5, borderColor: '#BCAF9C', opacity: 0.35, transform: [{ scaleY: 0.55 }, { rotate: '25deg' }] }} />)}</View>
+        <Text aria-hidden style={s.district}>{m.district}e</Text>
+        <Text style={s.time} adjustsFontSizeToFit numberOfLines={1}>
+          {time}
+        </Text></View>
     </View>
     <Text style={s.body}>{dateLabel(m.startsAt)} · avec {m.host}</Text>
     <Tear />
-    <Seats count={m.seats} filled={filled} />
+    <SeatRow total={m.seats} taken={taken} />
     <View style={s.row}>
       <Text style={s.body}>Invitation de l’hôte</Text>
       <Text style={s.amount}>
@@ -113,7 +104,7 @@ export function Ticket({
     </View>
     {m.womenOnly && <Text style={s.label}>Femmes uniquement</Text>}
     <View style={s.serial}>
-      <Text style={s.label}>N° {serialOf(m.id)} / PARIS</Text>
+      <View><Text aria-hidden numberOfLines={1} style={[s.label, { width: '100%', position: 'absolute', left: 0.7, top: 0.6, opacity: 0.3, color: c.accent }]}>N° {serialOf(m.id)} / PARIS</Text><Text style={s.label}>N° {serialOf(m.id)} / PARIS</Text></View>
       <View style={s.punch} />
     </View>
     {children}
@@ -142,6 +133,7 @@ const s = StyleSheet.create({
     gap: 10
   },
   label: {
+    fontFamily: sans,
     fontSize: 13,
     lineHeight: 20,
     letterSpacing: 1.2,
@@ -178,6 +170,7 @@ const s = StyleSheet.create({
     fontVariant: ['tabular-nums']
   },
   body: {
+    fontFamily: sans,
     fontSize: 13,
     lineHeight: 21,
     color: c.muted
@@ -202,7 +195,6 @@ const s = StyleSheet.create({
     backgroundColor: c.paper
   }
 });
-
 export function serialOf(id: string) {
   return id.startsWith('place-') ? String(4120 + Number(id.slice(6))).padStart(5, '0') : `05${id.replace(/\D/g, '').slice(-3)}`;
 }

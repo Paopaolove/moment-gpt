@@ -1,11 +1,8 @@
-import React, { createContext, useContext, useEffect, useRef } from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { c } from '../theme/tokens';
+import { c, typography } from '../theme/tokens';
 import { PaperContext } from './PaperContext';
-export function Copy({
-  children,
-  small = false
-}: {
+export function Copy({ children, small = false }: {
   children: React.ReactNode;
   small?: boolean;
 }) {
@@ -18,10 +15,12 @@ export function Copy({
 }
 const s = StyleSheet.create({
   copy: {
+    ...typography.body,
     fontSize: 16,
     lineHeight: 25
   },
   small: {
+    ...typography.body,
     fontSize: 13,
     lineHeight: 21
   }

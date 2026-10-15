@@ -1,26 +1,17 @@
-import React from 'react';
-import { View, Text, Switch, StyleSheet } from 'react-native';
-import { c } from '../theme/tokens';
-import { Copy, Action, Link } from '../components/Primitives';
-import { Ticket } from '../components/Ticket';
+import { StyleSheet, Switch, Text, View } from 'react-native';
+import { Action, Copy } from '../components/Primitives';
+import { MovingTicket, TicketBack } from '../components/TicketTransition';
 import { euros } from '../domain/rules';
+import { c, sans } from '../theme/tokens';
 import { Journey } from '../useJourney';
-export function Billet({
-  journey
-}: {
+export function Billet({ journey }: {
   journey: Journey;
 }) {
-  const {
-    store,
-    m,
-    booking,
-    go,
-    reserve
-  } = journey;
+  const { store, m, booking, go, reserve } = journey;
   return <View style={s.screen}>
-    <Link label="← Les places" onPress={() => go('list')} />
+    <TicketBack />
     <Text style={s.label}>02 / LE BILLET</Text>
-    <Ticket m={m} />
+    <MovingTicket detail m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0} />
     <Copy>
       {m.description}
     </Copy>
@@ -40,13 +31,13 @@ export function Billet({
       }} thumbColor={c.card} />
     </View>}
     {m.own ? <>
-    <Copy>Votre place est publiée. L’accueil d’invités est gratuit, sans abonnement.</Copy>
-    <Action label="Retrouver les places" onPress={() => go('list')} />
+      <Copy>Votre place est publiée. L’accueil d’invités est gratuit, sans abonnement.</Copy>
+      <Action label="Retrouver les places" onPress={() => go('list')} />
     </> : booking ? <>
-    <Copy>
-      {booking.status === 'cancelled' ? 'Cette place a été rendue.' : booking.status === 'expired' ? 'Le délai de confirmation est écoulé.' : 'Votre billet vous attend.'}
-    </Copy>
-    <Action label={['confirmed', 'present'].includes(booking.status) ? 'Voir mon talon' : booking.status === 'requested' ? 'Voir ma demande' : booking.status === 'accepted' ? 'Confirmer ma place' : 'Voir les autres places'} onPress={() => go(['confirmed', 'present'].includes(booking.status) ? 'confirmed' : ['requested', 'accepted'].includes(booking.status) ? 'take' : 'list')} />
+      <Copy>
+        {booking.status === 'cancelled' ? 'Cette place a été rendue.' : booking.status === 'expired' ? 'Le délai de confirmation est écoulé.' : 'Votre billet vous attend.'}
+      </Copy>
+      <Action label={['confirmed', 'present'].includes(booking.status) ? 'Voir mon talon' : booking.status === 'requested' ? 'Voir ma demande' : booking.status === 'accepted' ? 'Confirmer ma place' : 'Voir les autres places'} onPress={() => go(['confirmed', 'present'].includes(booking.status) ? 'confirmed' : ['requested', 'accepted'].includes(booking.status) ? 'take' : 'list')} />
     </> : <Action label="Prendre la place" disabled={m.womenOnly && !store.woman || store.now > m.startsAt + 30 * 60000} onPress={reserve} />}
     <Copy small>Prototype local · acceptation de l’hôte simulée à l’étape suivante.</Copy>
   </View>;
@@ -56,6 +47,7 @@ const s = StyleSheet.create({
     gap: 22
   },
   label: {
+    fontFamily: sans,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,

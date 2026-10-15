@@ -1,20 +1,13 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { c, serif } from '../theme/tokens';
-import { Copy, Action, Tear, Seats } from '../components/Primitives';
-import { TicketShell } from '../components/Ticket';
+import { StyleSheet, Text, View } from 'react-native';
 import { Brand } from '../components/Brand';
+import { Action, Copy, SeatRow, Tear } from '../components/Primitives';
+import { TicketShell } from '../components/Ticket';
+import { c, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
-export function Manifeste({
-  journey
-}: {
+export function Manifeste({ journey }: {
   journey: Journey;
 }) {
-  const {
-    step,
-    setStep,
-    go
-  } = journey;
+  const { step, setStep, go } = journey;
   return <View style={s.screen}>
     <Brand large />
     <Text style={s.label}>LA PLACE LIBRE · {String(step + 1).padStart(2, '0')} / 03</Text>
@@ -22,7 +15,7 @@ export function Manifeste({
       {['Quelqu’un, ce soir, a une place à côté de lui.', 'Une chaise. Un siège. Une quatrième raquette.', 'Prenez la place. Partagez le moment.'][step]}
     </Text>
     <TicketShell>
-      <Seats count={step === 1 ? 3 : 1} filled={step === 2} />
+      <SeatRow total={step === 1 ? 3 : 1} taken={step === 2 ? 1 : 0} />
       <Tear />
       <Copy>
         {['Au bistrot, au cinéma, au bord d’un terrain. Il manque seulement quelqu’un.', 'Table, Sport, Culture. Une invitation à rejoindre ce qui existe déjà.', 'Une caution de 20 € tient votre place. Elle vous est rendue quand vous êtes là.'][step]}
@@ -37,6 +30,7 @@ const s = StyleSheet.create({
     gap: 22
   },
   label: {
+    fontFamily: sans,
     fontSize: 13,
     letterSpacing: 1.8,
     lineHeight: 18,

@@ -1,4 +1,3 @@
-import { Platform } from 'react-native';
 export const c = {
   paper: '#15110E',
   card: '#F3EADB',
@@ -8,4 +7,6 @@ export const c = {
   accent: '#E2542B',
   light: '#F3EADB'
 };
-export const serif = Platform.OS === 'android' ? 'serif' : 'Georgia';
+export const serif = 'FrauncesDisplay';
+export const sans = 'InterTight_400Regular';
+export const typography = { title: { fontFamily: serif }, body: { fontFamily: sans }, label: { fontFamily: sans, fontSize: 13, letterSpacing: 1.8, textTransform: 'uppercase' as const } };
