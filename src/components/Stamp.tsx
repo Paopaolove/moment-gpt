@@ -9,7 +9,7 @@ export function Stamp({ label = 'RÉSERVÉ' }: {
 }) {
   const strike = useContext(TicketImpact);
   const reduced = useReducedMotion();
-  const hit = useRef(new Animated.Value(1)).current;
+  const hit = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     if(label === 'ACCEPTÉ' || label === 'RÉSERVÉ')
       void feedback('stamp');

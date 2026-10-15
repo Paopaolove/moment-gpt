@@ -1,4 +1,4 @@
-import { nextSlot } from './parisTime';
+import { parisTime, nextSlot } from './parisTime';
 import type { Booking, Category, Moment } from './rules';
 import { isUrgent } from './rules';
 export function seed(now: number): Moment[] {
@@ -45,14 +45,14 @@ export function seed(now: number): Moment[] {
 }
 
 /** Souches de démonstration, indépendantes des transitions métier. */
-export function seedHistory(now: number): { moments: Moment[]; bookings: Booking[] } {
+export function seedHistory(_now: number): { moments: Moment[]; bookings: Booking[] } {
   const moments: Moment[] = [
     { title: 'Un café à Saint-Germain', district: 6, address: '172 boulevard Saint-Germain, 75006 Paris' },
     { title: 'Une table rue Paul Bert', district: 11, address: '18 rue Paul Bert, 75011 Paris' },
     { title: 'Après le concert', district: 19, address: '221 avenue Jean Jaurès, 75019 Paris' }
   ].map((place, i) => ({
     ...place, id: `demo-past-${i + 1}`, hostId: `demo-host-${i + 1}`, host: ['Jeanne', 'Camille', 'Gabriel'][i]!,
-    category: 'Table', subtype: 'Bistrot', startsAt: now - (i + 1) * 7 * 86400000,
+    category: 'Table', subtype: 'Bistrot', startsAt: parisTime(['2026-09-25', '2026-09-18', '2026-09-11'][i]!, ['12:30', '19:00', '20:00'][i]!),
     seats: 1, price: 1000, womenOnly: false, description: 'Souche passée de démonstration.'
   }));
   return { moments, bookings: moments.map(m => ({ momentId: m.id, guestId: 'me', status: 'present', deposit: 'released' })) };

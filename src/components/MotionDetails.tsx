@@ -34,7 +34,7 @@ function CountdownDigit({ digit }: { digit: string }) {
     animation.start();
     return () => animation.stop();
   }, [digit, reduced, flip]);
-  return <Animated.Text style={{ fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: [{ perspective: 500 }, { rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: [digit === ':' ? '0deg' : '-75deg', '0deg'] }) }] }}>{digit}</Animated.Text>;
+  return <Animated.Text style={{ width: digit === ':' ? 24 : 51, textAlign: 'center', fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: [{ perspective: 500 }, { rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: [digit === ':' ? '0deg' : '-75deg', '0deg'] }) }] }}>{digit}</Animated.Text>;
 }
 
 export function FuseBar({ seconds }: { seconds: number }) {

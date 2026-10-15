@@ -22,10 +22,11 @@ type Flight = {
 const Context = createContext<{
   open: (m: Moment, node: View | null, index: number, featured: boolean) => void;
   hidden: boolean;
+  fallback: boolean;
   flyingId?: string;
   featured: boolean;
   now: number;
-  measure: (node: View | null) => void;
+  measure: (node: View | null, detail: boolean, id: string) => void;
   back: () => void;
 } | null>(null);
 export function TicketTransitions({ journey, children }: {
@@ -39,9 +40,22 @@ export function TicketTransitions({ journey, children }: {
   const originIndex = useRef(0);
   const originId = useRef('');
   const detail = useRef<Rect | null>(null);
+  const [fallback, setFallback] = useState(false);
   const [flight, setFlight] = useState<Flight | null>(null);
   const progress = useRef(new Animated.Value(0)).current;
   const rootY = useRef(0);
+  const rootX = useRef(0);
+  const rootHeight = useRef(0);
+  const valid = (rect: Rect) => [rect.x, rect.y, rect.width, rect.height].every(Number.isFinite) && rect.width > 0 && rect.height > 0 && rect.y >= 54 && rect.y < rootHeight.current - 60;
+  useEffect(() => {
+    if (!flight || flight.to) return;
+    // A missing onLayout/measurement must never leave an invisible ticket behind.
+    const timeout = setTimeout(() => { setFallback(true); setFlight(null); }, 250);
+    return () => clearTimeout(timeout);
+  }, [flight]);
+  useEffect(() => {
+    if (journey.page !== 'detail' && journey.page !== 'list') setFlight(null);
+  }, [journey.page]);
   useEffect(() => {
     if(!flight?.to)
       return;
@@ -53,41 +67,56 @@ export function TicketTransitions({ journey, children }: {
     });
     return () => animation.stop();
   }, [flight, reduced, progress]);
-  const measure = (node: View | null) => node?.measureInWindow((x, y, width, height) => {
-    if(!width || !height)
-      return;
-    const rect = { x, y: y - rootY.current, width, height };
-    detail.current = rect;
-    setFlight(current => current && !current.returning && !current.to ? { ...current, to: rect } : current);
-  });
+  const measure = (node: View | null, isDetail: boolean, id: string) => {
+    // onLayout may fire before the ScrollView has applied its new content offset.
+    requestAnimationFrame(() => requestAnimationFrame(() => node?.measureInWindow((x, y, width, height) => {
+      const rect = { x: x - rootX.current, y: y - rootY.current, width, height };
+      if (isDetail) detail.current = rect;
+      setFlight(current => {
+        if (!current || current.to || current.m.id !== id || current.returning === isDetail) return current;
+        if (valid(rect)) return { ...current, to: rect };
+        return current; // The timeout below provides the fade/slide fallback.
+      });
+    })));
+  };
   const open = (m: Moment, node: View | null, index: number, featured: boolean) => {
-    if(!node || flight)
-      return;
-    node.measureInWindow((x, y, width, height) => {
-      const rect = { x, y: y - rootY.current, width, height };
-      origin.current = rect;
+    if (flight) return;
+    const navigate = (rect?: Rect) => {
+      setFallback(!rect || !valid(rect));
+      origin.current = rect ?? null;
+      detail.current = null;
       originId.current = m.id;
       originIndex.current = index;
-      progress.setValue(0);
-      setFlight({ m, from: rect, returning: false, index, featured });
       selectedFeatured.current = featured;
+      progress.setValue(0);
+      setFlight(rect && valid(rect) ? { m, from: rect, returning: false, index, featured } : null);
       journey.setId(m.id);
       journey.go('detail');
+    };
+    if (!node) { navigate(); return; }
+    let measured = false;
+    const timeout = setTimeout(() => { if (!measured) { measured = true; navigate(); } }, 150);
+    node.measureInWindow((x, y, width, height) => {
+      if (measured) return;
+      measured = true;
+      clearTimeout(timeout);
+      navigate({ x: x - rootX.current, y: y - rootY.current, width, height });
     });
   };
   const back = () => {
+    setFallback(!origin.current || !detail.current || !valid(detail.current));
     progress.setValue(0);
-    if(origin.current && detail.current && originId.current === journey.id)
-      setFlight({ m: journey.m, from: detail.current, to: origin.current, returning: true, index: originIndex.current, featured: selectedFeatured.current });
+    if (origin.current && detail.current && valid(detail.current) && originId.current === journey.id)
+      setFlight({ m: journey.m, from: detail.current, returning: true, index: originIndex.current, featured: selectedFeatured.current });
     journey.go('list');
   };
   const from = flight?.from;
   const to = flight?.to ?? from;
-  return <Context.Provider value={{ open, measure, back, hidden: !!flight, flyingId: flight?.m.id, featured: originId.current === journey.id && selectedFeatured.current, now: journey.store.now }}>
-    <View ref={root} collapsable={false} style={{ flex: 1 }} onLayout={() => root.current?.measureInWindow((_x, y) => { rootY.current = y; })}>
+  return <Context.Provider value={{ open, measure, back, fallback, hidden: !!flight, flyingId: flight?.m.id, featured: originId.current === journey.id && selectedFeatured.current, now: journey.store.now }}>
+    <View ref={root} collapsable={false} style={{ flex: 1 }} onLayout={() => root.current?.measureInWindow((x, y, _width, height) => { rootX.current = x; rootY.current = y; rootHeight.current = height; })}>
       <View style={{ flex: 1, opacity: 1 }}>{children}</View>
       {flight && from && to && <Animated.View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[s.overlay, {
-        left: to.x, top: to.y, width: to.width, opacity: reduced ? progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0.35, 0] }) : 1, transform: reduced ? [] : [
+        left: to.x, top: to.y, width: to.width, height: to.height, opacity: reduced ? progress.interpolate({ inputRange: [0, 0.5, 1], outputRange: [1, 0.35, 0] }) : 1, transform: reduced ? [] : [
           { translateX: progress.interpolate({ inputRange: [0, 1], outputRange: [from.x - to.x + (from.width - to.width) / 2, 0] }) },
           { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [from.y - to.y + (from.height - to.height) / 2, 0] }) },
           { scaleX: progress.interpolate({ inputRange: [0, 1], outputRange: [from.width / to.width, 1] }) },
@@ -109,8 +138,7 @@ export function MovingTicket({ m, detail = false, taken = 0, index = 0, now, fea
   const node = useRef<View>(null);
   const transition = useContext(Context);
   return <View style={{ opacity: transition?.hidden && transition.flyingId === m.id ? 0 : 1 }} ref={node} collapsable={false} onLayout={() => {
-    if(detail)
-      transition?.measure(node.current);
+    transition?.measure(node.current, detail, m.id);
   }}><Ticket m={m} now={now ?? transition?.now} featured={detail ? transition?.featured : featured} index={index} taken={taken} onPress={detail ? undefined : () => transition?.open(m, node.current, index, featured)} /></View>;
 }
 export function TicketBack() {
@@ -118,3 +146,17 @@ export function TicketBack() {
   return <TextBack label="← Les places" onPress={() => transition?.back()} />;
 }
 const s = StyleSheet.create({ overlay: { position: 'absolute', zIndex: 20 } });
+
+export function TicketScreenEntrance({ children }: { children: ReactNode }) {
+  const transition = useContext(Context);
+  const reduced = useReducedMotion();
+  const slide = useRef(!transition?.hidden).current || transition?.fallback;
+  const enter = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    enter.setValue(0);
+    const animation = Animated.timing(enter, { toValue: 1, duration: reduced ? 0 : 400, easing: Easing.out(Easing.cubic), useNativeDriver: true });
+    animation.start();
+    return () => animation.stop();
+  }, [enter, reduced, transition?.fallback]);
+  return <Animated.View style={{ opacity: enter, transform: [{ translateY: slide && !reduced ? enter.interpolate({ inputRange: [0, 1], outputRange: [8, 0] }) : 0 }] }}>{children}</Animated.View>;
+}

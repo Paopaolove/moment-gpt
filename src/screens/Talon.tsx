@@ -17,7 +17,7 @@ export function Talon({ journey }: {
     <Text style={s.hero}>
       {booking?.status === 'cancelled' ? 'La place est rendue.' : booking?.status === 'present' ? 'Vous êtes là.' : 'C’est votre place.'}
     </Text>
-    <Ticket now={store.now} m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
+    <View style={{ gap: 0, marginBottom: 16 }}><Ticket compact now={store.now} m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
       {booking?.status === 'confirmed' && <Stamp />}
     </Ticket>
     <Stub>
@@ -30,7 +30,7 @@ export function Talon({ journey }: {
       <Copy small>
         {booking?.deposit === 'split' ? 'Caution répartie : 6,90 € Moment, 13,10 € hôte.' : booking?.deposit === 'released' ? 'Caution de 20 € rendue (simulation).' : 'Caution de 20 € réservée (simulation).'}
       </Copy>
-    </Stub>
+    </Stub></View>
     {booking?.status === 'confirmed' ? <>
       {canAttend(m.startsAt, store.now) ? <Action label="Je suis là · rendre ma caution" onPress={() => store.act(id, 'present')} /> : <View style={s.locked}>
         <View accessibilityElementsHidden style={{ width: 16, height: 22, alignItems: 'center' }}><View style={{ width: 10, height: 10, borderWidth: 1.5, borderColor: c.light, borderTopLeftRadius: 6, borderTopRightRadius: 6 }} /><View style={{ width: 16, height: 12, borderWidth: 1.5, borderColor: c.light, marginTop: -2 }} /></View>
@@ -64,8 +64,8 @@ const s = StyleSheet.create({
   },
   hero: {
     fontFamily: serif,
-    fontSize: 52,
-    lineHeight: 62,
+    fontSize: 42,
+    lineHeight: 48,
     letterSpacing: -1.8,
     color: c.light
   },

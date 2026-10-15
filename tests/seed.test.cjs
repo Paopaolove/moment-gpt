@@ -35,6 +35,8 @@ test('carnet de démonstration : trois souches passées dans trois arrondissemen
   const now = Date.parse('2026-10-16T18:00:00Z');
   const history = seedHistory(now);
   assert.equal(history.moments.length, 3);
+  assert.deepEqual(history.moments.map(m => clock(m.startsAt)), ['12:30', '19:00', '20:00']);
+  assert.deepEqual(seedHistory(now + 86400000).moments.map(m => m.startsAt), history.moments.map(m => m.startsAt));
   assert.equal(new Set(history.moments.map(m => m.district)).size, 3);
   assert.ok(history.moments.every(m => m.startsAt < now));
   assert.equal(history.bookings.length, 3);

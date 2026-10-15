@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Brand } from './components/Brand';
-import { TicketTransitions } from './components/TicketTransition';
+import { TicketTransitions, TicketScreenEntrance } from './components/TicketTransition';
 import { useReducedMotion } from './components/useReducedMotion';
 import { Billet } from './screens/Billet';
 import { Manifeste } from './screens/Manifeste';
@@ -41,7 +41,7 @@ export function Journey() {
       if(journey.page === 'list')
         listOffset.current = event.nativeEvent.contentOffset.y;
     }} scrollEventThrottle={16} contentOffset={{ x: 0, y: journey.page === 'list' ? listOffset.current : 0 }} key={`${journey.page}-${journey.page === 'offer' ? journey.offerStep : ''}`} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      <Screen journey={journey} />
+      {journey.page === 'detail' || journey.page === 'list' ? <TicketScreenEntrance><Screen journey={journey} /></TicketScreenEntrance> : <Screen journey={journey} />}
     </ScrollView>
     {journey.page !== 'home' && <View style={s.nav} onLayout={e => setNavWidth(e.nativeEvent.layout.width)}>
       <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, width: navWidth / 2, height: 2, backgroundColor: c.accent, transform: [{ translateX: active.interpolate({ inputRange: [0, 1], outputRange: [0, navWidth / 2] }) }] }} />

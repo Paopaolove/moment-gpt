@@ -9,8 +9,9 @@ import { feedback } from './haptics';
 import { Perforation } from './Perforation';
 import { PaperContext, SeatRow, Tear } from './Primitives';
 import { useReducedMotion } from './useReducedMotion';
-export function TicketShell({ children, index = 0, onPress, accessibilityLabel }: {
+export function TicketShell({ children, index = 0, onPress, accessibilityLabel, compact = false }: {
   children: React.ReactNode;
+  compact?: boolean;
   index?: number;
   onPress?: () => void;
   accessibilityLabel?: string;
@@ -30,7 +31,7 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel }
   }).start();
   return <PaperContext.Provider value><TicketImpact.Provider value={strike}>
     <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress ? () => { void feedback('selection'); onPress(); } : undefined} onPressIn={onPress ? () => press(1.018) : undefined} onPressOut={onPress ? () => press(1) : undefined}>
-      <Animated.View style={[s.paper, {
+      <Animated.View style={[s.paper, compact && { padding: 16, gap: 8 }, {
         transform: [{ translateY: impact.interpolate({ inputRange: [0, 1], outputRange: [0, 3] }) }, { rotateZ: impact.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '0.5deg'] }) }, {
           rotate: lift.interpolate({
             inputRange: [1, 1.018],
@@ -57,10 +58,11 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel }
     </Pressable>
   </TicketImpact.Provider></PaperContext.Provider>;
 }
-export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featured = false }: {
+export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featured = false, compact = false }: {
   m: Moment;
   now?: number;
   featured?: boolean;
+  compact?: boolean;
   children?: React.ReactNode;
   taken?: number;
   index?: number;
@@ -72,6 +74,13 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
     hour: '2-digit',
     minute: '2-digit'
   }).format(m.startsAt);
+  if (compact) return <TicketShell compact>
+    <Text style={s.label}>{m.category} / {m.subtype}</Text>
+    <Text style={[s.title, { marginTop: 0, fontSize: 26, lineHeight: 30 }]}>{m.title}</Text>
+    <Text style={[s.time, { fontSize: 72, lineHeight: 76 }]}>{time}</Text>
+    <SeatRow total={m.seats} taken={taken} />
+    {children}
+  </TicketShell>;
   return <TicketShell index={index} onPress={onPress} accessibilityLabel={`Voir le billet : ${m.title}`}>
     {featured && <Text style={[s.label, { color: c.accent }]}>À LA UNE · {now !== undefined ? formatDelay(m.startsAt, now).toUpperCase() : ''}</Text>}
     <View style={s.row}>
@@ -91,7 +100,7 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
         </Text></View>
     </View>
     <Text style={s.body}>{dateLabel(m.startsAt)} · {m.host === 'Vous' ? 'votre place' : `avec ${m.host}`}</Text>
-    {now !== undefined && <Text style={s.body}>{formatDelay(m.startsAt, now)}</Text>}
+    {now !== undefined && !featured && <Text style={s.body}>{formatDelay(m.startsAt, now)}</Text>}
     <Tear />
     <SeatRow total={m.seats} taken={taken} />
     <View style={s.row}>

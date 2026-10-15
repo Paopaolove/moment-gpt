@@ -8,12 +8,13 @@ export function Stub({ children }: {
   children: React.ReactNode;
 }) {
   const reduced = useReducedMotion();
-  const tear = useRef(new Animated.Value(1)).current;
+  const tear = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     tear.setValue(reduced ? 1 : 0);
     const animation = Animated.timing(tear, {
       toValue: 1,
-      duration: reduced ? 0 : 520,
+      duration: reduced ? 0 : 420,
+      delay: reduced ? 0 : 220,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true
     });
@@ -25,17 +26,17 @@ export function Stub({ children }: {
       transform: [{
         translateY: tear.interpolate({
           inputRange: [0, 1],
-          outputRange: [-35, 0]
+          outputRange: [0, 16]
         })
       }, {
         translateX: tear.interpolate({
           inputRange: [0, 1],
-          outputRange: [-8, 0]
+          outputRange: [0, 2]
         })
       }, {
         rotate: tear.interpolate({
           inputRange: [0, 1],
-          outputRange: ['-3deg', '0deg']
+          outputRange: ['0deg', '2.5deg']
         })
       }]
     }]}>
@@ -47,7 +48,7 @@ export function Stub({ children }: {
 const s = StyleSheet.create({
   stub: {
     backgroundColor: c.card,
-    padding: 22,
+    padding: 16,
     gap: 10,
     marginBottom: 12
   }
