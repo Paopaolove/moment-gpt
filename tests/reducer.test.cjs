@@ -53,3 +53,35 @@ test('publication validée dans le reducer et identifiants uniques', () => {
   assert.equal(reducer(published, {type: 'publish', moment: m, now: t}).moments.length, 1);
   assert.equal(reducer(s, {type: 'publish', moment: {...m, seats: 4}, now: t}).moments.length, 0);
 });
+
+test('avis : présence requise, un seul avis, note entière et texte borné', () => {
+  const review = { momentId: 'a', rating: 5, text: ' Une belle table. ' };
+  const send = (state, patch = {}) => reducer(state, { type: 'review', review: { ...review, ...patch } });
+  assert.equal(send(confirmed()).reviews.length, 0);
+  const present = act(confirmed(), 'present', 'me', moment.startsAt - 900000);
+  for (const patch of [{rating: 0}, {rating: 6}, {rating: 2.5}, {text: ' '}, {text: 'x'.repeat(501)}, {momentId: 'missing'}]) assert.equal(send(present, patch), present);
+  const reviewed = send(present);
+  assert.equal(reviewed.reviews[0].text, 'Une belle table.');
+  assert.equal(send(reviewed), reviewed);
+  assert.equal(reviewed.bookings[0].deposit, 'released');
+});
+
+test('chat local : réservé aux participants confirmés, messages conservés et bornés', () => {
+  const message = { momentId: 'a', text: ' À tout à l’heure ! ', sentAt: t };
+  const send = (state, patch = {}) => reducer(state, { type: 'message', message: { ...message, ...patch } });
+  const pending = accepted(); assert.equal(send(pending), pending);
+  const s = confirmed();
+  for (const patch of [{text: ' '}, {text: 'x'.repeat(1001)}, {momentId: 'missing'}, {sentAt: NaN}]) assert.equal(send(s, patch), s);
+  const sent = send(s); assert.equal(sent.chatMessages[0].text, 'À tout à l’heure !');
+  assert.equal(send(sent).chatMessages.length, 2);
+  assert.equal(send(act(s, 'cancel')).chatMessages.length, 0);
+});
+
+test('expiration de plusieurs réservations via tick sans réservation de caution', () => {
+  const s = accepted();
+  const expired = reducer(s, {type: 'tick', now: t + 600000});
+  assert.equal(expired.bookings[0].status, 'expired');
+  assert.equal(expired.bookings[0].deposit, 'none');
+  assert.equal(act(expired, 'confirm'), expired);
+  assert.equal(expired.momentCredits, 0);
+});

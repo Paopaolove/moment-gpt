@@ -41,3 +41,19 @@ test('le fuseau de Paris suit aussi le passage à l’heure d’été', () => {
   assert.equal(r.RULES.hostSubscription, 0);
   assert.deepEqual(r.RULES.pricePills, [1000, 2000, 3000, 4000]);
 });
+
+test('compte à rebours : arrondi supérieur, zéro à échéance, jamais négatif', () => {
+  assert.equal(r.confirmationRemaining(start, start), 600);
+  assert.equal(r.confirmationRemaining(start, start + 1), 600);
+  assert.equal(r.confirmationRemaining(start, start + 599001), 1);
+  assert.equal(r.confirmationRemaining(start, start + 600000), 0);
+  assert.equal(r.confirmationRemaining(start, start + 3600000), 0);
+  assert.equal(r.confirmationRemaining(start, start - 1), 600);
+});
+
+test('les heures affichées suivent Paris même pendant les changements saisonniers', () => {
+  assert.match(r.dateLabel(Date.UTC(2026, 2, 29, 0, 30)), /01:30/);
+  assert.match(r.dateLabel(Date.UTC(2026, 2, 29, 1, 30)), /03:30/);
+  assert.match(r.dateLabel(Date.UTC(2026, 9, 25, 0, 30)), /02:30/);
+  assert.match(r.dateLabel(Date.UTC(2026, 9, 25, 1, 30)), /02:30/);
+});
