@@ -6,7 +6,7 @@ export function Brand({ large = false }: {
   return <View accessibilityLabel="Moment GPT 4" style={s.brand}>
     <Text style={[s.word, large && s.large]}>moment</Text>
     <View style={[s.seal, large && s.largeSeal]}>
-      <Text style={[s.sealText, large && { fontSize: 17, lineHeight: 22 }]}>GPT 4</Text>
+      <Text style={[s.sealText, large && { fontSize: 15, lineHeight: 18 }]}>{large ? 'GPT\n4' : 'GPT 4'}</Text>
     </View>
   </View>;
 }
@@ -40,9 +40,9 @@ const s = StyleSheet.create({
     }]
   },
   largeSeal: {
-    width: 58,
-    height: 58,
-    borderRadius: 30,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     borderWidth: 2
   },
   sealText: {
