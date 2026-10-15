@@ -1,9 +1,8 @@
 import type { Moment } from './rules';
 export function seed(now: number): Moment[] {
   return [
-    { id: '1', title: 'Une table, deux histoires', category: 'Resto', host: 'Camille', district: 11, address: '18 rue Paul Bert, Paris', startsAt: now + 60 * 60000, seats: 2, price: 3000, womenOnly: false, description: 'Un petit bistrot de quartier, une cuisine de saison et le plaisir de rencontrer de nouvelles personnes. On partage une table, simplement.' },
-    { id: '2', title: 'Paris au fil de l’eau', category: 'Balade', host: 'Léa', district: 4, address: 'Place Louis-Aragon, Paris', startsAt: now + 180 * 60000, seats: 3, price: 0, womenOnly: true, description: 'Une promenade sur les quais de Seine, sans itinéraire trop précis. Des chaussures confortables et un peu de curiosité suffisent.' },
-    { id: '3', title: 'L’heure du premier verre', category: 'Bar', host: 'Thomas', district: 10, address: '36 rue de la Grange aux Belles, Paris', startsAt: now + 10 * 60000, seats: 1, price: 2000, womenOnly: false, description: 'Une terrasse près du canal, un verre et une conversation. Avec ou sans alcool, chacun choisit.' },
-    { id: '4', title: 'Un dimanche au musée', category: 'Culture', host: 'Inès', district: 3, address: '5 rue de Thorigny, Paris', startsAt: now + 24 * 60 * 60000, seats: 2, price: 1600, womenOnly: false, description: 'Prendre le temps de regarder une exposition, puis échanger nos impressions dans la cour.' }
+    { id: 'paul', hostId: 'camille', title: 'La grande petite table.', category: 'Resto', host: 'Camille', district: 11, address: '18 rue Paul Bert, 75011 Paris', startsAt: now + 60 * 60000, seats: 2, price: 3000, womenOnly: false, description: 'Un bistrot de quartier, une cuisine de saison. On commande, on partage, on refait un petit bout du monde. Venez comme vous êtes.' },
+    { id: 'canal', hostId: 'thomas', title: 'Un verre au bord du canal.', category: 'Bar', host: 'Thomas', district: 10, address: '36 rue de la Grange aux Belles, 75010 Paris', startsAt: now + 10 * 60000, seats: 1, price: 2000, womenOnly: false, description: 'La lumière sur le canal et une table en terrasse. Avec ou sans alcool : juste le plaisir de faire connaissance.' },
+    { id: 'filles', hostId: 'ines', title: 'Le jeudi a meilleur goût.', category: 'Resto', host: 'Inès', district: 3, address: '9 rue de Bretagne, 75003 Paris', startsAt: now + 1440 * 60000, seats: 3, price: 4000, womenOnly: true, description: 'Un dîner entre femmes, des assiettes à partager et aucune raison de se presser. Une parenthèse dans la semaine.' },
   ];
 }

@@ -1,58 +1,75 @@
 # Moment
 
-**Un moment à partager.** Une application d’invitations IRL à Paris intramuros, sans visée amoureuse. Interface et contenus en français.
+Des invitations IRL à Paris intramuros, autour d’un resto ou d’un verre. Moment est une expérience de sociabilité, sans visée amoureuse.
 
-## Lancer
-
-Les fichiers ont été écrits à la main. Aucune installation de dépendances n’a été exécutée. Dans un environnement où les dépendances sont disponibles :
-
-```sh
-npm start
-npm run ios
-npm run android
-npm run web
-npm run typecheck
-npm test
-```
-
-Expo `~57.0.0`, React 19.2.3, React Native 0.86.3, React Navigation 7 et TypeScript strict. La correspondance SDK 57 / React Native 0.86 est documentée dans le [changelog officiel Expo](https://expo.dev/changelog/sdk-57). Aucun EAS ni service backend n’est configuré.
-
-## Écrans
-
-- **Découvrir** : invitations éditoriales, filtres Resto / Bar / Balade / Culture et filtre « À l’improviste ». Les cartes ouvrent une fiche détaillée.
-- **Fiche d’invitation** : lieu, horaire de Paris, prix, places et description ; demande de place ; acceptation simulée par l’hôte ; compte à rebours de confirmation ; caution fictive ; présence et annulation.
-- **Mes moments** : demandes, confirmations, présences, annulations, expirations et invitations publiées.
-- **Proposer** : titre, catégorie, adresse, arrondissement, 1 à 3 places, horaire relatif, montant, description et option « Femmes uniquement ». Publication locale immédiate.
-- **Profil** : déclaration de genre pour les invitations réservées aux femmes, Joker mensuel, règles et horloge de démonstration.
-
-## Règles et simulations
-
-- Caution de **20 €**, distincte du montant de l’invitation. En cas d’annulation après confirmation sans Joker, répartition simulée de **6,90 € Moment / 13,10 € hôte**. Présence ou Joker : caution libérée fictivement.
-- **10 minutes** pour confirmer une acceptation. À la limite exacte, elle expire automatiquement ; aucune caution n’est réservée.
-- **1 Joker par mois civil**, selon le fuseau Europe/Paris. Utilisable sur une réservation confirmée.
-- Moments urgents entre **H−90 et H+30**, bornes incluses.
-- Option **Femmes uniquement** appliquée à la demande de place, avec genre déclaré dans le profil.
-- Tables de **1 à 3 places** proposées. Aucun parcours de groupe plus grand.
-- **Paris uniquement**, sélection d’un arrondissement de 1 à 20. L’adresse est déclarative : le prototype sans géocodage ne peut pas vérifier physiquement un lieu. Tous les exemples sont intramuros.
-- L’hôte ne paie pas d’abonnement. Aucun abonnement n’est débité ou vendu.
-- Invitation entre 0 et **50 €**, avec pastilles **10 / 20 / 30 / 40 €** pour Resto et Bar.
-- Bouton **« Je suis sur place » masqué avant H−15**, puis visible et actif pour une réservation confirmée ; même règle vérifiée dans la transition d’état.
-
-Les invitations d’exemple sont ancrées à l’heure du lancement. Un exemple commence dans 10 minutes pour tester immédiatement la présence. Pour tester une expiration, demander une place, simuler l’acceptation, puis avancer de 10 minutes dans Profil. Pour tester H−15, choisir le restaurant qui commence dans une heure, confirmer et avancer de 45 minutes.
-
-L’horloge avance aussi naturellement. Les données disparaissent au redémarrage. Aucun paiement réel, Stripe, stockage persistant, réseau applicatif, authentification, géolocalisation ni message envoyé à autrui. Un seul membre est simulé : les demandes d’autres personnes aux invitations que vous publiez ne sont pas générées. Une demande occupe au plus une place ; il n’existe pas de réservation de groupe.
+Application Expo SDK 57, React 19 et React Native, entièrement en TypeScript strict. Aucune dépendance ajoutée pour cette refonte.
 
 ## Direction visuelle
 
-Papier `#F7F1EA`, cartes `#FBF8F4`, filet 1 px `#E7DFD6`, rayon 16, aucune ombre. Abricot `#E37A55` comme seul accent, texte `#1C1917`, secondaire `#6F675E`. Titres sérif, respirations généreuses, boutons secondaires en contour. Au plus un bouton plein par écran.
+Papier chaud, encre et un accent brique. Typographie système avec titres sérif, grands espaces, filets fins, aucun effet d’ombre. Une seule action pleine par écran ; les choix secondaires sont détourés. Les apparitions utilisent `Animated`, avec prise en compte de la réduction des animations. Les composants natifs portent leurs libellés et états d’accessibilité. Le contenu défile, y compris l’accueil sur les petits écrans.
 
-## Structure et vérification
+## Parcours
 
-- `App.tsx` : navigation par onglets et zones sûres.
-- `src/screens/Screens.tsx` : écrans et fiche modale.
-- `src/store.tsx` : état en mémoire, horloge, transitions et Joker.
-- `src/domain/` : règles pures et invitations initiales.
-- `src/components/UI.tsx`, `src/theme.ts` : composants et design.
-- `tests/rules.test.cjs` : tests des bornes temporelles, des montants, de la validation et du mois parisien. TypeScript est utilisé pour charger le module métier sans générer de fichiers.
+- Trois slides présentent l’esprit, les invitations et l’engagement.
+- **Invitations** : filtres Resto / Bar, urgence et Femmes uniquement ; détail du rendez-vous et demande de place.
+- **Mes moments** : demandes, états de réservation et invitations publiées.
+- **Proposer** : lieu, arrondissement, horaire relatif, 1 à 3 places, montant et public ; confirmation de publication.
+- **Profil** : déclaration pour les invitations réservées aux femmes, Joker, engagements et atelier de simulation.
 
-Vérification effectuée sans installation : compilation TypeScript stricte avec les dépendances déjà présentes dans un dossier voisin (lien temporaire retiré), et tests métier réussis. Cette vérification ne remplace pas un lancement sur appareil avec les versions exactes du manifeste. Aucun simulateur ni aperçu visuel n’a été exécuté.
+Après une demande, le bouton explicitement marqué « Simuler » joue l’acceptation de l’hôte. Le compte à rebours mène à la confirmation et à la réservation fictive de la caution. La présence apparaît dès H−15. L’annulation ordinaire demande une confirmation ; le Joker libère la caution. Une action de démonstration permet aussi d’observer l’annulation par l’hôte. Dans Profil, l’atelier avance l’horloge de 10 minutes, 45 minutes ou 31 jours et affiche les crédits fictifs.
+
+## Règles centralisées
+
+`src/domain/rules.ts` est la référence :
+
+| Règle | Valeur |
+| --- | --- |
+| Caution distincte de l’invitation | 20 € |
+| Annulation de l’invité confirmé sans Joker | 6,90 € Moment / 13,10 € hôte |
+| Présence ou annulation par l’hôte | Caution libérée |
+| Confirmation après acceptation | 10 minutes, échéance exclusive |
+| Joker | 1 par mois civil, Europe/Paris |
+| Urgence | H−90 à H+30, bornes incluses |
+| Présence | Visible et autorisée dès H−15 |
+| Table | 1 à 3 places proposées |
+| Invitation | Resto ou Bar, 0 à 50 € ; pills 10 / 20 / 30 / 40 € |
+| Public | Mixte ou Femmes uniquement |
+| Territoire | Paris intramuros, arrondissements 1 à 20 |
+| Abonnement hôte | Gratuit |
+
+Les montants sont des entiers en centimes. La caution est un état de réservation fictif : aucune monnaie ni transaction réelle. Le reducer garde les transitions : identité de l’hôte et de l’invité, échéance même sans tick préalable, présence, Joker mensuel, validation des publications et absence de double crédit après annulation.
+
+## Architecture
+
+```text
+App.tsx                       Accueil, providers et zone sûre
+src/navigation/index.tsx      Navigation à quatre onglets
+src/domain/rules.ts           Constantes, types, validation et temps parisien
+src/domain/reducer.ts         Transitions pures et crédits fictifs
+src/domain/seed.ts            Trois invitations de démonstration
+src/store.tsx                 Adaptateur React, horloge et dispatch
+src/theme/index.ts            Palette, typographie et espacements
+src/components/UI.tsx         Primitives accessibles et animation
+src/screens/Onboarding.tsx    Accueil en trois slides
+src/screens/Screens.tsx       Invitations, détail, agenda, création et profil
+tests/*.test.cjs              Tests Node du domaine TypeScript
+```
+
+## Vérifications
+
+Avec les dépendances installées :
+
+```sh
+npx tsc --noEmit
+npm test
+```
+
+Les tests transpilent les modules TypeScript en mémoire avec le compilateur déjà installé. Ils couvrent les bornes temporelles, le mois parisien en hiver et en été, la validation, les acteurs autorisés, l’expiration, la présence, les annulations, le Joker et les crédits sans double répartition.
+
+## Limites volontaires du prototype
+
+Tout est en mémoire et se réinitialise au redémarrage, accueil inclus. Pas de backend, d’authentification réelle, de notifications ni d’échange entre utilisateurs. Une réservation de démonstration par invitation ; les places représentent la capacité annoncée, pas un inventaire multiutilisateur.
+
+L’adresse est déclarative : mention Paris obligatoire, arrondissement et code postal contrôlés si fourni. Aucun géocodage ne certifie l’emplacement ; un service de vérification serait nécessaire avant une ouverture réelle. Les horaires sont relatifs à l’horloge de démonstration et affichés dans le fuseau Europe/Paris.
+
+Stubs uniquement : aucun paiement, aucun Stripe live, aucun EAS. Aucun serveur Expo ou tunnel n’a été lancé pour cette refonte. La validation automatique ne remplace pas une recette visuelle sur appareils iOS et Android.
