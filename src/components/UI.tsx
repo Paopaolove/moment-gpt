@@ -1,0 +1,8 @@
+import React from 'react';
+import { Pressable, ScrollView, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { styles as s, colors } from '../theme';
+export function Page({ children }: { children: React.ReactNode }) { return <ScrollView style={s.page} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">{children}</ScrollView>; }
+export function Button({ title, onPress, primary = false, disabled = false }: { title: string; onPress: () => void; primary?: boolean; disabled?: boolean }) { return <Pressable accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} onPress={onPress} style={({ pressed }) => [s.button, primary && s.primary, { opacity: disabled ? 0.45 : pressed ? 0.7 : 1 }]}><Text style={s.buttonText}>{title}</Text></Pressable>; }
+export function Chip({ title, selected, onPress }: { title: string; selected?: boolean; onPress: () => void }) { return <Pressable accessibilityRole="button" accessibilityState={{ selected: !!selected }} onPress={onPress} style={[s.chip, selected && s.selected]}><Text style={{ color: selected ? colors.ink : colors.muted }}>{title}</Text></Pressable>; }
+export function Field({ label, ...props }: TextInputProps & { label: string }) { return <View style={{ gap: 8 }}><Text style={s.muted}>{label}</Text><TextInput accessibilityLabel={label} placeholderTextColor={colors.muted} style={s.input} {...props} /></View>; }
+export function Notice({ children }: { children: React.ReactNode }) { return <View style={s.notice}><Text accessibilityLiveRegion="polite" style={s.muted}>{children}</Text></View>; }
