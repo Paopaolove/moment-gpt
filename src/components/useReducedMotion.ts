@@ -1,18 +1,29 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
-/** Default to stillness while the system preference is being read. */
+
+/**
+ * The system preference is read once at startup and cached, so components
+ * mounted later know it on their first render. Without the cache, every mount
+ * started "still", then replayed its animation once the async answer came in,
+ * which made stamps flash in their final state before striking.
+ */
+let cached: boolean | null = null;
+const listeners = new Set<(value: boolean) => void>();
+const publish = (value: boolean) => {
+  cached = value;
+  listeners.forEach(listener => listener(value));
+};
+AccessibilityInfo.isReduceMotionEnabled().then(publish).catch(() => publish(false));
+AccessibilityInfo.addEventListener('reduceMotionChanged', publish);
+
 export function useReducedMotion() {
-  const [reduced, setReduced] = useState(true);
+  // Until the very first answer arrives, default to stillness.
+  const [reduced, setReduced] = useState(cached ?? true);
   useEffect(() => {
-    let active = true;
-    AccessibilityInfo.isReduceMotionEnabled().then(value => {
-      if(active)
-        setReduced(value);
-    }).catch(() => { });
-    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduced);
+    listeners.add(setReduced);
+    if (cached !== null) setReduced(cached);
     return () => {
-      active = false;
-      subscription.remove();
+      listeners.delete(setReduced);
     };
   }, []);
   return reduced;
