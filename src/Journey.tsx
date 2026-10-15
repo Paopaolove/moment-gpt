@@ -29,13 +29,13 @@ export function Journey() {
   const listOffset = useRef(0);
   return <TicketTransitions journey={journey}><View style={s.root}>
     <View style={s.header}>
-      {journey.page !== 'home' && <Pressable accessibilityRole="button" accessibilityLabel="Accueil Moment GPT 3" onPress={() => {
+      {journey.page !== 'home' && <Pressable accessibilityRole="button" accessibilityLabel="Accueil Moment GPT 4" onPress={() => {
         journey.setStep(0);
         journey.go('home');
       }}>
         <Brand />
       </Pressable>}
-      <Text style={s.label}>PARIS / LA PLACE LIBRE</Text>
+      <Text style={s.label}>Paris</Text>
     </View>
     <ScrollView onScroll={event => {
       if(journey.page === 'list')
@@ -62,13 +62,12 @@ const s = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 22,
-    paddingVertical: 12,
+    height: 54,
     borderBottomWidth: 1,
     borderColor: '#504336',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    flexWrap: 'wrap',
     gap: 8
   },
   label: {

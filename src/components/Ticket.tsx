@@ -1,5 +1,7 @@
+import { TicketImpact } from './TicketImpact';
+import { formatDelay } from '../domain/presentation';
 import { arrondissement } from '../domain/rules';
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Moment, dateLabel, euros } from '../domain/rules';
 import { c, display, medium, sans, serif } from '../theme/tokens';
@@ -14,35 +16,22 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel }
   accessibilityLabel?: string;
 }) {
   const reduced = useReducedMotion();
-  const arrival = useRef(new Animated.Value(1)).current;
   const lift = useRef(new Animated.Value(1)).current;
-  useEffect(() => {
-    arrival.setValue(reduced || !onPress ? 1 : 0);
-    const animation = Animated.timing(arrival, {
-      toValue: 1,
-      duration: reduced ? 0 : 580,
-      delay: reduced ? 0 : Math.min(index, 5) * 85,
-      useNativeDriver: true
-    });
-    animation.start();
-    return () => animation.stop();
-  }, [reduced, index, arrival]);
+  const impact = useRef(new Animated.Value(0)).current;
+  const strike = () => {
+    if (reduced) return;
+    Animated.sequence([Animated.timing(impact, { toValue: 1, duration: 35, useNativeDriver: true }), Animated.spring(impact, { toValue: 0, friction: 4, tension: 220, useNativeDriver: true })]).start();
+  };
   const press = (value: number) => Animated.spring(lift, {
     toValue: value,
     ...(reduced ? { overshootClamping: true } : {}),
     useNativeDriver: true,
     friction: 7
   }).start();
-  return <PaperContext.Provider value>
-    <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress ? () => { void feedback('selection'); onPress(); } : undefined} onPressIn={() => press(1.018)} onPressOut={() => press(1)}>
+  return <PaperContext.Provider value><TicketImpact.Provider value={strike}>
+    <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress ? () => { void feedback('selection'); onPress(); } : undefined} onPressIn={onPress ? () => press(1.018) : undefined} onPressOut={onPress ? () => press(1) : undefined}>
       <Animated.View style={[s.paper, {
-        opacity: arrival,
-        transform: [{
-          translateY: arrival.interpolate({
-            inputRange: [0, 1],
-            outputRange: [32, 0]
-          })
-        }, {
+        transform: [{ translateY: impact.interpolate({ inputRange: [0, 1], outputRange: [0, 3] }) }, { rotateZ: impact.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '0.5deg'] }) }, {
           rotate: lift.interpolate({
             inputRange: [1, 1.018],
             outputRange: [onPress ? (index % 2 === 0 ? '-1.2deg' : '0.8deg') : '0deg', '0deg'],
@@ -66,10 +55,12 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel }
         {children}
       </Animated.View>
     </Pressable>
-  </PaperContext.Provider>;
+  </TicketImpact.Provider></PaperContext.Provider>;
 }
-export function Ticket({ m, children, taken = 0, index = 0, onPress }: {
+export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featured = false }: {
   m: Moment;
+  now?: number;
+  featured?: boolean;
   children?: React.ReactNode;
   taken?: number;
   index?: number;
@@ -82,6 +73,7 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress }: {
     minute: '2-digit'
   }).format(m.startsAt);
   return <TicketShell index={index} onPress={onPress} accessibilityLabel={`Voir le billet : ${m.title}`}>
+    {featured && <Text style={[s.label, { color: c.accent }]}>À LA UNE · {now !== undefined ? formatDelay(m.startsAt, now).toUpperCase() : ''}</Text>}
     <View style={s.row}>
       <Text style={s.label}>{m.category} / {m.subtype}</Text>
       <Text style={s.label}>P / {String(m.district).padStart(2, '0')}</Text>
@@ -94,11 +86,12 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress }: {
       <View style={s.timeFace}>
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>{Array.from({ length: 12 }, (_, i) => <View key={i} style={{ position: 'absolute', right: 18 - i * 8, top: 24 - i * 8, width: 70 + i * 16, height: 70 + i * 16, borderRadius: 200, borderWidth: 0.5, borderColor: '#BCAF9C', opacity: 0.35, transform: [{ scaleY: 0.55 }, { rotate: '25deg' }] }} />)}</View>
         <Text aria-hidden style={s.district}>{arrondissement(m.district)}</Text>
-        <Text style={s.time} adjustsFontSizeToFit numberOfLines={1}>
+        <Text style={[s.time, featured && { fontSize: 112, lineHeight: 130 }]} adjustsFontSizeToFit numberOfLines={1}>
           {time}
         </Text></View>
     </View>
     <Text style={s.body}>{dateLabel(m.startsAt)} · {m.host === 'Vous' ? 'votre place' : `avec ${m.host}`}</Text>
+    {now !== undefined && <Text style={s.body}>{formatDelay(m.startsAt, now)}</Text>}
     <Tear />
     <SeatRow total={m.seats} taken={taken} />
     <View style={s.row}>

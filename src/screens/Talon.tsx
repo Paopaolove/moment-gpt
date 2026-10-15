@@ -4,6 +4,7 @@ import { Action, Copy, Link } from '../components/Primitives';
 import { Stamp } from '../components/Stamp';
 import { Stub } from '../components/Stub';
 import { serialOf, Ticket } from '../components/Ticket';
+import { formatDelay } from '../domain/presentation';
 import { canAttend } from '../domain/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
@@ -16,13 +17,13 @@ export function Talon({ journey }: {
     <Text style={s.hero}>
       {booking?.status === 'cancelled' ? 'La place est rendue.' : booking?.status === 'present' ? 'Vous êtes là.' : 'C’est votre place.'}
     </Text>
-    <Ticket m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
+    <Ticket now={store.now} m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
       {booking?.status === 'confirmed' && <Stamp />}
     </Ticket>
     <Stub>
       <Text style={[s.label, {
         color: c.muted
-      }]}>TALON N° {serialOf(id)} · MOMENT GPT 3</Text>
+      }]}>TALON N° {serialOf(id)} · MOMENT GPT 4</Text>
       <Copy>
         {m.address}
       </Copy>
@@ -31,17 +32,10 @@ export function Talon({ journey }: {
       </Copy>
     </Stub>
     {booking?.status === 'confirmed' ? <>
-      <View style={s.note}>
-        <Text style={s.label}>LA PRÉSENCE</Text>
-        <Copy>
-          {canAttend(m.startsAt, store.now) ? 'Vous pouvez signaler votre présence.' : `Votre présence sera visible dès ${new Intl.DateTimeFormat('fr-FR', {
-            timeZone: 'Europe/Paris',
-            hour: '2-digit',
-            minute: '2-digit'
-          }).format(m.startsAt - 15 * 60000)} (H−15).`}
-        </Copy>
-      </View>
-      <Action label={canAttend(m.startsAt, store.now) ? 'Je suis là · rendre ma caution' : 'Présence disponible à H−15'} disabled={!canAttend(m.startsAt, store.now)} onPress={() => store.act(id, 'present')} />
+      {canAttend(m.startsAt, store.now) ? <Action label="Je suis là · rendre ma caution" onPress={() => store.act(id, 'present')} /> : <View style={s.locked}>
+        <View accessibilityElementsHidden style={{ width: 16, height: 22, alignItems: 'center' }}><View style={{ width: 10, height: 10, borderWidth: 1.5, borderColor: c.light, borderTopLeftRadius: 6, borderTopRightRadius: 6 }} /><View style={{ width: 16, height: 12, borderWidth: 1.5, borderColor: c.light, marginTop: -2 }} /></View>
+        <Text style={{ color: c.light, fontFamily: sans, fontSize: 14 }}>Ouvre à {new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).format(m.startsAt - 15 * 60000)} · {formatDelay(m.startsAt - 15 * 60000, store.now)}</Text>
+      </View>}
       <View style={s.note}>
         <Text style={s.label}>UN IMPRÉVU ?</Text>
         <Copy>Votre joker du mois rend la place sans frais : la caution de 20 € vous est entièrement libérée. Sans joker, une annulation répartit la caution : 6,90 € Moment, 13,10 € hôte.</Copy>
@@ -55,6 +49,7 @@ export function Talon({ journey }: {
   </View>;
 }
 const s = StyleSheet.create({
+  locked: { borderTopWidth: 1, borderStyle: 'dashed', borderColor: c.line, paddingVertical: 20, flexDirection: 'row', alignItems: 'center', gap: 12 },
   screen: {
     gap: 22
   },

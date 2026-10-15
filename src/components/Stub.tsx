@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, StyleSheet } from 'react-native';
+import { Animated, Easing, StyleSheet } from 'react-native';
 import { c } from '../theme/tokens';
 import { Perforation } from './Perforation';
 import { PaperContext } from './Primitives';
@@ -13,7 +13,8 @@ export function Stub({ children }: {
     tear.setValue(reduced ? 1 : 0);
     const animation = Animated.timing(tear, {
       toValue: 1,
-      duration: reduced ? 0 : 750,
+      duration: reduced ? 0 : 520,
+      easing: Easing.out(Easing.cubic),
       useNativeDriver: true
     });
     animation.start();
@@ -24,17 +25,17 @@ export function Stub({ children }: {
       transform: [{
         translateY: tear.interpolate({
           inputRange: [0, 1],
-          outputRange: [-35, 8]
+          outputRange: [-35, 0]
         })
       }, {
         translateX: tear.interpolate({
           inputRange: [0, 1],
-          outputRange: [0, 5]
+          outputRange: [-8, 0]
         })
       }, {
         rotate: tear.interpolate({
           inputRange: [0, 1],
-          outputRange: ['-1deg', '1.5deg']
+          outputRange: ['-3deg', '0deg']
         })
       }]
     }]}>

@@ -1,11 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text } from 'react-native';
-import { c, medium, sans } from '../theme/tokens';
+import { TicketImpact } from './TicketImpact';
+import { c, medium } from '../theme/tokens';
 import { feedback } from './haptics';
 import { useReducedMotion } from './useReducedMotion';
 export function Stamp({ label = 'RÉSERVÉ' }: {
   label?: string;
 }) {
+  const strike = useContext(TicketImpact);
   const reduced = useReducedMotion();
   const hit = useRef(new Animated.Value(1)).current;
   useEffect(() => {
@@ -19,7 +21,8 @@ export function Stamp({ label = 'RÉSERVÉ' }: {
       useNativeDriver: true
     });
     animation.start();
-    return () => animation.stop();
+    const impactTimer = setTimeout(strike, reduced ? 0 : 95);
+    return () => { clearTimeout(impactTimer); animation.stop(); };
   }, [hit, reduced, label]);
   return <Animated.View style={[s.stamp, {
     opacity: hit,

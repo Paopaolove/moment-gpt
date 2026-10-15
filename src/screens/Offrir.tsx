@@ -50,11 +50,11 @@ export function Offrir({ journey }: {
       </View>
       <View style={s.group}>
         <Text style={s.label}>LE JOUR · HEURE DE PARIS</Text>
-        <Pills items={dayLabels} value={dayLabels[availableDays.indexOf(day)] ?? ''} onChange={v => setDay(availableDays[dayLabels.indexOf(v)]!)} />
+        <Pills items={dayLabels} value={dayLabels[availableDays.indexOf(day)] ?? ''} onChange={v => { journey.setManualTime(true); setDay(availableDays[dayLabels.indexOf(v)]!); }} />
       </View>
       <View style={s.group}>
         <Text style={s.label}>LE CRÉNEAU</Text>
-        <Pills items={hours} value={hour} onChange={setHour} />
+        <Pills items={hours} value={hour} onChange={v => { journey.setManualTime(true); setHour(v); }} />
       </View>
     </>}
     {stage === 2 && <>

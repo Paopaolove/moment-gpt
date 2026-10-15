@@ -1,4 +1,4 @@
-# Moment GPT 3
+# Moment GPT 4
 
 Prototype Expo SDK 57 / TypeScript, direction C de [VISION.md](VISION.md).
 Quelqu’un a une place à côté de lui : au bistrot, sur un terrain, dans une salle.
@@ -36,7 +36,7 @@ Tout est local en mémoire : un rechargement réinitialise la démonstration. Au
 
 ## Nouveautés v3
 
-- Fraunces optique 144 et Inter Tight, papier grainé, guilloché et tampon GPT 3.
+- Fraunces optique 144 et Inter Tight, papier grainé, guilloché et tampon GPT 4.
 - Sièges individuels : une réservation remplit exactement un siège.
 - Offre en trois étapes, raccourcis et aperçu du billet avant publication.
 - Acceptation automatique de démonstration après 2,5 secondes, tampon ACCEPTÉ et délai de 10 minutes.
@@ -45,3 +45,10 @@ Tout est local en mémoire : un rechargement réinitialise la démonstration. Au
 - Joker réservé à l’invité confirmé, une fois par mois civil à Paris : caution libérée intégralement. Annulation sans joker : 6,90 € Moment / 13,10 € hôte.
 
 Les données et paiements restent des simulations locales. Le carnet compte uniquement les arrondissements où une présence a été signalée.
+
+## Nouveautés v4
+
+- En-tête compact, date éditoriale, filtres texte et billet à la une intégré au flux.
+- Délais avec unités explicites et présence verrouillée jusqu’à H−15.
+- Créneau futur adapté au sous-type, conservé après un choix manuel.
+- Vol du billet en 400 ms, chiffres indépendants, frappe du tampon et détachement du talon ; réduction des mouvements respectée.

@@ -3,10 +3,10 @@ import { c, sans, serif } from '../theme/tokens';
 export function Brand({ large = false }: {
   large?: boolean;
 }) {
-  return <View accessibilityLabel="Moment GPT 3" style={s.brand}>
+  return <View accessibilityLabel="Moment GPT 4" style={s.brand}>
     <Text style={[s.word, large && s.large]}>moment</Text>
     <View style={[s.seal, large && s.largeSeal]}>
-      <Text style={s.sealText}>GPT{'\n'}3</Text>
+      <Text style={[s.sealText, large && { fontSize: 17, lineHeight: 22 }]}>GPT 4</Text>
     </View>
   </View>;
 }
@@ -18,7 +18,7 @@ const s = StyleSheet.create({
   },
   word: {
     fontFamily: serif,
-    fontSize: 32,
+    fontSize: 27,
     letterSpacing: -2,
     color: c.light
   },
@@ -28,9 +28,9 @@ const s = StyleSheet.create({
     letterSpacing: -5
   },
   seal: {
-    width: 42,
-    height: 42,
-    borderRadius: 24,
+    width: 44,
+    height: 26,
+    borderRadius: 2,
     borderWidth: 1,
     borderColor: c.light,
     alignItems: 'center',
@@ -48,7 +48,7 @@ const s = StyleSheet.create({
   sealText: {
     color: c.light,
     fontFamily: sans,
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: '700',
     textAlign: 'center',
     lineHeight: 15,

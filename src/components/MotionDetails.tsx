@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, Text, View } from 'react-native';
 import { c, display } from '../theme/tokens';
 import { useReducedMotion } from './useReducedMotion';
 export function Pulse({ dots = false }: {
@@ -19,27 +19,33 @@ export function Pulse({ dots = false }: {
 export function Countdown({ seconds }: {
   seconds: number;
 }) {
+  const value = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+  return <View accessibilityRole="timer" accessibilityLabel={`${Math.floor(seconds / 60)} min ${seconds % 60} s`} style={{ alignItems: 'center', marginVertical: 18 }}>
+    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>{value.split('').map((digit, i) => <CountdownDigit key={i} digit={digit} />)}</View>
+    <View style={{ flexDirection: 'row', width: 240, justifyContent: 'space-around' }}><Text style={{ color: c.muted }}>min</Text><Text style={{ color: c.muted }}>s</Text></View>
+  </View>;
+}
+function CountdownDigit({ digit }: { digit: string }) {
   const reduced = useReducedMotion();
   const flip = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     flip.setValue(reduced ? 1 : 0);
-    Animated.timing(flip, { toValue: 1, duration: 180, useNativeDriver: true }).start();
-  }, [seconds, reduced, flip]);
-  const value = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
-  return <View accessibilityRole="timer" accessibilityLabel={value} style={{ flexDirection: 'row', justifyContent: 'center', marginVertical: 18 }}>
-    {value.split('').map((digit, i) => <Animated.Text key={`${i}-${digit}`} style={{ fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: [{ rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: ['55deg', '0deg'] }) }] }}>{digit}</Animated.Text>)}
-  </View>;
+    const animation = Animated.timing(flip, { toValue: 1, duration: reduced ? 0 : 220, useNativeDriver: true });
+    animation.start();
+    return () => animation.stop();
+  }, [digit, reduced, flip]);
+  return <Animated.Text style={{ fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: [{ perspective: 500 }, { rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: [digit === ':' ? '0deg' : '-75deg', '0deg'] }) }] }}>{digit}</Animated.Text>;
 }
 
 export function FuseBar({ seconds }: { seconds: number }) {
   const reduced = useReducedMotion();
   const left = useRef(new Animated.Value(seconds)).current;
   useEffect(() => {
-    const animation = Animated.timing(left, { toValue: seconds, duration: reduced ? 0 : 800, useNativeDriver: false });
+    const animation = Animated.timing(left, { toValue: seconds, duration: reduced ? 0 : 800, useNativeDriver: true });
     animation.start();
     return () => animation.stop();
   }, [seconds, reduced, left]);
   return <View accessibilityLabel={`${seconds} secondes restantes sur 600`} style={{ height: 5, backgroundColor: c.line, marginBottom: 18 }}>
-    <Animated.View style={{ height: 5, width: left.interpolate({ inputRange: [0, 600], outputRange: ['0%', '100%'], extrapolate: 'clamp' }), backgroundColor: left.interpolate({ inputRange: [0, 60, 600], outputRange: [c.accent, c.ink, c.ink], extrapolate: 'clamp' }) }} />
+    <Animated.View style={{ height: 5, width: '100%', transformOrigin: 'left center', transform: [{ scaleX: left.interpolate({ inputRange: [0, 600], outputRange: [0, 1], extrapolate: 'clamp' }) }], backgroundColor: seconds <= 60 ? c.accent : c.ink }} />
   </View>;
 }

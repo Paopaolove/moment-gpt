@@ -1,13 +1,9 @@
 import { useEffect, useState } from 'react';
+import { defaultOfferSlot } from './domain/presentation';
 import { BackHandler } from 'react-native';
-import { nextSlot, offerHours, parisDay } from './domain/parisTime';
+import { parisDay } from './domain/parisTime';
 import { Category, confirmationRemaining, Moment, validateMoment } from './domain/rules';
 import { useStore } from './store';
-const subtypes: Record<Category, string[]> = {
-  Table: ['Bistrot', 'Terrasse', 'Cuisine française'],
-  Sport: ['Padel', 'Footing', 'Piscine'],
-  Culture: ['Cinéma', 'Concert', 'Exposition', 'Théâtre']
-};
 export type Page = 'home' | 'list' | 'detail' | 'take' | 'confirmed' | 'offer';
 export function useJourney() {
   const store = useStore();
@@ -23,9 +19,16 @@ export function useJourney() {
   const [title, setTitle] = useState('Une place à ma table');
   const [address, setAddress] = useState('18 rue Paul Bert, 75011 Paris');
   const [district, setDistrict] = useState('11');
-  const initialSlot = nextSlot(store.now, offerHours);
+  const initialSlot = defaultOfferSlot(store.now, 'Table', 'Bistrot');
   const [day, setDay] = useState(() => parisDay(initialSlot));
   const [hour, setHour] = useState(() => new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(initialSlot));
+  const [manualTime, setManualTime] = useState(false);
+  useEffect(() => {
+    if (manualTime) return;
+    const slot = defaultOfferSlot(store.now, category, subtype);
+    setDay(parisDay(slot));
+    setHour(new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(slot));
+  }, [category, subtype, manualTime, store.now]);
   const [seats, setSeats] = useState('1');
   const [price, setPrice] = useState('20');
   const [women, setWomen] = useState(false);
@@ -130,6 +133,7 @@ export function useJourney() {
     setDay,
     hour,
     setHour,
+    setManualTime,
     seats,
     setSeats,
     price,
