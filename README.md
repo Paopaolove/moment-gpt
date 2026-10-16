@@ -1,23 +1,32 @@
-# Moment GPT 4
+# Moment GPT Pro
 
-Prototype Expo SDK 57 / TypeScript, direction C de [VISION.md](VISION.md).
-Quelqu’un a une place à côté de lui : au bistrot, sur un terrain, dans une salle.
+Une invitation à un moment en vrai à Paris : table, verre, sport ou culture. Démo Expo SDK 57, TypeScript et react-native-web. Authentification, caution et abonnement simulés ; aucune transaction réelle. Les données sont en mémoire et se réinitialisent au rechargement.
 
-Le parcours : accueil-manifeste en trois temps → Les places → Le billet → Prendre la place → Billet confirmé. Deux onglets seulement : **Les places** et **Offrir une place**. Le logo ouvre le manifeste ; les billets en cours restent accessibles dans Les places.
+## Architecture
 
-Billets crème, perforations et sièges dessinés en View, aucun portrait ni photo. Fond encre nocturne, grands chiffres serif, filigranes d’arrondissement et une seule action vermillon par écran. Animated fait glisser le billet, détache le talon et remplit les sièges ; la préférence système de réduction des mouvements désactive les transitions.
+- `src/domain` : règles métier, reducer immuable, sélecteurs de confidentialité, temps de Paris et onboarding. Comportement conservé.
+- `src/theme` : palette claire, accent anthracite unique, couleurs de statut, typographie et espacements.
+- `src/components/UI.tsx` : composants partagés accessibles, cartes, feuilles, formulaires, états et navigation.
+- `src/store.tsx` : adaptation du domaine à React et horloge de démo unique, avancée chaque seconde et par les commandes de démo.
+- `src/Journey.tsx` : quatre onglets, onboarding explicite, tunnel partenaire et parcours invité. L’ancienne UI et `src/legacy` sont supprimés.
 
-## Essayer le parcours
+## Couverture du brief
 
-- Choisir Table, Sport ou Culture ; Maintenant filtre exactement de H−90 à H+30.
-- Ouvrir un billet puis prendre la place. Pour Femmes uniquement, la déclaration est requise.
-- L’acceptation hôte est simulée explicitement. Le délai de 10 minutes démarre alors : compteur et barre, puis état expiré sans caution. Confirmer réserve fictivement 20 €.
-- Le talon affiche le lieu et la caution. La présence devient disponible à H−15 ; la déclarer rend la caution. Un joker par mois civil parisien permet de rendre la place avec restitution.
-- Offrir une place : catégorie et sous-type, adresse Paris intramuros, arrondissement, date et heure de Paris, 1 à 3 places, invitation par personne via pills 10/20/30/40 € ou saisie jusqu’à 50 €, Femmes uniquement. La publication apparaît dans le flux. Hôte gratuit, sans abonnement.
+Découverte sans compte, filtres et urgent, liste et grille géographique des 20 arrondissements, aperçu de carte, chargement simulé, états vide et erreur. Détail confidentiel avant acceptation, auth stub, demandes et confirmation chronométrée, caution, présence H−15, chat local H−1, imprévu avec phrase, joker mensuel et annulation. Notes séparées à trois niveaux, photos par lien avec consentement, relance et publication avec aperçu. Profil, sanctions et crédits à usage unique. Demande partenaire, revue, validation de démo et publication séparée avec geste/remise.
 
-Le seed est relatif au démarrage : bistrots du 11e, padel à Louis-Lumière, footing aux Buttes-Chaumont, piscine Joséphine-Baker, Le Champo, Philharmonie, Palais de Tokyo et Odéon. Les horaires, disponibilités, notes et programmes sont fictifs.
+La carte est schématique : les repères sont regroupés au centre des arrondissements, sans position d’adresse. Les photos sont ajoutées par URL HTTPS ; pas d’accès à la photothèque. La messagerie reste locale. L’identité femme peut être choisie dans Démo via un compte distinct. Les notes et crédits suivent exclusivement les validations du domaine.
 
-## Vérifier
+## Décisions de design
+
+Fond blanc, surfaces `#F7F7F5`, texte `#111111`, CTA `#1F2937`. Inter Tight 400/500/600/700 ; Fraunces pour le mot-symbole uniquement. Cibles de 44 px minimum, tailles de texte adaptatives plafonnées raisonnablement, transitions de 240 ms, préférence de réduction des animations respectée. Feuilles natives et retour haptique léger sur les confirmations. Voir `BRIEF.md` et `BRIEF-DECISIONS.md` pour les arbitrages métier.
+
+## Lancer
+
+`npm install`, puis `npm start` (Expo), `npm run ios`, `npm run android` ou `npm run web`. Les dépendances requises sont déjà déclarées dans le projet. Aucun service distant à configurer.
+
+Pour filmer : explorer sans compte, demander une place, créer le compte simulé, redemander, puis Profil → Démo → Faire accepter par l’hôte. Confirmer dans Mes moments, avancer à H−15, marquer sa présence, puis terminer après la fin pour noter le moment. H+30 reste distinct de la clôture à la fin réelle du moment.
+
+## Validation
 
 ```sh
 npx tsc --noEmit
@@ -25,30 +34,4 @@ npm test
 npx expo export --platform web
 ```
 
-L’export statique est produit dans `dist/`. Aucun serveur n’est nécessaire à ces vérifications. Aucune dépendance ajoutée.
-
-## Domaine et limites
-
-`src/domain` conserve les règles et le reducer : caution 20 €, split 6,90 € Moment / 13,10 € hôte en cas d’annulation sans joker après confirmation, délai 10 minutes, joker 1/mois, urgence H−90→H+30, présence H−15, Paris, restrictions et plafonds. Les catégories sont Table / Sport / Culture. Les tests couvrent notamment les bornes temporelles, autorisations, montants, catégories et seed.
-
-Tout est local en mémoire : un rechargement réinitialise la démonstration. Aucun compte, paiement, réservation de lieu, géocodage, messagerie distante ni backend. L’acceptation de l’hôte est un stub, sans délai réseau. Les anciens écrans carte, disponibilités, abonnements et profils ont été retirés pour concentrer le prototype sur la place.
-
-
-## Nouveautés v3
-
-- Fraunces optique 144 et Inter Tight, papier grainé, guilloché et tampon GPT 4.
-- Sièges individuels : une réservation remplit exactement un siège.
-- Offre en trois étapes, raccourcis et aperçu du billet avant publication.
-- Acceptation automatique de démonstration après 2,5 secondes, tampon ACCEPTÉ et délai de 10 minutes.
-- Transition mesurée entre carte et détail, retour inverse, option système de réduction des animations et haptique native facultative.
-- « Ce soir, 1 place » dans la fenêtre H−90 → H+30 et carnet personnel de souches.
-- Joker réservé à l’invité confirmé, une fois par mois civil à Paris : caution libérée intégralement. Annulation sans joker : 6,90 € Moment / 13,10 € hôte.
-
-Les données et paiements restent des simulations locales. Le carnet compte uniquement les arrondissements où une présence a été signalée.
-
-## Nouveautés v4
-
-- En-tête compact, date éditoriale, filtres texte et billet à la une intégré au flux.
-- Délais avec unités explicites et présence verrouillée jusqu’à H−15.
-- Créneau futur adapté au sous-type, conservé après un choix manuel.
-- Vol du billet en 400 ms, chiffres indépendants, frappe du tampon et détachement du talon ; réduction des mouvements respectée.
+Les tests historiques liés à `legacy` ont été remplacés par des scénarios du domaine actuel ; les tests d’acceptation, règles et présentation sont conservés.

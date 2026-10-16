@@ -1,14 +1,5 @@
-export const c = {
-  paper: '#15110E',
-  card: '#F3EADB',
-  line: '#BCAF9C',
-  ink: '#15110E',
-  muted: '#62564A',
-  accent: '#E2542B',
-  light: '#F3EADB'
-};
-export const display = 'FrauncesDisplay';
-export const serif = 'Fraunces_500Medium';
-export const medium = 'InterTight_500Medium';
-export const sans = 'InterTight_400Regular';
-export const typography = { title: { fontFamily: serif }, body: { fontFamily: sans }, label: { fontFamily: medium, fontSize: 13, letterSpacing: 1.8, textTransform: 'uppercase' as const } };
+export const colors = { background:'#FFFFFF', surface:'#F7F7F5', text:'#111111', secondary:'#6B6B6B', border:'#E8E8E6', accent:'#1F2937', success:'#157F3B', warning:'#B54708', error:'#C62828' };
+export const space = { xs:8, sm:12, md:16, lg:20, xl:24, xxl:32 };
+export const radius = { sm:12, md:16, lg:20 };
+export const type = { large:34, title:28, headline:17, body:17, callout:16, footnote:13, caption:12 };
+export const categoryColors = { Table:'#9A5839', Verre:'#62538D', Sport:'#39716C', Culture:'#49688A' };

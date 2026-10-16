@@ -1,105 +1,75 @@
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import { Brand } from './components/Brand';
-import { TicketTransitions, TicketScreenEntrance } from './components/TicketTransition';
-import { useReducedMotion } from './components/useReducedMotion';
-import { Billet } from './screens/Billet';
-import { Manifeste } from './screens/Manifeste';
-import { Offrir } from './screens/Offrir';
-import { Places } from './screens/Places';
-import { PrendrePlace } from './screens/PrendrePlace';
-import { Talon } from './screens/Talon';
-import { c, sans } from './theme/tokens';
-import { useJourney } from './useJourney';
-const screens = {
-  home: Manifeste,
-  list: Places,
-  detail: Billet,
-  take: PrendrePlace,
-  confirmed: Talon,
-  offer: Offrir
-};
-export function Journey() {
-  const journey = useJourney();
-  const Screen = screens[journey.page];
-  const reduced = useReducedMotion();
-  const [navWidth, setNavWidth] = useState(0);
-  const active = useRef(new Animated.Value(0)).current;
-  useEffect(() => { Animated.timing(active, { toValue: journey.page === 'offer' ? 1 : 0, duration: reduced ? 0 : 260, useNativeDriver: true }).start(); }, [journey.page, reduced, active]);
-  const listOffset = useRef(0);
-  return <TicketTransitions journey={journey}><View style={s.root}>
-    <View style={s.header}>
-      {journey.page !== 'home' && <Pressable accessibilityRole="button" accessibilityLabel="Accueil Moment GPT 4" onPress={() => {
-        journey.setStep(0);
-        journey.go('home');
-      }}>
-        <Brand />
-      </Pressable>}
-      <Text style={s.label}>Paris</Text>
-    </View>
-    <ScrollView onScroll={event => {
-      if(journey.page === 'list')
-        listOffset.current = event.nativeEvent.contentOffset.y;
-    }} scrollEventThrottle={16} contentOffset={{ x: 0, y: journey.page === 'list' ? listOffset.current : 0 }} key={`${journey.page}-${journey.page === 'offer' ? journey.offerStep : ''}`} contentContainerStyle={s.content} keyboardShouldPersistTaps="handled">
-      {journey.page === 'detail' || journey.page === 'list' ? <TicketScreenEntrance><Screen journey={journey} /></TicketScreenEntrance> : <Screen journey={journey} />}
-    </ScrollView>
-    {journey.page !== 'home' && <View style={s.nav} onLayout={e => setNavWidth(e.nativeEvent.layout.width)}>
-      <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, width: navWidth / 2, height: 2, backgroundColor: c.accent, transform: [{ translateX: active.interpolate({ inputRange: [0, 1], outputRange: [0, navWidth / 2] }) }] }} />
-      {(['list', 'offer'] as const).map((page, i) => <Pressable key={page} accessibilityRole="tab" accessibilityState={{
-        selected: (page === 'offer' ? journey.page === 'offer' : journey.page !== 'offer')
-      }} onPress={() => journey.go(page)} style={s.tab}>
-        <Text style={[s.navText, (page === 'offer' ? journey.page === 'offer' : journey.page !== 'offer') && s.navTextActive]}>
-          {i === 0 ? 'Les places' : 'Offrir une place'}
-        </Text>
-      </Pressable>)}
-    </View>}
-  </View></TicketTransitions>;
+import React,{useEffect,useReducer,useState} from 'react';
+import {Pressable,ScrollView,Switch,View} from 'react-native';
+import {useStore} from './store';
+import {initialOnboarding,onboardingReducer} from './domain/onboarding';
+import {demoUser} from './domain/seed';
+import {addressFor,canChat,canMarkPresence,isUrgent,reliable,photoVisible} from './domain/selectors';
+import {addDays,parisDay,parisTime} from './domain/parisTime';
+import {monthKey} from './domain/rules';
+import type {Category,Level,Moment,Request} from './domain/types';
+import {categoryColors,colors as c} from './theme/tokens';
+import {Avatar,Banner,Button,Chip,Countdown,EmptyState,ErrorState,Field,ListRow,Motion,MomentCard,RatingPicker,SegmentedControl,Sheet,Skeleton,StatusPill,T,TabBar,s} from './components/UI';
+const categories:Category[]=['Table','Verre','Sport','Culture'];
+const time=(n:number)=>new Intl.DateTimeFormat('fr-FR',{timeZone:'Europe/Paris',hour:'2-digit',minute:'2-digit'}).format(n);
+const hostNames=['Julien','Sarah','Le Café','Louise','Thomas','Léa','Gabriel','Alice','Hugo','Emma'];
+export function Journey(){
+ const {state,user,now,setNow,act,dispatch:storeDispatch}=useStore();
+ const [onboarding,next]=useReducer(onboardingReducer,initialOnboarding);
+ const [tab,setTab]=useState('Découvrir'),[sheet,setSheet]=useState(''),[selected,setSelected]=useState<string|null>(null);
+ const [category,setCategory]=useState('Tout'),[urgent,setUrgent]=useState(false),[mode,setMode]=useState('Liste');
+ const [loading,setLoading]=useState(true),[error,setError]=useState(false),[notice,setNotice]=useState('');
+ const [phrase,setPhrase]=useState(''),[message,setMessage]=useState(''),[messages,setMessages]=useState<Record<string,string[]>>({});
+ const [momentLevel,setMomentLevel]=useState<Level>(5),[venueLevel,setVenueLevel]=useState<Level>(5);
+ useEffect(()=>{const id=setTimeout(()=>setLoading(false),650);return()=>clearTimeout(id)},[]);
+ const m=state.moments.find(x=>x.id===selected);
+ const request=state.requests.find(r=>r.momentId===selected&&r.guestId===user?.id);
+ const host=m&&state.users.find(u=>u.id===m.hostId);
+ function requireAccount(fn:()=>void){if(!user){setSheet('auth');return}fn()}
+ function select(id:string){setSelected(id);setSheet('detail');setNotice('')}
+ const feed=state.moments.filter(m=>m.status==='active'&&now<=m.startsAt+30*60000&&(category==='Tout'||category===m.category)&&(!urgent||isUrgent(m,now)));
+ const ownRequests=state.requests.filter(r=>r.guestId===user?.id);
+ const activeHost=state.moments.find(m=>m.hostId===user?.id&&m.status==='active');
+ function auth(){act({type:'signIn',user:state.users.find(u=>u.id==='guest')??demoUser('guest','Camille')});setSheet('');setNotice('Compte de démonstration créé. Vous pouvez continuer.')}
+ function acceptDemo(){const r=ownRequests.find(r=>r.status==='requested');if(r){const moment=state.moments.find(m=>m.id===r.momentId)!;act({type:'accept',requestId:r.id,actor:moment.hostId});setNotice('L’hôte a accepté votre demande.')}}
+ function closeDemo(target:number){setNow(target);state.moments.filter(m=>m.status==='active'&&m.endsAt<=target).forEach(m=>actAtClose(m,target))}
+ function actAtClose(m:Moment,target:number){ // closure uses the same demo instant, never the wall clock
+   const action={type:'close' as const,momentId:m.id,actor:m.hostId,now:target};
+   storeDispatch(action);
+ }
+ function requestPlace(){requireAccount(()=>{if(!m)return;act({type:'request',momentId:m.id,id:`request-${m.id}-${user!.id}`});setSheet('');setTab('Mes moments');setNotice(m.partnerId?'Place confirmée automatiquement · caution simulée de 20 € bloquée.':'Demande envoyée. L’hôte vous répondra ici.');})}
+ function statusCard(r:Request){const x=state.moments.find(m=>m.id===r.momentId)!;const done=x.status==='closed';const labels={requested:'En attente',accepted:'Acceptée',confirmed:done?'Terminée':'Confirmée',expired:'Expirée',cancelled:'Annulée',declined:'Refusée'};return <View key={r.id} style={s.card}><StatusPill title={labels[r.status]} tone={r.status==='accepted'?'warning':r.status==='confirmed'?'success':'neutral'}/><Pressable onPress={()=>select(x.id)}><T style={s.title}>{x.title}</T></Pressable><T style={s.muted}>{x.neighborhood} · {time(x.startsAt)}</T>{r.status==='requested'&&<T style={s.muted}>Votre demande est entre les mains de l’hôte.</T>}{r.status==='accepted'&&<><T>Votre place vous attend. Confirmez dans</T><Countdown until={r.acceptedAt!+600000} now={now}/><Button title="Confirmer et bloquer 20 €" onPress={()=>act({type:'confirm',requestId:r.id})}/></>}{r.status==='confirmed'&&!done&&<><T>{addressFor(x,user,state.requests)}</T><StatusPill title={r.deposit==='released'?'Caution rendue · 20 €':'Caution bloquée · 20 €'} tone="success"/><Button title={r.presentAt?'Présence confirmée':canMarkPresence(x,now)?'Je suis là':now>x.startsAt+900000?'Fenêtre de présence fermée':`Disponible à ${time(x.startsAt-900000)}`} disabled={!!r.presentAt||!canMarkPresence(x,now)} onPress={()=>act({type:'markPresence',momentId:x.id})}/><Button variant="secondary" title={canChat(x,user,state.requests,now)?'Ouvrir le chat':`Chat disponible à ${time(x.startsAt-3600000)}`} disabled={!canChat(x,user,state.requests,now)} onPress={()=>{setSelected(x.id);setSheet('chat')}}/>{!r.presentAt&&<Button variant="text" title="Un imprévu ? Annuler ou utiliser mon joker" onPress={()=>{setSelected(x.id);setSheet('unexpected')}}/>}</>}{done&&r.presentAt!==undefined&&<Button title="Noter ce moment" variant="secondary" onPress={()=>{setSelected(x.id);setSheet('rating')}}/>}{['cancelled','expired','declined'].includes(r.status)&&<T style={s.muted}>{r.deposit==='forfeited'?'Caution perdue : 6,90 € Moment · 13,10 € hôte.':r.deposit==='released'?'Votre caution a été rendue.':'Aucune caution prélevée.'}</T>}</View>}
+ if(!onboarding.completed){const slides=[['Une place libre.\nUne vraie rencontre.','Une table, un verre, une sortie. Retrouvez des gens autour d’un moment, à Paris.','01 / 03'],['On se dit oui.\nPuis on s’engage.','L’hôte accepte. Vous avez 10 minutes pour confirmer. Une caution de 20 € est rendue si vous êtes présent.','02 / 03'],['Moins de profils.\nPlus de moments.','Le quartier d’abord, l’adresse après le oui. À vous de choisir ce que vous partagerez.','03 / 03']][onboarding.slide]!;return <View style={{flex:1,maxWidth:560,width:'100%',alignSelf:'center',padding:28,justifyContent:'space-between'}}><T style={{fontFamily:'Fraunces_500Medium',fontSize:38,lineHeight:48}}>moment</T><Motion key={onboarding.slide}><View style={{height:180,backgroundColor:c.surface,borderRadius:24,alignItems:'center',justifyContent:'center',marginBottom:32}}><View style={{flexDirection:'row',gap:12}}>{[0,1,2].map(i=><View key={i} style={{width:52,height:70,borderRadius:26,borderWidth:1,borderColor:i===onboarding.slide?c.accent:c.border,backgroundColor:i===onboarding.slide?'white':c.surface,transform:[{rotate:`${(i-1)*12}deg`}]}}/>)}</View></View><T style={[s.muted,{fontSize:12,letterSpacing:2,marginBottom:16}]}>{slides[2]}</T><T style={s.large}>{slides[0]}</T><T style={[s.muted,{marginTop:20}]}>{slides[1]}</T></Motion><View style={{gap:8}}><Button title="Continuer" onPress={()=>next({type:'next',now})}/><Button title="Explorer sans compte" variant="text" onPress={()=>{next({type:'next',now});next({type:'next',now});next({type:'next',now})}}/></View></View>}
+ return <View style={{flex:1,width:'100%',maxWidth:760,alignSelf:'center'}}><ScrollView contentContainerStyle={{padding:24,gap:24,paddingBottom:36}} keyboardShouldPersistTaps="handled"><View style={s.between}><T style={{fontFamily:'Fraunces_500Medium',fontSize:26,lineHeight:34}}>moment</T><T style={[s.muted,{fontSize:12}]}>PARIS, EN VRAI</T></View>{notice&&<Banner>{notice}</Banner>}<Motion key={tab}><View style={s.stack}><View style={{gap:4}}><T style={s.large}>{tab}</T><T style={s.muted}>{tab==='Découvrir'?'Paris · ce soir':tab==='Mes moments'?'Les rendez-vous qui prennent vie.':tab==='Publier'?'Une place libre, une belle idée.':'Votre place chez Moment.'}</T></View>
+ {tab==='Découvrir'&&<><SegmentedControl value={mode} onChange={setMode}/><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{gap:8,paddingVertical:4}}>{['Tout',...categories].map(v=><Chip key={v} title={v} selected={category===v} onPress={()=>setCategory(v)}/>)}<Chip title="Urgent" selected={urgent} onPress={()=>setUrgent(!urgent)}/></ScrollView>{loading?<><Skeleton/><Skeleton/></>:error?<ErrorState retry={()=>{setError(false);setLoading(true);setTimeout(()=>setLoading(false),500)}}/>:feed.length===0?<EmptyState title="Aucun moment pour ce filtre" detail="Essayez une autre catégorie. Une place se libère toujours."/>:mode==='Carte'?<ParisMap moments={feed} onSelect={select}/>:<><View style={s.between}><T style={s.h}>Une place pour vous</T><T style={[s.muted,{fontSize:13}]}>{feed.length} moments</T></View>{feed.map(m=><MomentCard key={m.id} moment={m} now={now} onPress={()=>select(m.id)} offer={m.partnerId?state.partners.find(p=>p.id===m.partnerId)?.gesture:undefined}/>)}</>}</>}
+ {tab==='Mes moments'&&<>{!user&&<Banner>Explorez librement. Créez un compte pour retrouver vos demandes.</Banner>}{['À venir','Demandes','Passés'].map((section)=>{const rows=ownRequests.filter(r=>{const closed=state.moments.find(m=>m.id===r.momentId)?.status==='closed';return section==='À venir'?r.status==='confirmed'&&!closed:section==='Demandes'?['requested','accepted'].includes(r.status):closed||['cancelled','expired','declined'].includes(r.status)});return <View key={section} style={s.section}><T style={s.title}>{section}</T>{rows.length?rows.map(statusCard):<EmptyState title={section==='À venir'?'Votre prochain moment est à trouver':section==='Demandes'?'Aucune demande en cours':'Tout commence par un premier moment'} detail={section==='À venir'?'Une place vous attend dans Découvrir.':'Vos moments apparaîtront ici.'}/>}</View>})}{activeHost&&<View style={s.card}><T style={s.h}>Vous accueillez</T><T>{activeHost.title}</T><Button title="Je suis là · hôte" disabled={!canMarkPresence(activeHost,now)||activeHost.hostPresentAt!==undefined} onPress={()=>act({type:'markPresence',momentId:activeHost.id})}/>{state.requests.filter(r=>r.momentId===activeHost.id).map(r=><ListRow key={r.id} title={state.users.find(u=>u.id===r.guestId)?.name??'Invité'} detail={r.status} onPress={r.status==='requested'?()=>act({type:'accept',requestId:r.id}):undefined}/>)}</View>}</>}
+ {tab==='Publier'&&(!user?<View style={s.card}><T style={s.title}>Invitez à votre table.</T><T style={s.muted}>Publier est gratuit. Une à trois places, un moment à partager.</T><Button title="Créer un compte" onPress={()=>setSheet('auth')}/></View>:user.role==='partenaire'?<Button title="Ouvrir mon espace partenaire" onPress={()=>setSheet('partner')}/>:activeHost?<View style={s.card}><StatusPill title="Annonce active" tone="success"/><T style={s.title}>{activeHost.title}</T><T style={s.muted}>Une seule annonce à la fois. Retrouvez vos invités et gérez les demandes.</T><Button title="Gérer mon moment" onPress={()=>setTab('Mes moments')}/></View>:<Publish onPublished={()=>{setTab('Mes moments');setNotice('Votre moment est publié. À bientôt, en vrai.')}}/>)}
+ {tab==='Profil'&&<><View style={[s.row,{paddingVertical:12}]}><Avatar name={user?.name??'Visiteur'}/><View style={{flex:1}}><T style={s.title}>{user?.name??'Bienvenue'}</T><T style={s.muted}>{user?'Compte de démonstration':'Explorez à votre rythme'}</T></View>{user&&reliable(user)&&<StatusPill title="Fiable" tone="success"/>}</View>{!user&&<Button title="Créer un compte" onPress={()=>setSheet('auth')}/>}<ListRow title="Fiable" detail={user&&reliable(user)?'Badge obtenu':'Après 5 moments honorés et une moyenne ≥ 4/5'}/><ListRow title={`${user?.absences??0} absence · ${user?.hostWarnings??0} avertissement hôte`} detail={user?.accountStatus==='closed'?'Compte fermé':user?.priority===false?'Priorité perdue':'Compte en règle · priorité conservée'}/><Banner>2 absences : perte de priorité. 3 : compte fermé. Hôte absent : un avertissement, puis fermeture à la seconde absence.</Banner><ListRow title="Joker du mois" detail={user?.jokerMonths.includes(monthKey(now))?'Déjà utilisé ce mois-ci':'1 disponible · caution rendue même en cas de refus'}/><ListRow title="Crédits" detail="Avoirs fictifs, consommables une seule fois"/>{user?.credits.map(cr=><Button key={cr.id} variant="secondary" disabled={cr.consumed} title={cr.consumed?'Crédit utilisé':`Utiliser ${cr.cents/100} €`} onPress={()=>act({type:'consumeCredit',creditId:cr.id})}/>)}{!user?.credits.length&&<T style={s.muted}>Aucun crédit pour le moment.</T>}<ListRow title="Moment+ · abonnement invité" detail="Non activé · simulation, aucun paiement" onPress={()=>setSheet('subscription')}/><Banner>La caution de 20 € est distincte de l’abonnement et du montant du moment. Publier est gratuit.</Banner>{user&&<View style={s.between}><T>Je suis une femme</T><T style={s.muted}>{user.woman?'Oui':'Non'}</T></View>}<ListRow title="Vous représentez un lieu ?" detail="Un espace dédié aux partenaires" onPress={()=>requireAccount(()=>setSheet('partner'))}/><Button title="Démo" variant="text" onPress={()=>setSheet('demo')}/></>}
+ </View></Motion></ScrollView><TabBar tab={tab} onChange={v=>{setTab(v);setNotice('')}}/>
+ <Sheet title={sheet==='auth'?'Créer un compte':sheet==='detail'?'Le moment':sheet==='demo'?'Mode démo':sheet==='unexpected'?'Un imprévu':sheet==='rating'?'Après le moment':sheet==='chat'?'Votre conversation':sheet==='partner'?'Espace partenaire':'Moment+'} visible={!!sheet} onClose={()=>setSheet('')}>
+ {sheet==='auth'&&<><T style={s.muted}>Un prénom, un engagement. Le reste se passe en vrai.</T>{['Continuer avec Apple','Continuer avec Google','E-mail'].map(t=><Button key={t} title={t} variant={t==='Continuer avec Apple'?'primary':'secondary'} onPress={auth}/>)}<T style={[s.muted,{fontSize:13}]}>Authentification simulée. Aucun compte externe connecté.</T></>}
+ {sheet==='detail'&&m&&<><StatusPill title={m.category}/><T style={s.large}>{m.title}</T><T style={s.muted}>{m.neighborhood} · Paris {m.district}e</T><ListRow title={`${time(m.startsAt)} · ${m.seats} place${m.seats>1?'s':''}`} detail="Horaire de Paris"/><View style={s.row}><Avatar name={host?.name==='host-0'?'Julien':hostNames[state.moments.indexOf(m)%10]??'Alex'}/><T style={s.h}>{host?.name.startsWith('host')?hostNames[state.moments.indexOf(m)%10]:host?.name??'Alex'}</T>{host&&reliable(host)&&<StatusPill title="Fiable" tone="success"/>}</View>{m.partnerId?<Banner>{state.partners.find(p=>p.id===m.partnerId)?.gesture} · remise {state.partners.find(p=>p.id===m.partnerId)?.discountPercent} %. Confirmation automatique et caution de 20 € bloquée en simulation.</Banner>:<T style={s.title}>{m.invitationCents/100} € <T style={s.muted}>pour ce moment</T></T>}{m.femmesUniquement&&<StatusPill title="Femmes uniquement"/>}{addressFor(m,user,state.requests)&&<Banner>{addressFor(m,user,state.requests)}</Banner>}<T style={[s.muted,{fontSize:13,lineHeight:21}]}>Caution 20 €, rendue si présent ; 10 min pour confirmer après le oui ; annulation gratuite à 3 h ou plus.</T>{m.femmesUniquement&&user&&!user.woman&&<Banner>Ce moment est réservé aux femmes. Vous pouvez préciser votre identité dans votre compte de démo.</Banner>}<Button title={request?'Voir ma demande':'Demander une place'} disabled={!!user&&m.femmesUniquement&&!user.woman} onPress={request?()=>{setSheet('');setTab('Mes moments')}:requestPlace}/></>}
+ {sheet==='demo'&&<><Banner>Horloge unique de la démo · {parisDay(now)} à {time(now)}. Les délais suivent cette horloge.</Banner><Button title="+10 min" onPress={()=>setNow(t=>t+600000)}/><Button title="Faire accepter par l’hôte" onPress={acceptDemo}/>{(()=>{const r=ownRequests.find(r=>['confirmed','accepted','requested'].includes(r.status));const target=state.moments.find(m=>m.id===r?.momentId)??state.moments[0];return target&&<><Button title="Aller à H−15" variant="secondary" onPress={()=>setNow(t=>Math.max(t,target.startsAt-900000))}/><Button title="Aller à H+30" variant="secondary" onPress={()=>setNow(t=>Math.max(t,target.startsAt+1800000))}/><Button title="Terminer le moment (après sa fin)" variant="secondary" onPress={()=>closeDemo(Math.max(now,target.endsAt+60000))}/></>})()}<Button title="Simuler une erreur du fil" variant="text" onPress={()=>{setError(true);setTab('Découvrir');setSheet('')}}/><Button title="Recharger le fil (skeleton)" variant="text" onPress={()=>{setLoading(true);setTab('Découvrir');setSheet('');setTimeout(()=>setLoading(false),650)}}/>{user&&<Button title={user.woman?'Identité de démo : homme':'Identité de démo : femme'} variant="text" onPress={()=>{storeDispatch({type:'signIn',actor:'demo-woman',now,user:{...demoUser('demo-woman','Camille'),woman:true}})}}/>}{state.unexpected.filter(u=>u.status==='pending').map(u=><View key={u.id} style={s.card}><T>{u.phrase}</T><Button title="L’autre accepte l’imprévu" onPress={()=>act({type:'resolveUnexpected',id:u.id,accept:true,actor:u.recipient})}/><Button title="L’autre refuse" variant="secondary" onPress={()=>act({type:'resolveUnexpected',id:u.id,accept:false,actor:u.recipient})}/></View>)}</>}
+ {sheet==='unexpected'&&m&&request&&<><Banner>Une fois par moment, avec une phrase de 10 à 140 caractères. Si l’autre accepte : caution rendue. S’il refuse à moins de 3 h : caution perdue, sauf joker. L’hôte ne touche rien en cas d’imprévu accepté ou de joker.</Banner><Field label="Expliquez votre imprévu" value={phrase} onChangeText={setPhrase} maxLength={140} multiline/><Button title="Envoyer mon imprévu" disabled={phrase.trim().length<10||state.unexpected.some(u=>u.momentId===m.id)} onPress={()=>{act({type:'unexpected',requestId:request.id,id:`unexpected-${request.id}`,phrase});setNotice('Imprévu envoyé. En attente de la réponse de l’hôte.');setSheet('');setPhrase('')}}/><Button title="Utiliser mon joker du mois" variant="secondary" disabled={user?.jokerMonths.includes(monthKey(now))} onPress={()=>{act({type:'joker',requestId:request.id});setSheet('')}}/><T style={[s.muted,{fontSize:13}]}>Un joker par mois civil (heure de Paris). Caution rendue même en cas de refus. L’hôte ne touche rien.</T><Button title={m.startsAt-now>=10800000?'Annuler · caution rendue':'Annuler · perdre la caution de 20 €'} variant="text" onPress={()=>{act({type:'cancel',requestId:request.id,as:'guest'});setSheet('')}}/></>}
+ {sheet==='chat'&&m&&<>{canChat(m,user,state.requests,now)?<><T style={s.muted}>Entre participants confirmés, à partir de H−1.</T>{(messages[m.id]??[]).map((text,i)=><Banner key={i}>{text}</Banner>)}<Field label="Votre message" value={message} onChangeText={setMessage} maxLength={1000}/><Button title="Envoyer" disabled={!message.trim()} onPress={()=>{setMessages(v=>({...v,[m.id]:[...(v[m.id]??[]),message.trim()]}));setMessage('')}}/></>:<Banner>Le chat est disponible à H−1 pour les participants confirmés.</Banner>}</>}
+ {sheet==='rating'&&m&&user&&<><RatingPicker label="Le moment" value={momentLevel} onChange={setMomentLevel}/><RatingPicker label="Le lieu" value={venueLevel} onChange={setVenueLevel}/><Button title={state.ratings.some(r=>r.momentId===m.id&&r.author===user.id)?'Merci, vos notes sont enregistrées':'Enregistrer mes notes'} disabled={state.ratings.some(r=>r.momentId===m.id&&r.author===user.id)} onPress={()=>act({type:'rate',rating:{id:`rating-${m.id}-${user.id}`,momentId:m.id,author:user.id,recipient:m.hostId,momentLevel,venueLevel}})}/><PhotoForm moment={m}/><Button title={`Refaire un moment avec ${host?.name.startsWith('host')?'votre hôte':host?.name??'votre hôte'}`} variant="secondary" onPress={()=>{act({type:'rebook',momentId:m.id,startsAt:now+86400000,endsAt:now+91800000});setSheet('');setTab('Publier')}}/></>}
+ {sheet==='partner'&&<PartnerFlow onDone={()=>{setSheet('');setTab('Mes moments')}}/>}
+ {sheet==='subscription'&&<><T style={s.title}>Moment+</T><T>Un abonnement invité en préparation.</T><Banner>Stub de démonstration, non activé. Aucun prix réel ni paiement. La caution de 20 € reste distincte et aucune fonction n’est conditionnée à cet abonnement.</Banner></>}
+ </Sheet></View>
 }
-const s = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: c.paper
-  },
-  header: {
-    paddingHorizontal: 22,
-    height: 54,
-    borderBottomWidth: 1,
-    borderColor: '#504336',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8
-  },
-  label: {
-    color: c.light,
-    fontFamily: sans,
-    fontSize: 13,
-    letterSpacing: 1
-  },
-  content: {
-    width: '100%',
-    maxWidth: 540,
-    alignSelf: 'center',
-    paddingHorizontal: 24,
-    paddingTop: 28,
-    paddingBottom: 48
-  },
-  nav: {
-    flexDirection: 'row',
-    borderTopWidth: 1,
-    borderColor: '#504336'
-  },
-  tab: {
-    flex: 1,
-    paddingVertical: 20,
-    alignItems: 'center',
-    borderTopWidth: 2,
-    borderTopColor: 'transparent'
-  },
-  navTextActive: { color: c.light },
-  navText: {
-    color: '#C0B4A5',
-    fontFamily: sans,
-    fontSize: 14
-  }
-});
+function Publish({onPublished,partner=false,venue}:{onPublished:()=>void;partner?:boolean;venue?:{name:string;address:string;district:string}}){
+ const {state,user,now,dispatch}=useStore();const draft=state.draft;
+ const [category,setCategory]=useState<Category>(draft?.category??'Table'),[title,setTitle]=useState(draft?.title??''),[address,setAddress]=useState(venue?.address??draft?.privateAddress??''),[district,setDistrict]=useState(venue?.district??String(draft?.district??11)),[neighborhood,setNeighborhood]=useState(draft?.neighborhood??''),[day,setDay]=useState(parisDay(draft?.startsAt??now)),[hour,setHour]=useState(draft?time(draft.startsAt).replace(' h ',':'):'20:00'),[seats,setSeats]=useState<1|2|3>(draft?.seats??2),[amount,setAmount]=useState('20'),[women,setWomen]=useState(false),[error,setError]=useState('');
+ const validDate=/^\d{4}-\d{2}-\d{2}$/.test(day)&&/^([01]\d|2[0-3]):[0-5]\d$/.test(hour)&&Number.isFinite(Date.parse(`${day}T${hour}:00Z`));
+ const startsAt=validDate?parisTime(day,hour):now+3600000;const p=state.partners.find(p=>p.owner===user?.id&&p.status==='valide');
+ const preview:Moment={id:`published-${now}`,title:title.trim()||'Votre prochain moment',category,neighborhood:neighborhood.trim()||'Votre quartier',district:Number(district),privateAddress:address.trim(),startsAt,endsAt:startsAt+5400000,seats,invitationCents:partner?0:Math.round(Number(amount.replace(',','.'))*100),femmesUniquement:women,hostId:user?.id??'',urgent:false,status:'active',...(partner?{partnerId:p?.id}:{})};
+ function publish(){if(!validDate||!title.trim()||!neighborhood.trim()||!address.trim()||!/^\d{4}-\d{2}-\d{2}$/.test(day)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(hour)){setError('Renseignez le titre, le quartier, l’adresse, le jour et l’heure.');return}const action={type:'publish' as const,moment:preview,now,actor:user!.id}; // reducer remains the authority for publication
+ import('./domain/reducer').then(({reducer})=>{if(reducer(state,action)===state){setError('Vérifiez : Paris intramuros, arrondissement 1–20, date future, montant de 0 à 50 € et une seule annonce active.');return}dispatch(action);onPublished()})}
+ return <View style={s.stack}><T style={s.h}>01 · Le moment</T><View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{categories.map(v=><Chip key={v} title={v} selected={category===v} onPress={()=>setCategory(v)}/>)}</View><Field label="Titre du moment" placeholder="Une table à partager" value={title} onChangeText={setTitle}/><T style={s.h}>02 · Le lieu</T><Field label="Lieu et adresse à Paris" placeholder="18 rue Paul Bert, 75011 Paris" value={address} onChangeText={setAddress}/><Field label="Quartier" placeholder="Sainte-Marguerite" value={neighborhood} onChangeText={setNeighborhood}/><Field label="Arrondissement (1–20)" keyboardType="number-pad" value={district} onChangeText={setDistrict}/><T style={[s.muted,{fontSize:13}]}>Seul le quartier est public. L’adresse apparaît après le oui.</T><T style={s.h}>03 · Quand et combien</T><Field label="Jour · AAAA-MM-JJ" value={day} onChangeText={setDay}/><View style={s.row}><Chip title="Aujourd’hui" selected={day===parisDay(now)} onPress={()=>setDay(parisDay(now))}/><Chip title="Demain" selected={day===addDays(parisDay(now),1)} onPress={()=>setDay(addDays(parisDay(now),1))}/></View><Field label="Heure de Paris · HH:MM" value={hour} onChangeText={setHour}/><T>Places disponibles</T><View style={s.row}>{([1,2,3] as const).map(n=><Chip key={n} title={String(n)} selected={seats===n} onPress={()=>setSeats(n)}/>)}</View>{!partner&&<><T style={s.h}>Montant par personne · maximum 50 €</T><View style={{flexDirection:'row',gap:8,flexWrap:'wrap',alignItems:'flex-end'}}>{[10,20,30,40].map(n=><Chip key={n} title={`${n} €`} selected={Number(amount)===n} onPress={()=>setAmount(String(n))}/>)}<View style={{minWidth:96,flex:1}}><Field label="Libre (€)" keyboardType="decimal-pad" value={amount} onChangeText={setAmount}/></View></View><View style={s.between}><T>Femmes uniquement</T><Switch accessibilityLabel="Femmes uniquement" value={women} onValueChange={setWomen} trackColor={{true:c.accent}}/></View></>}<T style={s.h}>L’aperçu</T><MomentCard moment={preview} now={now} onPress={()=>{}} offer={partner?p?.gesture:undefined}/>{error&&<T accessibilityRole="alert" style={{color:c.error}}>{error}</T>}<Button title="Publier" onPress={publish}/><T style={[s.muted,{fontSize:13,textAlign:'center'}]}>Gratuit pour les hôtes. Aucun paiement réel.</T></View>
+}
+function PartnerFlow({onDone}:{onDone:()=>void}){const {state,user,act}=useStore();const p=state.partners.find(p=>p.owner===user?.id);const [name,setName]=useState(''),[address,setAddress]=useState(''),[district,setDistrict]=useState('6'),[gesture,setGesture]=useState(''),[discount,setDiscount]=useState('15');const valid=!!name.trim()&&/Paris/i.test(address)&&Number(district)>=1&&Number(district)<=20&&(!!gesture.trim()||Number(discount)>0)&&Number(discount)>=0&&Number(discount)<=100;return <View style={s.stack}>{!p?<><T style={s.title}>Faites vivre votre lieu.</T><T style={s.muted}>Un geste, une remise et une nouvelle occasion de se retrouver.</T><Field label="Nom du lieu" value={name} onChangeText={setName}/><Field label="Adresse à Paris" value={address} onChangeText={setAddress}/><Field label="Arrondissement" value={district} onChangeText={setDistrict} keyboardType="number-pad"/><Field label="Geste offert (facultatif si remise)" value={gesture} onChangeText={setGesture} placeholder="Un café offert"/><Field label="Remise en % (0–100)" value={discount} onChangeText={setDiscount} keyboardType="decimal-pad"/><Button title="Envoyer la demande" disabled={!valid} onPress={()=>act({type:'partnerApply',partner:{id:`partner-${user!.id}`,owner:user!.id,status:'en_revue',gesture:gesture.trim(),discountPercent:Number(discount)}})}/></>:p.status==='en_revue'?<><StatusPill title="En revue" tone="warning"/><T style={s.title}>{name||'Votre lieu'}</T><T style={s.muted}>Notre équipe examine votre demande. La validation est manuelle.</T><Button title="Simuler la validation" onPress={()=>act({type:'partnerValidate',partnerId:p.id})}/></>:<><StatusPill title="Partenaire validé" tone="success"/><Banner>{p.gesture||'Votre offre'} · {p.discountPercent} % de remise. Geste et remise sont cumulables, sans plafond en euros. Les demandes sont confirmées automatiquement ; la caution de 20 € est bloquée en simulation.</Banner><Publish partner venue={{name,address,district}} onPublished={onDone}/></>}</View>}
+function PhotoForm({moment}:{moment:Moment}){const {state,user,act}=useStore();const [uri,setUri]=useState(''),[kind,setKind]=useState<'lieu'|'table'>('lieu');const photos=state.photos.filter(p=>p.momentId===moment.id);return <View style={s.stack}><T style={s.h}>Photos du moment</T><T style={[s.muted,{fontSize:13}]}>Le lieu, ou une à deux personnes à table. Une photo de personnes reste masquée tant que chacune n’a pas donné son accord.</T><View style={s.row}><Chip title="Lieu" selected={kind==='lieu'} onPress={()=>setKind('lieu')}/><Chip title="À table" selected={kind==='table'} onPress={()=>setKind('table')}/></View><Field label="Lien de la photo (https://…)" value={uri} onChangeText={setUri} autoCapitalize="none"/><Button title="Ajouter la photo" variant="secondary" disabled={!/^https:\/\/.+/.test(uri)} onPress={()=>{act({type:'addPhoto',photo:{id:`photo-${photos.length}-${moment.id}`,momentId:moment.id,author:user!.id,type:kind,uri,people:kind==='table'?[user!.id,moment.hostId]:[],consent:[]}});setUri('')}}/>{photos.map(p=><View key={p.id} style={s.card}><StatusPill title={photoVisible(p)?'Accords réunis · visible':'Masquée · accord manquant'}/><T style={s.muted}>{p.type==='lieu'?'Photo du lieu':'Photo à table'}</T>{photoVisible(p)&&<Photo uri={p.uri}/ >}{p.people.includes(user!.id)&&<Button title={p.consent.includes(user!.id)?'Retirer mon accord':'Donner mon accord'} variant="text" onPress={()=>act({type:'consent',photoId:p.id,granted:!p.consent.includes(user!.id)})}/>}</View>)}</View>}
+import {Image} from 'react-native';
+function Photo({uri}:{uri:string}){return <Image accessibilityLabel="Photo partagée avec accord" source={{uri}} style={{height:180,borderRadius:12,backgroundColor:c.surface}} resizeMode="cover"/>}
+// Geographic centroid grid: north at the top, west at the left. No exact addresses.
+const districts=[{n:17,x:1,y:0},{n:18,x:2,y:0},{n:19,x:3,y:0},{n:16,x:0,y:1},{n:8,x:1,y:1},{n:9,x:2,y:1},{n:10,x:3,y:1},{n:20,x:4,y:1},{n:7,x:0,y:2},{n:1,x:1,y:2},{n:2,x:2,y:2},{n:3,x:3,y:2},{n:11,x:4,y:2},{n:15,x:0,y:3},{n:6,x:1,y:3},{n:5,x:2,y:3},{n:4,x:3,y:3},{n:12,x:4,y:3},{n:14,x:1,y:4},{n:13,x:2,y:4}];
+function ParisMap({moments,onSelect}:{moments:Moment[];onSelect:(id:string)=>void}){const [peek,setPeek]=useState<Moment|null>(null);return <View style={s.stack}><View style={{height:370,backgroundColor:c.surface,borderRadius:20,padding:12,overflow:'hidden'}}><T style={[s.muted,{fontSize:11,letterSpacing:1}]}>PARIS · LES 20 ARRONDISSEMENTS</T><View style={{flex:1,marginTop:12}}>{districts.map(d=>{const matches=moments.filter(m=>m.district===d.n);return <View key={d.n} style={{position:'absolute',left:`${d.x*20}%`,top:`${d.y*20}%`,width:'19%',height:'19%',borderRadius:12,borderWidth:1,borderColor:'#DDDDD9',backgroundColor:'white',alignItems:'center',justifyContent:'center'}}><T style={{fontSize:12,color:c.secondary}}>{d.n}</T>{matches.length>0&&<Pressable accessibilityRole="button" accessibilityLabel={`${matches.length} moments dans le ${d.n}e arrondissement`} onPress={()=>{const i=matches.findIndex(m=>m.id===peek?.id);setPeek(matches[(i+1)%matches.length]!)}} style={{minWidth:44,minHeight:44,alignItems:'center',justifyContent:'center'}}><View style={{backgroundColor:categoryColors[matches[0]!.category],width:24,height:24,borderRadius:12,alignItems:'center',justifyContent:'center'}}><T style={{color:'white',fontSize:12,lineHeight:18}}>{matches.length}</T></View></Pressable>}</View>})}</View></View><View style={{flexDirection:'row',flexWrap:'wrap',gap:16}}>{categories.map(cat=><View key={cat} style={[s.row,{gap:6}]}><View style={{width:8,height:8,borderRadius:4,backgroundColor:categoryColors[cat]}}/><T style={{fontSize:12,color:c.secondary}}>{cat}</T></View>)}</View><T style={[s.muted,{fontSize:13}]}>Repères au centre des quartiers, jamais à l’adresse exacte. Touchez à nouveau un repère pour parcourir ses moments.</T>{peek&&<View style={s.card}><T style={s.h}>{peek.title}</T><T style={s.muted}>{peek.neighborhood} · {time(peek.startsAt)}</T><Button title="Voir le moment" onPress={()=>onSelect(peek.id)}/></View>}</View>}
