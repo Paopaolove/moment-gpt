@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
 import { c, sans } from '../theme/tokens';
 import { useReducedMotion } from './useReducedMotion';
-function Seat({ filled, index }: {
+function Seat({ filled, index, color }: {
+  color: string;
   filled: boolean;
   index: number;
 }) {
@@ -19,26 +20,27 @@ function Seat({ filled, index }: {
     return () => animation.stop();
   }, [filled, index, reduced, fill]);
   return <View style={s.seat}>
-    <View style={s.back}>
-      <Animated.View style={[s.fill, {
+    <View style={[s.back, {borderColor:color}]}>
+      <Animated.View style={[s.fill, {backgroundColor:color,
         opacity: fill
       }]} />
     </View>
-    <View style={s.cushion} />
+    <View style={[s.cushion, {borderColor:color}]} />
     <View style={s.legs}>
-      <View style={s.leg} />
-      <View style={s.leg} />
+      <View style={[s.leg, {backgroundColor:color}]} />
+      <View style={[s.leg, {backgroundColor:color}]} />
     </View>
   </View>;
 }
-export function SeatRow({ total, taken = 0 }: {
+export function SeatRow({ total, taken = 0, color = c.ink }: {
+  color?: string;
   total: number;
   taken?: number;
 }) {
   const reserved = Math.max(0, Math.min(total, Math.floor(taken)));
   return <View accessibilityLabel={`${reserved} place réservée, ${total - reserved} places libres`} style={s.seats}>
-    {Array.from({ length: total }, (_, i) => <Seat key={i} filled={i < reserved} index={i} />)}
-    <Text style={s.seatLabel}>{reserved ? `${reserved} réservée · ${total - reserved} libre${total - reserved > 1 ? 's' : ''}` : `${total} place${total > 1 ? 's' : ''} libre${total > 1 ? 's' : ''}`}</Text>
+    {Array.from({ length: total }, (_, i) => <Seat color={color} key={i} filled={i < reserved} index={i} />)}
+    <Text style={[s.seatLabel, {color}]}>{reserved ? `${reserved} réservée · ${total - reserved} libre${total - reserved > 1 ? 's' : ''}` : `${total} place${total > 1 ? 's' : ''} libre${total > 1 ? 's' : ''}`}</Text>
   </View>;
 }
 const s = StyleSheet.create({
@@ -82,7 +84,7 @@ const s = StyleSheet.create({
   },
   seatLabel: {
     fontFamily: sans,
-    fontSize: 13,
+    fontSize: 14,
     color: c.muted,
     flexShrink: 1
   }

@@ -1,8 +1,8 @@
 export const RULES = {
-  deposit: 2000, momentShare: 690, hostShare: 1310, confirmationMinutes: 10,
+  deposit: 2000, momentShare: 690, hostShare: 1310, confirmationMinutes: 10, urgentConfirmationMinutes: 5,
   jokerPerMonth: 1, urgentBeforeMinutes: 90, urgentAfterMinutes: 30, presenceBeforeMinutes: 15,
-  minSeats: 1, maxSeats: 3, maxInvitation: 5000, pricePills: [1000, 2000, 3000, 4000],
-  categories: ['Table', 'Sport', 'Culture'], timezone: 'Europe/Paris', hostSubscription: 0,
+  minSeats: 1, maxSeats: 4, maxInvitation: 5000, pricePills: [0, 1000, 2000, 3000, 4000],
+  categories: ['Table', 'Sport', 'Culture', 'Nuit'], timezone: 'Europe/Paris', hostSubscription: 0,
 } as const;
 export type Category = typeof RULES.categories[number];
 export type Participation = 'requested' | 'accepted' | 'confirmed' | 'present' | 'cancelled' | 'expired';
@@ -27,11 +27,13 @@ export type Booking = {
   guestId: string;
   status: Participation;
   acceptedAt?: number;
+  confirmationMinutes?: number;
+  presentAt?: number;
   deposit: 'none' | 'held' | 'released' | 'split';
 };
 export const isUrgent = (start: number, now: number) => now >= start - RULES.urgentBeforeMinutes * 60000 && now <= start + RULES.urgentAfterMinutes * 60000;
 export const canAttend = (start: number, now: number) => now >= start - RULES.presenceBeforeMinutes * 60000;
-export const confirmationExpired = (accepted: number, now: number) => now >= accepted + RULES.confirmationMinutes * 60000;
+export const confirmationExpired = (accepted: number, now: number, minutes: number = RULES.confirmationMinutes) => now >= accepted + minutes * 60000;
 export const monthKey = (now: number) => new Intl.DateTimeFormat('fr-FR', { timeZone: RULES.timezone, month: '2-digit', year: 'numeric' }).format(now);
 export const euros = (cents: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: cents % 100 ? 2 : 0 }).format(cents / 100);
 export const dateLabel = (time: number) => new Intl.DateTimeFormat('fr-FR', { timeZone: RULES.timezone, weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }).format(time);
@@ -48,17 +50,17 @@ export function validateMoment(m: Pick<Moment, 'title' | 'address' | 'district' 
   if(postal && Number(postal[1]) !== m.district)
     return 'Le code postal et l’arrondissement doivent correspondre.';
   if(!Number.isInteger(m.seats) || m.seats < RULES.minSeats || m.seats > RULES.maxSeats)
-    return 'Proposez de 1 à 3 places.';
+    return 'Proposez de 1 à 4 places.';
   if(!Number.isInteger(m.price) || m.price < 0 || m.price > RULES.maxInvitation)
     return 'L’invitation est limitée à 50 €.';
   if(m.category !== undefined && !RULES.categories.some(c => c === m.category))
-    return 'Choisissez Table, Sport ou Culture.';
+    return 'Choisissez Table, Sport, Culture ou Nuit.';
   if(!Number.isFinite(m.startsAt) || m.startsAt <= now)
     return 'Choisissez un horaire à venir.';
   return null;
 }
 /** Seconds left, rounded up so the display reaches zero at the exact deadline. */
-export const confirmationRemaining = (accepted: number, now: number) => Math.max(0, Math.min(RULES.confirmationMinutes * 60, Math.ceil((accepted + RULES.confirmationMinutes * 60000 - now) / 1000)));
+export const confirmationRemaining = (accepted: number, now: number, minutes: number = RULES.confirmationMinutes) => Math.max(0, Math.min(minutes * 60, Math.ceil((accepted + minutes * 60000 - now) / 1000)));
 /** Schematic district positions, deliberately not venue coordinates. */
 export const PARIS_DISTRICTS = [
   { id: 1, x: 44, y: 42 }, { id: 2, x: 49, y: 33 }, { id: 3, x: 60, y: 39 }, { id: 4, x: 58, y: 51 },
@@ -79,3 +81,11 @@ export type ChatMessage = {
 };
 
 export const arrondissement = (d: number) => (d === 1 ? '1er' : `${d}e`);
+
+export const confirmationDelay = (start: number, accepted: number) => isUrgent(start, accepted) ? RULES.urgentConfirmationMinutes : RULES.confirmationMinutes;
+export function jokerBalance(bookings: Booking[], used: string[], now: number) {
+  const month = monthKey(now);
+  const presences = bookings.filter(b => b.guestId === "me" && b.status === "present" && b.presentAt !== undefined && monthKey(b.presentAt) === month).length;
+  const total = RULES.jokerPerMonth + (presences >= 3 ? 1 : 0);
+  return { presences, total, remaining: Math.max(0, total - used.filter(m => m === month).length) };
+}

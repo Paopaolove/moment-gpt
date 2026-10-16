@@ -8,6 +8,7 @@ import { Category } from '../domain/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 const subtypes: Record<Category, string[]> = {
+  Nuit: ['Bal', 'Karaoké', 'Club', 'Guinguette'],
   Table: ['Bistrot', 'Terrasse', 'Cuisine française'],
   Sport: ['Padel', 'Footing', 'Piscine'],
   Culture: ['Cinéma', 'Concert', 'Exposition', 'Théâtre']
@@ -33,9 +34,9 @@ export function Offrir({ journey }: {
     <Text style={s.label}>DE L’AUTRE CÔTÉ DU BILLET</Text>
     <Text style={s.hero}>Faites place au grand soir.</Text>
     <Marquee text="HÔTE GRATUIT · INVITEZ LA VIE · " /><Copy>Offrir une place est gratuit. Sans abonnement hôte.</Copy>
-    <View style={{ flexDirection: 'row', gap: 8 }}>{['Quoi', 'Où · quand', 'Pour qui'].map((label, i) => <View key={label} accessibilityLabel={label + (i === stage ? ', étape active' : i < stage ? ', terminée' : ', à venir')} style={{ flex: 1, opacity: i > stage ? 0.5 : 1, borderBottomWidth: i === stage ? 2 : 0, borderColor: c.light, paddingBottom: 8 }}><Text numberOfLines={1} style={{ fontFamily: medium, fontSize: 13, lineHeight: 22, textAlign: 'center', color: i === stage ? c.ink : c.light, backgroundColor: i === stage ? c.light : 'transparent', paddingVertical: 8 }}>{i < stage ? '✓ ' : ''}{label}</Text></View>)}</View>
+    <View style={{ flexDirection: 'row', gap: 8 }}>{['Quoi', 'Où · quand', 'Pour qui'].map((label, i) => <View key={label} accessibilityLabel={label + (i === stage ? ', étape active' : i < stage ? ', terminée' : ', à venir')} style={{ flex: 1, opacity: i > stage ? 0.5 : 1, borderBottomWidth: i === stage ? 2 : 0, borderColor: c.light, paddingBottom: 8 }}><Text numberOfLines={1} style={{ fontFamily: medium, fontSize: 14, lineHeight: 22, textAlign: 'center', color: i === stage ? c.ink : c.light, backgroundColor: i === stage ? c.light : 'transparent', paddingVertical: 8 }}>{i < stage ? '✓ ' : ''}{label}</Text></View>)}</View>
     {stage === 0 && <>
-      <Pills items={['Table', 'Sport', 'Culture']} value={category} onChange={v => {
+      <Pills items={['Table', 'Sport', 'Culture', 'Nuit']} value={category} onChange={v => {
         setCategory(v as Category);
         setSubtype(subtypes[v as Category][0]!);
       }} />
@@ -60,9 +61,10 @@ export function Offrir({ journey }: {
     </>}
     {stage === 2 && <>
       <Text style={s.label}>PLACES LIBRES</Text>
-      <Pills items={['1', '2', '3']} value={seats} onChange={setSeats} />
+      <Pills items={['1', '2', '3', '4']} value={seats} onChange={setSeats} />
       <Text style={s.label}>VOTRE INVITATION · PAR PLACE</Text>
-      <Pills items={['10', '20', '30', '40']} value={price} onChange={setPrice} />
+      <Pills items={['0', '10', '20', '30', '40']} value={price} onChange={setPrice} />
+      {price === '0' && <Copy>0 € · Juste la place</Copy>}
       <Input label="Montant en euros · 50 € maximum" value={price} set={setPrice} keyboardType="numeric" />
       <Copy small>Vous offrez ce montant à chaque invité pour le repas, l’activité ou l’entrée.</Copy>
       <View style={s.row}>
@@ -90,7 +92,7 @@ const s = StyleSheet.create({
   },
   label: {
     fontFamily: medium,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 1.8,
     lineHeight: 18,
     color: c.light,

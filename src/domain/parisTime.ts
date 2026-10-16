@@ -12,4 +12,4 @@ export function nextSlot(now: number, hours: string[]) {
   const day = parisDay(now);
   return hours.map(hour => parisTime(day, hour)).find(time => time > now) ?? parisTime(addDays(day, 1), hours[0]!);
 }
-export const offerHours = ['08:00', '12:30', '18:30', '19:00', '19:30', '20:00', '20:15', '20:30', '21:00'];
+export const offerHours = ['08:00', '12:30', '18:30', '19:00', '19:30', '20:00', '20:15', '20:30', '21:00', '21:30', '23:30'];

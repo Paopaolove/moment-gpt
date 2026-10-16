@@ -11,7 +11,8 @@ import { feedback } from './haptics';
 import { Perforation } from './Perforation';
 import { PaperContext, SeatRow, Tear } from './Primitives';
 import { useReducedMotion } from './useReducedMotion';
-export function Poster({ children, index = 0, onPress, accessibilityLabel, compact = false }: {
+export function Poster({ children, index = 0, onPress, accessibilityLabel, compact = false, category }: {
+  category?: Moment['category'];
   children: React.ReactNode;
   compact?: boolean;
   index?: number;
@@ -33,7 +34,7 @@ export function Poster({ children, index = 0, onPress, accessibilityLabel, compa
   }).start();
   return <PaperContext.Provider value><TicketImpact.Provider value={strike}>
     <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress ? () => { void feedback('selection'); onPress(); } : undefined} onPressIn={onPress && !reduced ? () => press(1.018) : undefined} onPressOut={onPress && !reduced ? () => press(1) : undefined}>
-      <Animated.View style={[s.paper, compact && { padding: 16, gap: 8 }, {
+      <Animated.View style={[s.paper, category && {backgroundColor:categoryColor[category], borderColor:categoryColor[category], shadowColor:category === 'Nuit' ? c.pink : c.blue}, compact && { padding: 16, gap: 8 }, {
         transform: [{ translateY: impact.interpolate({ inputRange: [0, 1], outputRange: [0, 3] }) }, { rotateZ: impact.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '0.5deg'] }) }, {
           rotate: lift.interpolate({
             inputRange: [1, 1.018],
@@ -50,9 +51,9 @@ export function Poster({ children, index = 0, onPress, accessibilityLabel, compa
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>
           {Array.from({
             length: 100
-          }, (_, i) => <View key={i} style={[s.grain, {
-            left: `${i * 37 % 100}%`,
-            top: `${i * 23 % 100}%`
+          }, (_, i) => <View key={i} style={[s.grain, {backgroundColor: category === 'Nuit' ? c.light : c.ink,
+            right: (i % 10) * 9,
+            bottom: Math.floor(i / 10) * 9
           }]} />)}
         </View>
         {children}
@@ -77,45 +78,46 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
     hour: '2-digit',
     minute: '2-digit'
   }).format(m.startsAt);
-  if (compact) return <TicketShell compact>
-    <Text style={[s.label, { backgroundColor: categoryColor[m.category], color: c.ink, padding: 8 }]}>{m.category} / {m.subtype}</Text>
-    <Text style={[s.title, { marginTop: 0, fontSize: 26, lineHeight: 30 }]}>{m.title}</Text>
-    <Text style={[s.time, { fontSize: 72, lineHeight: 76 }]}>{time}</Text>
-    <SeatRow total={m.seats} taken={taken} />
+  const ink = {color: m.category === 'Nuit' ? c.light : c.ink};
+  if (compact) return <TicketShell category={m.category} compact>
+    <Text style={[s.label, ink, { backgroundColor: categoryColor[m.category], color: ink.color, padding: 8 }]}>{m.category} / {m.subtype}</Text>
+    <Text style={[s.title, ink, { marginTop: 0, fontSize: 26, lineHeight: 30 }]}>{m.title}</Text>
+    <Text style={[s.time, ink, { fontSize: 72, lineHeight: 76 }]}>{time}</Text>
+    <SeatRow color={ink.color} total={m.seats} taken={taken} />
     {children}
   </TicketShell>;
-  return <TicketShell index={index} onPress={onPress} accessibilityLabel={`Voir le billet : ${m.title}`}>
-    {featured && <Text style={[s.label, { color: c.accent }]}>À LA UNE · {now !== undefined ? formatDelay(m.startsAt, now).toUpperCase() : ''}</Text>}
-    <View style={s.row}>
-      <Text style={[s.label, { backgroundColor: categoryColor[m.category], color: c.ink, padding: 8 }]}>{m.category} / {m.subtype}</Text>
-      <Text style={s.label}>P / {String(m.district).padStart(2, '0')}</Text>
+  return <TicketShell category={m.category} index={index} onPress={onPress} accessibilityLabel={`Voir le billet : ${m.title}`}>
+    {featured && <Text style={[s.label, ink, { color: ink.color }]}>À LA UNE · {now !== undefined ? formatDelay(m.startsAt, now).toUpperCase() : ''}</Text>}
+    <View style={[s.row, {minHeight:64,paddingRight:70}]}>
+      <Text style={[s.label, ink, { backgroundColor: categoryColor[m.category], color: ink.color, padding: 8 }]}>{m.category} / {m.subtype}</Text>
     </View>
+    <View pointerEvents="none" style={{position:'absolute',right:14,top:featured ? 60 : 22,width:64,height:64,alignItems:'center',justifyContent:'center',transform:[{rotate:'12deg'}]}}>{Array.from({length:12},(_,i)=><View key={i} style={{position:'absolute',width:56,height:56,borderRadius:18,backgroundColor:c.yellow,transform:[{rotate:`${i*30}deg`}]}} />)}<Text style={{fontFamily:serif,fontSize:24,color:c.ink}}>{arrondissement(m.district)}</Text></View>
     <View style={s.face}>
 
-      <Text style={s.title}>
+      <Text style={[s.title, ink]}>
         {m.title}
       </Text>
       <View style={s.timeFace}>
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>{Array.from({ length: 12 }, (_, i) => <View key={i} style={{ position: 'absolute', right: 18 - i * 8, top: 24 - i * 8, width: 70 + i * 16, height: 70 + i * 16, borderRadius: 200, borderWidth: 0.5, borderColor: '#BCAF9C', opacity: 0.35, transform: [{ scaleY: 0.55 }, { rotate: '25deg' }] }} />)}</View>
-        <Text aria-hidden style={s.district}>{arrondissement(m.district)}</Text>
-        <Text style={[s.time, featured && { fontSize: 112, lineHeight: 130 }]} adjustsFontSizeToFit numberOfLines={1}>
+
+        <Text style={[s.time, ink, featured && { fontSize: 112, lineHeight: 130 }]} adjustsFontSizeToFit numberOfLines={1}>
           {time}
         </Text></View>
     </View>
-    <Text style={s.body}>{dateLabel(m.startsAt)} · {m.host === 'Vous' ? 'votre place' : `avec ${m.host}`}</Text>
-    {now !== undefined && !featured && <Text style={s.body}>{formatDelay(m.startsAt, now)}</Text>}
-    {(featured || !onPress) && <Text style={[s.body, { color: c.ink }]}>☀ MÉTÉO D’AMBIANCE · {ambiance(m.district)}</Text>}
+    <Text style={[s.body, ink]}>{dateLabel(m.startsAt)} · {m.host === 'Vous' ? 'votre place' : `avec ${m.host}`}</Text>
+    {now !== undefined && !featured && <Text style={[s.body, ink]}>{formatDelay(m.startsAt, now)}</Text>}
+    {(featured || !onPress) && <Text style={[s.body, ink]}>☀ MÉTÉO D’AMBIANCE · {ambiance(m.district)}</Text>}
     <Tear />
-    <SeatRow total={m.seats} taken={taken} />
+    <SeatRow color={ink.color} total={m.seats} taken={taken} />
     <View style={s.row}>
-      <Text style={s.body}>Invitation de l’hôte</Text>
-      <Text style={s.amount}>
-        {euros(m.price)}
+      <Text style={[s.body, ink]}>Invitation de l’hôte</Text>
+      <Text style={[s.amount, ink]}>
+        {m.price === 0 ? 'Juste la place' : euros(m.price)}
       </Text>
     </View>
-    {m.womenOnly && <Text style={s.label}>Femmes uniquement</Text>}
+    {m.womenOnly && <Text style={[s.label, ink]}>Femmes uniquement</Text>}
     <View style={s.serial}>
-      <View><Text aria-hidden numberOfLines={1} style={[s.label, { width: '100%', position: 'absolute', left: 0.7, top: 0.6, opacity: 0.3, color: c.accent }]}>N° {serialOf(m.id)} / PARIS</Text><Text style={s.label}>N° {serialOf(m.id)} / PARIS</Text></View>
+      <View><Text aria-hidden numberOfLines={1} style={[s.label, ink, { width: '100%', position: 'absolute', left: 0.7, top: 0.6, opacity: 0.3, color: c.accent }]}>N° {serialOf(m.id)} / PARIS</Text><Text style={[s.label, ink]}>N° {serialOf(m.id)} / PARIS</Text></View>
       <View style={s.punch} />
     </View>
     {children}
@@ -137,11 +139,11 @@ const s = StyleSheet.create({
   },
   grain: {
     position: 'absolute',
-    width: 3,
-    height: 3,
+    width: 5,
+    height: 5,
     borderRadius: 2,
-    backgroundColor: c.muted,
-    opacity: 0.12
+    backgroundColor: c.ink,
+    opacity: 0.25
   },
   row: {
     flexDirection: 'row',
@@ -162,16 +164,6 @@ const s = StyleSheet.create({
     position: 'relative'
   },
   timeFace: { position: 'relative', overflow: 'hidden' },
-  district: {
-    position: 'absolute',
-    right: 0,
-    bottom: -18,
-    fontFamily: serif,
-    fontSize: 120,
-    lineHeight: 140,
-    color: c.pink,
-    letterSpacing: -4
-  },
   title: {
     fontFamily: serif,
     fontSize: 30,
@@ -215,5 +207,5 @@ const s = StyleSheet.create({
   }
 });
 export function serialOf(id: string) {
-  return id.startsWith('place-') ? String(4120 + Number(id.slice(6))).padStart(5, '0') : `0${(5000 + Number(id.replace(/\D/g, '').slice(-3) || 0)) % 10000}`.padStart(5, '0');
+  return /^place-\d+$/.test(id) ? String(4120 + Number(id.slice(6))).padStart(5, '0') : `0${(5000 + Number(id.replace(/\D/g, '').slice(-3) || 0)) % 10000}`.padStart(5, '0');
 }

@@ -31,6 +31,7 @@ export function Countdown({ seconds }: {
   }, [beat, reduced, fast, seconds <= 0]);
   const value = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
   return <View accessibilityRole="timer" accessibilityLabel={`${Math.floor(seconds / 60)} min ${seconds % 60} s`} style={{ alignItems: 'center', marginVertical: 18 }}>
+    <Animated.View pointerEvents="none" style={{position:'absolute',width:250,height:130,borderRadius:100,borderWidth:4,borderColor:c.pink,opacity:0.5,transform:[{scale:beat}]}} />
     <Animated.View style={{ flexDirection: 'row', justifyContent: 'center', transform: [{scale: beat}] }}>{value.split('').map((digit, i) => <CountdownDigit key={i} digit={digit} />)}</Animated.View>
     <View style={{ flexDirection: 'row', width: 240, justifyContent: 'space-around' }}><Text style={{ color: c.muted }}>min</Text><Text style={{ color: c.muted }}>s</Text></View>
   </View>;
@@ -47,7 +48,7 @@ function CountdownDigit({ digit }: { digit: string }) {
   return <Animated.Text style={{ width: digit === ':' ? 20 : 48, textAlign: 'center', fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: reduced ? [] : [{ perspective: 500 }, { rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: [digit === ':' ? '0deg' : '-75deg', '0deg'] }) }] }}>{digit}</Animated.Text>;
 }
 
-export function FuseBar({ seconds }: { seconds: number }) {
+export function FuseBar({ seconds, total = 600 }: { seconds: number; total?: number }) {
   const reduced = useReducedMotion();
   const left = useRef(new Animated.Value(seconds)).current;
   useEffect(() => {
@@ -55,7 +56,7 @@ export function FuseBar({ seconds }: { seconds: number }) {
     animation.start();
     return () => animation.stop();
   }, [seconds, reduced, left]);
-  return <View accessibilityLabel={`${seconds} secondes restantes sur 600`} style={{ height: 5, backgroundColor: c.line, marginBottom: 18 }}>
-    <Animated.View style={{ height: 5, width: '100%', transformOrigin: 'left center', transform: [{ scaleX: left.interpolate({ inputRange: [0, 600], outputRange: [0, 1], extrapolate: 'clamp' }) }], backgroundColor: seconds <= 60 ? c.accent : c.ink }} />
+  return <View accessibilityLabel={`${seconds} secondes restantes sur ${total}`} style={{ height: 5, backgroundColor: c.line, marginBottom: 18 }}>
+    <Animated.View style={{ height: 5, width: '100%', transformOrigin: 'left center', transform: [{ scaleX: left.interpolate({ inputRange: [0, total], outputRange: [0, 1], extrapolate: 'clamp' }) }], backgroundColor: seconds <= 60 ? c.accent : c.ink }} />
   </View>;
 }

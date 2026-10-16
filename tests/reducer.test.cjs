@@ -14,14 +14,15 @@ test('seul l’hôte accepte, seul l’invité confirme', () => {
   assert.equal(confirmed().bookings[0].deposit, 'held');
 });
 test('confirmation rejetée à l’échéance même sans tick préalable', () => {
-  assert.equal(act(accepted(), 'confirm', 'me', t + 599999).bookings[0].status, 'confirmed');
-  const expired = act(accepted(), 'confirm', 'me', t + 600000);
+  assert.equal(act(accepted(), 'confirm', 'me', t + 299999).bookings[0].status, 'confirmed');
+  const expired = act(accepted(), 'confirm', 'me', t + 300000);
   assert.equal(expired.bookings[0].status, 'expired'); assert.equal(expired.bookings[0].deposit, 'none');
 });
 test('présence bloquée avant H−15 puis libération unique', () => {
   const s = confirmed(); assert.equal(act(s, 'present', 'me', moment.startsAt - 900001), s);
   const present = act(s, 'present', 'me', moment.startsAt - 900000);
   assert.equal(present.bookings[0].deposit, 'released');
+  assert.equal(present.bookings[0].presentAt, moment.startsAt - 900000);
   assert.equal(act(present, 'cancel'), present); assert.equal(act(present, 'present'), present);
 });
 test('annulation : contrôle des acteurs et comptabilité sans double crédit', () => {
@@ -51,7 +52,7 @@ test('publication validée dans le reducer et identifiants uniques', () => {
   const m = {...moment, hostId: 'me', own: true};
   const published = reducer(s, {type: 'publish', moment: m, now: t}); assert.equal(published.moments.length, 1);
   assert.equal(reducer(published, {type: 'publish', moment: m, now: t}).moments.length, 1);
-  assert.equal(reducer(s, {type: 'publish', moment: {...m, seats: 4}, now: t}).moments.length, 0);
+  assert.equal(reducer(s, {type: 'publish', moment: {...m, seats: 5}, now: t}).moments.length, 0);
 });
 
 test('avis : présence requise, un seul avis, note entière et texte borné', () => {
@@ -79,7 +80,7 @@ test('chat local : réservé aux participants confirmés, messages conservés et
 
 test('expiration de plusieurs réservations via tick sans réservation de caution', () => {
   const s = accepted();
-  const expired = reducer(s, {type: 'tick', now: t + 600000});
+  const expired = reducer(s, {type: 'tick', now: t + 300000});
   assert.equal(expired.bookings[0].status, 'expired');
   assert.equal(expired.bookings[0].deposit, 'none');
   assert.equal(act(expired, 'confirm'), expired);

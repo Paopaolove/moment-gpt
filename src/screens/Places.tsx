@@ -1,7 +1,7 @@
 import { Entrance, Marquee } from '../components/Funky';
 import { Roulette } from '../components/Roulette';
 import { categoryColor } from '../theme/tokens';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Pulse } from '../components/MotionDetails';
 import { Copy, Link } from '../components/Primitives';
 import { MovingTicket } from '../components/TicketTransition';
@@ -23,14 +23,14 @@ export function Places({ journey }: {
       <Text style={s.hero}>CE SOIR À PARIS</Text>
       <Copy>{date} · {count} place{count > 1 ? 's' : ''} libre{count > 1 ? 's' : ''} à Paris</Copy>
     </View>
-    <Marquee /><Roulette moments={available.filter(x => !x.own)} onOpen={m => { setId(m.id); go('detail'); }} /><View style={s.filters}>
-      {['Tout', 'Table', 'Sport', 'Culture', 'Maintenant'].map(label => {
+    <Marquee /><Roulette moments={available.filter(x => !x.own)} onOpen={m => { setId(m.id); go('detail'); }} /><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}>
+      {['Tout', 'Table', 'Sport', 'Culture', 'Nuit', 'Maintenant'].map(label => {
         const active = label === 'Maintenant' ? urgent : filter === label;
-        return <Pressable key={label} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => label === 'Maintenant' ? setUrgent(!urgent) : setFilter(label)} style={[s.filter, { backgroundColor: label in categoryColor ? categoryColor[label as keyof typeof categoryColor] : c.yellow, opacity: active ? 1 : 0.8, transform: [{ rotate: active ? '-4deg' : '2deg' }] }]}>
-          {label === 'Maintenant' && <Pulse />}<Text style={s.filterText}>{label}</Text>
+        return <Pressable key={label} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => label === 'Maintenant' ? setUrgent(!urgent) : setFilter(label)} style={[s.filter, { backgroundColor: label in categoryColor ? categoryColor[label as keyof typeof categoryColor] : c.yellow, opacity: active ? 1 : 0.8, transform: [{ rotate: active ? '-6deg' : '2deg' }, {scale: active ? 1.06 : 1}] }]}>
+          {label === 'Maintenant' && <Pulse />}<Text style={[s.filterText, { color: label === 'Nuit' ? c.light : c.ink }]}>{label === 'Maintenant' ? '● Maintenant' : label}</Text>
         </Pressable>;
       })}
-    </View>
+    </ScrollView>
     {store.bookings.some(b => ['accepted', 'confirmed', 'present'].includes(b.status) && !b.momentId.startsWith('demo-past-')) && <View style={s.note}>
       <Text style={s.label}>VOS BILLETS</Text>
       {store.bookings.filter(b => ['accepted', 'confirmed', 'present'].includes(b.status) && !b.momentId.startsWith('demo-past-')).map(b => <Link key={b.momentId} label={store.moments.find(x => x.id === b.momentId)!.title} onPress={() => {
@@ -47,12 +47,12 @@ const s = StyleSheet.create({
   screen: {
     gap: 32
   },
-  filters: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10 },
+  filters: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 6 },
   filter: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 40, borderBottomWidth: 1, borderBottomColor: 'transparent' },
   filterText: { fontFamily: sans, fontSize: 14, color: c.ink },
   label: {
     fontFamily: medium,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 1.8,
     lineHeight: 18,
     color: c.light,

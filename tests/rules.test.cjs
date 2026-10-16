@@ -22,10 +22,10 @@ test('répartition exacte de la caution en centimes', () => {
   assert.equal(r.RULES.hostShare, 1310);
   assert.equal(r.RULES.momentShare + r.RULES.hostShare, r.RULES.deposit);
 });
-test('Paris, 1 à 3 places, invitation de 50 € maximum', () => {
+test('Paris, 1 à 4 places, invitation de 50 € maximum', () => {
   const m = { title: 'Une table', address: '18 rue Paul Bert, Paris', district: 11, seats: 3, price: 5000, startsAt: start + 1 };
   assert.equal(r.validateMoment(m, start), null);
-  for (const patch of [{ district: 0 }, { district: 21 }, { seats: 0 }, { seats: 4 }, { price: 5001 }, { price: -1 }, { startsAt: start }, { title: ' ' }]) assert.ok(r.validateMoment({ ...m, ...patch }, start));
+  for (const patch of [{ district: 0 }, { district: 21 }, { seats: 0 }, { seats: 5 }, { price: 5001 }, { price: -1 }, { startsAt: start }, { title: ' ' }]) assert.ok(r.validateMoment({ ...m, ...patch }, start));
 });
 test('renouvellement du Joker selon le mois civil à Paris', () => {
   assert.notEqual(r.monthKey(Date.UTC(2026, 0, 31, 22, 59)), r.monthKey(Date.UTC(2026, 0, 31, 23, 0)));
@@ -39,7 +39,7 @@ test('adresse et catégorie : rejeter hors Paris et incohérences postales', () 
 test('le fuseau de Paris suit aussi le passage à l’heure d’été', () => {
   assert.notEqual(r.monthKey(Date.UTC(2026, 5, 30, 21, 59)), r.monthKey(Date.UTC(2026, 5, 30, 22, 0)));
   assert.equal(r.RULES.hostSubscription, 0);
-  assert.deepEqual(r.RULES.pricePills, [1000, 2000, 3000, 4000]);
+  assert.deepEqual(r.RULES.pricePills, [0, 1000, 2000, 3000, 4000]);
 });
 
 test('compte à rebours : arrondi supérieur, zéro à échéance, jamais négatif', () => {
@@ -60,7 +60,7 @@ test('les heures affichées suivent Paris même pendant les changements saisonni
 
 test('Table, Sport et Culture : seed parisien valide et diversifié', () => {
   const { seed } = require('./load.cjs')('src/domain/seed.ts');
-  assert.deepEqual(r.RULES.categories, ['Table', 'Sport', 'Culture']);
+  assert.deepEqual(r.RULES.categories, ['Table', 'Sport', 'Culture', 'Nuit']);
   const moments = seed(start);
   assert.equal(new Set(moments.map(m => m.id)).size, moments.length);
   for (const category of r.RULES.categories) {

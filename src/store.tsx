@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useReducer, useState, } from 'react';
 import { feedback } from './components/haptics';
 import { initialState, reducer } from './domain/reducer';
-import { monthKey, type Moment } from './domain/rules';
+import { jokerBalance, type Moment } from './domain/rules';
 import { seed, seedHistory } from './domain/seed';
 function useMomentStore() {
   const [state, dispatch] = useReducer(reducer, undefined, () => {
@@ -41,7 +41,8 @@ function useMomentStore() {
         sentAt: now,
       },
     }),
-    jokerUsed: state.jokerMonths.includes(monthKey(now)),
+    jokerUsed: jokerBalance(state.bookings, state.jokerMonths, now).remaining === 0,
+    jokers: jokerBalance(state.bookings, state.jokerMonths, now),
     setWoman: (value: boolean) => dispatch({
       type: 'woman',
       value,

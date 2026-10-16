@@ -102,7 +102,7 @@ export function useJourney() {
     setId(item.id);
     go('detail');
   }
-  const remaining = booking?.acceptedAt === undefined ? 600 : confirmationRemaining(booking.acceptedAt, store.now);
+  const remaining = booking?.acceptedAt === undefined ? 600 : confirmationRemaining(booking.acceptedAt, store.now, booking.confirmationMinutes);
   const expired = booking?.status === 'expired';
   return {
     store,

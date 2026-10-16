@@ -1,4 +1,4 @@
-import { Booking, ChatMessage, Moment, RULES, Review, canAttend, confirmationExpired, monthKey, validateMoment } from './rules';
+import { Booking, ChatMessage, Moment, RULES, Review, canAttend, confirmationExpired, monthKey, validateMoment, confirmationDelay, jokerBalance } from './rules';
 export type State = {
   moments: Moment[];
   reviews: Review[];
@@ -54,7 +54,7 @@ export function reducer(state: State, action: Action): State {
       return { ...state, message: error || 'Invitation non autorisée.' };
     return { ...state, moments: [action.moment, ...state.moments], message: 'Votre invitation est publiée. Une place de plus à Paris.' };
   }
-  const expired = state.bookings.map(b => b.status === 'accepted' && b.acceptedAt !== undefined && confirmationExpired(b.acceptedAt, action.now) ? { ...b, status: 'expired' as const } : b);
+  const expired = state.bookings.map(b => b.status === 'accepted' && b.acceptedAt !== undefined && confirmationExpired(b.acceptedAt, action.now, b.confirmationMinutes) ? { ...b, status: 'expired' as const } : b);
   const current = expired.some((b, i) => b !== state.bookings[i]) ? { ...state, bookings: expired } : state;
   if(action.type === 'tick')
     return current;
@@ -72,21 +72,21 @@ export function reducer(state: State, action: Action): State {
     message = 'Votre demande est envoyée. La conversation commence ici.';
   }
   if(action.type === 'accept' && host && b?.status === 'requested' && action.now <= m.startsAt + RULES.urgentAfterMinutes * 60000) {
-    next = { ...b, status: 'accepted', acceptedAt: action.now };
-    message = 'Une place vous attend. Vous avez 10 minutes pour confirmer.';
+    next = { ...b, status: 'accepted', acceptedAt: action.now, confirmationMinutes: confirmationDelay(m.startsAt, action.now) };
+    message = `Une place vous attend. Vous avez ${next.confirmationMinutes} minutes pour confirmer.`;
   }
-  if(action.type === 'confirm' && guest && b?.status === 'accepted' && b.acceptedAt !== undefined && !confirmationExpired(b.acceptedAt, action.now)) {
+  if(action.type === 'confirm' && guest && b?.status === 'accepted' && b.acceptedAt !== undefined && !confirmationExpired(b.acceptedAt, action.now, b.confirmationMinutes)) {
     next = { ...b, status: 'confirmed', deposit: 'held' };
     message = 'C’est prévu. Caution de 20 € réservée en simulation.';
   }
   if(action.type === 'present' && guest && b?.status === 'confirmed' && canAttend(m.startsAt, action.now)) {
-    next = { ...b, status: 'present', deposit: 'released' };
+    next = { ...b, status: 'present', deposit: 'released', presentAt: action.now };
     message = 'Vous y êtes. Caution libérée, profitez du moment.';
   }
   if((action.type === 'cancel' || action.type === 'joker') && b && ['requested', 'accepted', 'confirmed'].includes(b.status) && (guest || host)) {
     const joker = action.type === 'joker';
     const month = monthKey(action.now);
-    if(joker && (!guest || host || b.status !== 'confirmed' || current.jokerMonths.includes(month)))
+    if(joker && (!guest || host || b.status !== 'confirmed' || jokerBalance(current.bookings, current.jokerMonths, action.now).remaining === 0))
       return current;
     const split = b.status === 'confirmed' && !joker && !host;
     next = { ...b, status: 'cancelled', deposit: split ? 'split' : b.deposit === 'held' ? 'released' : 'none' };

@@ -1,4 +1,4 @@
-import { Confetti, Marquee } from '../components/Funky';
+import { Marquee } from '../components/Funky';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Countdown, FuseBar, Pulse } from '../components/MotionDetails';
@@ -29,7 +29,7 @@ export function PrendrePlace({ journey }: {
 
     </View>;
   return <View style={s.screen}>
-    {!expired && <Confetti category={m.category} />}<Text style={s.label}>03 / PRENDRE LA PLACE</Text><Marquee text="ACCEPTÉ · À VOUS DE JOUER · " />
+    <Text style={s.label}>03 / PRENDRE LA PLACE</Text><Marquee text="ACCEPTÉ · À VOUS DE JOUER · " />
     <Text style={s.hero}>
       {expired ? 'Le temps a filé.' : 'Le grand oui !'}
     </Text>
@@ -42,9 +42,9 @@ export function PrendrePlace({ journey }: {
         {expired ? 'BILLET EXPIRÉ' : 'L’HÔTE A ACCEPTÉ · SIMULATION'}
       </Text>
       <Countdown seconds={remaining} />
-      <FuseBar seconds={remaining} />
+      <FuseBar seconds={remaining} total={(journey.booking?.confirmationMinutes ?? 10) * 60} />
       <Copy small>
-        {expired ? 'Votre place n’est plus retenue. Aucune caution réservée.' : 'Vous avez 10 minutes pour confirmer. Après, la place est libérée.'}
+        {expired ? 'Votre place n’est plus retenue. Aucune caution réservée.' : `Vous avez ${journey.booking?.confirmationMinutes ?? 10} min pour confirmer. Après, la place est libérée.`}
       </Copy>
       <Tear />
       <Text style={s.amount}>20 € de caution</Text>
@@ -69,7 +69,7 @@ const s = StyleSheet.create({
   },
   label: {
     fontFamily: medium,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 1.8,
     lineHeight: 18,
     color: c.light,

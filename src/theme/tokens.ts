@@ -1,5 +1,5 @@
 export const c = { paper: '#24082F', card: '#FFF3E0', line: '#B39AB8', ink: '#24082F', muted: '#65436B', accent: '#FF4B1F', light: '#FFF3E0', pink: '#FF5FA2', yellow: '#FFD23F', blue: '#3D3BFF' };
-export const categoryColor = { Table: c.accent, Sport: c.yellow, Culture: c.pink };
+export const categoryColor = { Table: c.accent, Sport: c.yellow, Culture: c.pink, Nuit: c.blue };
 export const display = 'Fraunces_900Black';
 export const serif = display;
 export const medium = 'InterTight_900Black';

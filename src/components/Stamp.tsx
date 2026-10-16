@@ -46,7 +46,8 @@ const s = StyleSheet.create({
   stamp: {
     alignSelf: 'flex-end',
     borderWidth: 3,
-    borderColor: c.accent,
+    borderColor: c.ink,
+    backgroundColor: c.yellow,
     paddingHorizontal: 12,
     paddingVertical: 6,
     marginVertical: 8
@@ -56,6 +57,6 @@ const s = StyleSheet.create({
     fontSize: 23,
     letterSpacing: 3,
     fontWeight: '800',
-    color: c.accent
+    color: c.ink
   }
 });

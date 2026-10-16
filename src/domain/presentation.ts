@@ -8,6 +8,6 @@ export function formatDelay(startsAt: number, now: number) {
   return startsAt < now ? `commencé depuis ${duration}` : `dans ${duration}`;
 }
 export function defaultOfferSlot(now: number, category: Category, subtype?: string) {
-  const hours: Record<string, string> = { Bistrot: '20:00', Terrasse: '19:00', Padel: '19:00', Footing: '08:00', Piscine: '12:30', Cinéma: '20:15', Concert: '20:00', Exposition: '18:30', Théâtre: '20:00' };
-  return nextSlot(now, [hours[subtype ?? ''] ?? ({ Table: '20:00', Sport: '19:00', Culture: '20:00' }[category])]);
+  const hours: Record<string, string> = { Bal: '21:00', Karaoké: '21:30', Club: '23:30', Guinguette: '18:00', Bistrot: '20:00', Terrasse: '19:00', Padel: '19:00', Footing: '08:00', Piscine: '12:30', Cinéma: '20:15', Concert: '20:00', Exposition: '18:30', Théâtre: '20:00' };
+  return nextSlot(now, [hours[subtype ?? ''] ?? ({ Table: '20:00', Sport: '19:00', Culture: '20:00', Nuit: '21:00' }[category])]);
 }

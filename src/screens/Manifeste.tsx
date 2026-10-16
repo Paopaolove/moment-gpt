@@ -14,13 +14,11 @@ export function Manifeste({ journey }: {
     <Marquee text="LE GRAND BAL DES PLACES LIBRES · " />
     <Text style={s.label}>LA PLACE LIBRE · {String(step + 1).padStart(2, '0')} / 03</Text>
     <Text style={s.hero}>
-      {['Paris a une chaise en trop. Vous avez une soirée.', 'Votre canapé s’en remettra. Promis.', 'Entrez dans la danse. Pas dans les DM.'][step]}
+      {['Paris sort. Vous aussi ?', 'Le canapé survivra.', 'On danse ?'][step]}
     </Text>
-    <TicketShell>
-      <SeatRow total={step === 1 ? 3 : 1} taken={step === 2 ? 1 : 0} />
-      <Tear />
+    <TicketShell compact>
       <Copy>
-        {['Au bistrot, au cinéma, au bord d’un terrain. Il manque seulement quelqu’un.', 'Table, Sport, Culture. Une invitation à rejoindre ce qui existe déjà.', 'Une caution de 20 € tient votre place. Elle vous est rendue quand vous êtes là.'][step]}
+        {['Une chaise vide. Votre entrée en scène.', 'Table, Sport, Culture, Nuit. Choisissez votre piste.', '20 € de caution. Présent ? Tout est rendu.'][step]}
       </Copy>
     </TicketShell>
     <Action label={step < 2 ? 'La suite' : 'Voir les places'} onPress={() => step < 2 ? setStep(step + 1) : go('list')} />
@@ -29,11 +27,11 @@ export function Manifeste({ journey }: {
 }
 const s = StyleSheet.create({
   screen: {
-    gap: 22
+    gap: 10
   },
   label: {
     fontFamily: medium,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 1.8,
     lineHeight: 18,
     color: c.light,
@@ -42,8 +40,8 @@ const s = StyleSheet.create({
   },
   hero: {
     fontFamily: serif,
-    fontSize: 52,
-    lineHeight: 62,
+    fontSize: 36,
+    lineHeight: 40,
     letterSpacing: -1.8,
     color: c.light
   }

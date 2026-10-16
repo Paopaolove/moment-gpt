@@ -21,7 +21,7 @@ export function Billet({ journey }: {
         {m.address}
       </Copy>
       <Copy small>{m.host} · {m.own ? 'Votre invitation' : '4,9 / 5 · note de démonstration'}</Copy>
-      <Copy small>L’hôte offre {euros(m.price)} par place. Le supplément éventuel reste à votre charge.</Copy>
+      <Copy small>{m.price === 0 ? '0 € · Juste la place.' : `L’hôte offre ${euros(m.price)} par place. Le supplément éventuel reste à votre charge.`}</Copy>
     </View>
     {m.womenOnly && !m.own && <View style={s.row}>
       <Copy>Je suis une femme</Copy>
@@ -48,7 +48,7 @@ const s = StyleSheet.create({
   },
   label: {
     fontFamily: medium,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 1.8,
     lineHeight: 18,
     color: c.light,

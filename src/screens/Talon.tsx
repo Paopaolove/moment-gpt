@@ -18,6 +18,7 @@ export function Talon({ journey }: {
     <Text style={s.hero}>
       {booking?.status === 'cancelled' ? 'La place est rendue.' : booking?.status === 'present' ? 'Vous êtes là.' : 'C’est votre place.'}
     </Text>
+    <Copy>Jokers : {store.jokers.remaining}/{store.jokers.total} disponibles · {store.jokers.presences}/3 présences ce mois. +1 après 3 présences, maximum 2.</Copy>
     <FlyingStub><View style={{ gap: 0, marginBottom: 16 }}><Ticket compact now={store.now} m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
       {booking?.status === 'confirmed' && <Stamp />}
     </Ticket>
@@ -40,7 +41,7 @@ export function Talon({ journey }: {
       <View style={s.note}>
         <Text style={s.label}>UN IMPRÉVU ?</Text>
         <Copy>Votre joker du mois rend la place sans frais : la caution de 20 € vous est entièrement libérée. Sans joker, une annulation répartit la caution : 6,90 € Moment, 13,10 € hôte.</Copy>
-        {store.jokerUsed ? <Copy small>Votre joker du mois a déjà été utilisé.</Copy> : <Link label="Utiliser mon joker · rendre la place" onPress={() => {
+        {store.jokerUsed ? <Copy small>Aucun joker disponible. Le bonus arrive à la troisième présence du mois.</Copy> : <Link label="Utiliser mon joker · rendre la place" onPress={() => {
           store.act(id, 'joker');
         }} />}
         <Link label="Annuler sans joker · 6,90 € Moment, 13,10 € hôte" onPress={() => store.act(id, 'cancel')} />
@@ -56,7 +57,7 @@ const s = StyleSheet.create({
   },
   label: {
     fontFamily: medium,
-    fontSize: 13,
+    fontSize: 14,
     letterSpacing: 1.8,
     lineHeight: 18,
     color: c.light,
