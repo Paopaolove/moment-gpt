@@ -64,3 +64,12 @@ test('Je suis arrivé : refusé après la fin du moment', () => {
   assert.notEqual(act(s, 'markPresence', { momentId: 'm', now: end }).requests[0].presentAt, undefined);
   assert.equal(act(s, 'markPresence', { momentId: 'm', now: end + 1 }), s);
 });
+
+test('Je suis arrivé refusé après un Pas venu, sanction inchangée', () => {
+  const c = act(confirmed(), 'noShow', { actor: 'h', now: H + 20 * minute });
+  const after = act(c, 'markPresence', { momentId: 'm', now: H + 25 * minute });
+  assert.equal(after, c);
+  assert.equal(after.requests[0].presentAt, undefined); assert.equal(after.requests[0].deposit, 'forfeited');
+  assert.equal(after.platformCents, 690); assert.equal(host(after).credits[0].cents, 1310);
+  assert.equal(guest(after).absences, 1); assert.equal(guest(after).honoredMoments, guest(c).honoredMoments);
+});

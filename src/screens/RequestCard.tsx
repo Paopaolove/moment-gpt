@@ -104,10 +104,10 @@ export function RequestCard({ ctx, r, hero = false }: {
           setSheet('chat');
         }} />}
       <Button
-        title={r.presentAt ? 'Présence confirmée' : canMarkPresence(x, now) ? 'Je suis arrivé' : now > x.endsAt ? 'Fenêtre de présence fermée' : `Disponible à ${time(x.startsAt - 900000)}`}
-        disabled={!!r.presentAt || !canMarkPresence(x, now)}
+        title={r.presentAt ? 'Présence confirmée' : r.noShowAt !== undefined ? 'Signalé « Pas venu »' : canMarkPresence(x, now) ? 'Je suis arrivé' : now > x.endsAt ? 'Fenêtre de présence fermée' : `Disponible à ${time(x.startsAt - 900000)}`}
+        disabled={!!r.presentAt || r.noShowAt !== undefined || !canMarkPresence(x, now)}
         onPress={() => act({ type: 'markPresence', momentId: x.id })} />
-      {!r.presentAt && canMarkPresence(x, now) && <Button
+      {!r.presentAt && r.noShowAt === undefined && canMarkPresence(x, now) && <Button
         variant="text"
         title="Je suis arrivé · ajouter une photo (facultatif)"
         onPress={() => act({ type: 'markPresence', momentId: x.id, photoUri: 'stub://presence.jpg' })} />}

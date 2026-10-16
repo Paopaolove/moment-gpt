@@ -159,7 +159,7 @@ export function reducer(state: State, action: Action): State {
       if (!canMarkPresence(m, action.now)) return state;
       if (m.hostId === user.id) { if (m.hostPresentAt !== undefined) return state; m.hostPresentAt = action.now; user.honoredMoments++; }
       else {
-        const r = s.requests.find(r => r.momentId === m.id && r.guestId === user.id && r.status === 'confirmed' && r.presentAt === undefined);
+        const r = s.requests.find(r => r.momentId === m.id && r.guestId === user.id && r.status === 'confirmed' && r.presentAt === undefined && r.noShowAt === undefined);
         if (!r) return state;
         r.presentAt = action.now; if (action.photoUri) r.presencePhoto = action.photoUri; settle(s, r, false); user.honoredMoments++;
       }
