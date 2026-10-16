@@ -4,7 +4,7 @@ import { Countdown, FuseBar, Pulse } from '../components/MotionDetails';
 import { Action, Copy, Tear } from '../components/Primitives';
 import { Stamp } from '../components/Stamp';
 import { Ticket, TicketShell } from '../components/Ticket';
-import { euros } from '../domain/rules';
+import { euros } from '../legacy/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function PrendrePlace({ journey }: {

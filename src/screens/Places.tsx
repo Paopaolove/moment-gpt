@@ -2,7 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Pulse } from '../components/MotionDetails';
 import { Copy, Link } from '../components/Primitives';
 import { MovingTicket } from '../components/TicketTransition';
-import { isUrgent } from '../domain/rules';
+import { isUrgent } from '../legacy/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function Places({ journey }: {

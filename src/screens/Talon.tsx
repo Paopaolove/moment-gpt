@@ -5,7 +5,7 @@ import { Stamp } from '../components/Stamp';
 import { Stub } from '../components/Stub';
 import { serialOf, Ticket } from '../components/Ticket';
 import { formatDelay } from '../domain/presentation';
-import { canAttend } from '../domain/rules';
+import { canAttend } from '../legacy/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function Talon({ journey }: {

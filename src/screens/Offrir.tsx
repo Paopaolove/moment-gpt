@@ -3,7 +3,7 @@ import { StyleSheet, Switch, Text, View } from 'react-native';
 import { Action, Copy, Input, Pills } from '../components/Primitives';
 import { Ticket } from '../components/Ticket';
 import { addDays, offerHours, parisDay, parisTime } from '../domain/parisTime';
-import { Category } from '../domain/rules';
+import { Category } from '../legacy/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 const subtypes: Record<Category, string[]> = {

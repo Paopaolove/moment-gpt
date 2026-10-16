@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useEffect, useReducer, useState, } from 'react';
 import { feedback } from './components/haptics';
-import { initialState, reducer } from './domain/reducer';
-import { monthKey, type Moment } from './domain/rules';
-import { seed, seedHistory } from './domain/seed';
+import { initialState, reducer } from './legacy/reducer';
+import { monthKey, type Moment } from './legacy/rules';
+import { seed, seedHistory } from './legacy/seed';
 function useMomentStore() {
   const [state, dispatch] = useReducer(reducer, undefined, () => {
     const now = Date.now();

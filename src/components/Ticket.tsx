@@ -1,9 +1,9 @@
 import { TicketImpact } from './TicketImpact';
 import { formatDelay } from '../domain/presentation';
-import { arrondissement } from '../domain/rules';
+import { arrondissement } from '../legacy/rules';
 import React, { useRef } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
-import { Moment, dateLabel, euros } from '../domain/rules';
+import { Moment, dateLabel, euros } from '../legacy/rules';
 import { c, display, medium, sans, serif } from '../theme/tokens';
 import { feedback } from './haptics';
 import { Perforation } from './Perforation';

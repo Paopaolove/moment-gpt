@@ -1,8 +1,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const load = require('./load.cjs');
-const { seed, seedHistory } = load('src/domain/seed.ts');
-const { isUrgent } = load('src/domain/rules.ts');
+const { seed, seedHistory } = load('src/legacy/seed.ts');
+const { isUrgent } = load('src/legacy/rules.ts');
 const { parisDay, parisTime, nextSlot, offerHours } = load('src/domain/parisTime.ts');
 const clock = t => new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit' }).format(t);
 test('seed : horaires parisiens plausibles et un moment Maintenant à toute heure', () => {

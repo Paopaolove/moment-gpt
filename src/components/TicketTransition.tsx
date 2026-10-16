@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
-import { Moment } from '../domain/rules';
+import { Moment } from '../legacy/rules';
 import { Journey } from '../useJourney';
 import { Link as TextBack } from './Link';
 import { Ticket } from './Ticket';

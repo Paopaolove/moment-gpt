@@ -1,7 +1,7 @@
 import { StyleSheet, Switch, Text, View } from 'react-native';
 import { Action, Copy } from '../components/Primitives';
 import { MovingTicket, TicketBack } from '../components/TicketTransition';
-import { euros } from '../domain/rules';
+import { euros } from '../legacy/rules';
 import { c, medium, sans } from '../theme/tokens';
 import { Journey } from '../useJourney';
 export function Billet({ journey }: {

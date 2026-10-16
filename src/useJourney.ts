@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { defaultOfferSlot } from './domain/presentation';
 import { BackHandler } from 'react-native';
 import { parisDay } from './domain/parisTime';
-import { Category, confirmationRemaining, Moment, validateMoment } from './domain/rules';
+import { Category, confirmationRemaining, Moment, validateMoment } from './legacy/rules';
 import { useStore } from './store';
 export type Page = 'home' | 'list' | 'detail' | 'take' | 'confirmed' | 'offer';
 export function useJourney() {

@@ -1,6 +1,6 @@
-import { arrondissement } from '../domain/rules';
+import { arrondissement } from '../legacy/rules';
 import { StyleSheet, Text, View } from 'react-native';
-import { dateLabel } from '../domain/rules';
+import { dateLabel } from '../legacy/rules';
 import { c, medium, sans, serif } from '../theme/tokens';
 import { Journey } from '../useJourney';
 import { Copy } from './Copy';
