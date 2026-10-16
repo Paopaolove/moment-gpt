@@ -3,7 +3,7 @@ import { ambiance } from '../theme/ambiance';
 import { TicketImpact } from './TicketImpact';
 import { formatDelay } from '../domain/presentation';
 import { arrondissement } from '../domain/rules';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Moment, dateLabel, euros } from '../domain/rules';
 import { c, display, medium, sans, serif } from '../theme/tokens';
@@ -73,6 +73,8 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
   onPress?: () => void;
   accessibilityLabel?: string;
 }) {
+  const [faceWidth, setFaceWidth] = useState(250);
+  const clockSize = Math.min(featured ? 120 : 96, Math.floor(faceWidth / 3.35));
   const time = new Intl.DateTimeFormat('fr-FR', {
     timeZone: 'Europe/Paris',
     hour: '2-digit',
@@ -82,8 +84,9 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
   if (compact) return <TicketShell category={m.category} compact>
     <Text style={[s.label, ink, { backgroundColor: categoryColor[m.category], color: ink.color, padding: 8 }]}>{m.category} / {m.subtype}</Text>
     <Text style={[s.title, ink, { marginTop: 0, fontSize: 26, lineHeight: 30 }]}>{m.title}</Text>
-    <Text style={[s.time, ink, { fontSize: 72, lineHeight: 76 }]}>{time}</Text>
+    <View onLayout={e => setFaceWidth(e.nativeEvent.layout.width)}><Text adjustsFontSizeToFit style={[s.time, ink, { fontSize: clockSize, lineHeight: clockSize * 1.15 }]}>{time}</Text></View>
     <SeatRow color={ink.color} total={m.seats} taken={taken} />
+    <Text style={[s.label, ink]}>N° {serialOf(m.id)} / PARIS</Text>
     {children}
   </TicketShell>;
   return <TicketShell category={m.category} index={index} onPress={onPress} accessibilityLabel={`Voir le billet : ${m.title}`}>
@@ -97,10 +100,10 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
       <Text style={[s.title, ink]}>
         {m.title}
       </Text>
-      <View style={s.timeFace}>
+      <View style={s.timeFace} onLayout={e => setFaceWidth(e.nativeEvent.layout.width)}>
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>{Array.from({ length: 12 }, (_, i) => <View key={i} style={{ position: 'absolute', right: 18 - i * 8, top: 24 - i * 8, width: 70 + i * 16, height: 70 + i * 16, borderRadius: 200, borderWidth: 0.5, borderColor: '#BCAF9C', opacity: 0.35, transform: [{ scaleY: 0.55 }, { rotate: '25deg' }] }} />)}</View>
 
-        <Text style={[s.time, ink, featured && { fontSize: 112, lineHeight: 130 }]} adjustsFontSizeToFit numberOfLines={1}>
+        <Text style={[s.time, ink, { fontSize: clockSize, lineHeight: clockSize * 1.15 }]} adjustsFontSizeToFit>
           {time}
         </Text></View>
     </View>
@@ -176,7 +179,7 @@ const s = StyleSheet.create({
     fontFamily: display,
     fontSize: 100,
     lineHeight: 116,
-    letterSpacing: -6,
+    letterSpacing: -2,
     color: c.ink,
     fontVariant: ['tabular-nums']
   },
@@ -206,6 +209,18 @@ const s = StyleSheet.create({
     backgroundColor: c.paper
   }
 });
+// Stable identity-based numbers; reserve a separate range for seeded tickets.
+const serials = new Map<string, string>();
+const owners = new Map<string, string>();
 export function serialOf(id: string) {
-  return /^place-\d+$/.test(id) ? String(4120 + Number(id.slice(6))).padStart(5, '0') : `0${(5000 + Number(id.replace(/\D/g, '').slice(-3) || 0)) % 10000}`.padStart(5, '0');
+  const known = serials.get(id);
+  if (known) return known;
+  let hash = 2166136261;
+  for (const char of id) hash = Math.imul(hash ^ char.charCodeAt(0), 16777619) >>> 0;
+  let number = /^place-\d+$/.test(id) ? 4120 + Number(id.slice(6)) : 10000 + hash % 90000;
+  while (owners.has(String(number)) && owners.get(String(number)) !== id) number = 10000 + (number + 1) % 90000;
+  const serial = String(number).padStart(5, '0');
+  owners.set(String(number), id);
+  serials.set(id, serial);
+  return serial;
 }

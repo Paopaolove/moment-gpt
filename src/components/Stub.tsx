@@ -1,11 +1,13 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet } from 'react-native';
-import { c } from '../theme/tokens';
+import { Category } from '../domain/rules';
+import { categoryColor, c } from '../theme/tokens';
 import { Perforation } from './Perforation';
 import { PaperContext } from './Primitives';
 import { useReducedMotion } from './useReducedMotion';
-export function Stub({ children }: {
+export function Stub({ children, category }: {
   children: React.ReactNode;
+  category?: Category;
 }) {
   const reduced = useReducedMotion();
   const tear = useRef(new Animated.Value(0)).current;
@@ -22,7 +24,7 @@ export function Stub({ children }: {
     return () => animation.stop();
   }, [tear, reduced]);
   return <PaperContext.Provider value>
-    <Animated.View style={[s.stub, {
+    <Animated.View style={[s.stub, category && { backgroundColor: categoryColor[category] }, {
       opacity: tear,
       transform: reduced ? [] : [{
         translateY: tear.interpolate({

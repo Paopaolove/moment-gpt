@@ -44,7 +44,6 @@ export function Journey() {
     }} scrollEventThrottle={16} contentOffset={{ x: 0, y: journey.page === 'list' ? listOffset.current : 0 }} key={`${journey.page}-${journey.page === 'offer' ? journey.offerStep : ''}`} contentContainerStyle={[s.content, journey.page === 'home' && {paddingTop:12,paddingBottom:12}]} keyboardShouldPersistTaps="handled">
       {journey.page === 'detail' || journey.page === 'list' ? <TicketScreenEntrance><Screen journey={journey} /></TicketScreenEntrance> : <Screen journey={journey} />}
     </ScrollView>
-    {journey.page === 'take' && journey.booking?.status === 'accepted' && <Confetti key={journey.booking.acceptedAt} category={journey.m.category} />}
     {journey.page !== 'home' && <View style={s.nav} onLayout={e => setNavWidth(e.nativeEvent.layout.width)}>
       <Animated.View pointerEvents="none" style={{ position: 'absolute', top: 0, left: 0, width: navWidth / 2, height: 2, backgroundColor: c.accent, transform: [{ translateX: active.interpolate({ inputRange: [0, 1], outputRange: [0, navWidth / 2] }) }] }} />
       {(['list', 'offer'] as const).map((page, i) => <Pressable key={page} accessibilityRole="tab" accessibilityState={{
@@ -55,6 +54,7 @@ export function Journey() {
         </Text>
       </Pressable>)}
     </View>}
+    {journey.page === 'take' && journey.booking?.status === 'accepted' && <Confetti key={journey.booking.acceptedAt} category={journey.m.category} />}
   </View></TicketTransitions>;
 }
 const s = StyleSheet.create({

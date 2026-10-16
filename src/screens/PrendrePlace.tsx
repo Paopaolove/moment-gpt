@@ -12,6 +12,7 @@ export function PrendrePlace({ journey }: {
   journey: Journey;
 }) {
   const { store, id, m, go, remaining, expired } = journey;
+  const paperInk = m.category === 'Sport' ? c.ink : c.light;
   const accept = useRef(store.act);
   accept.current = store.act;
   useEffect(() => {
@@ -34,23 +35,23 @@ export function PrendrePlace({ journey }: {
       {expired ? 'Le temps a filé.' : 'Le grand oui !'}
     </Text>
     <Copy>{m.title} · {m.host}</Copy>
-    <TicketShell>
+    <TicketShell category={m.category}>
       {!expired && <Stamp label="ACCEPTÉ" />}
       <Text style={[s.label, {
-        color: c.muted
+        color: m.category === 'Sport' ? c.ink : c.light
       }]}>
         {expired ? 'BILLET EXPIRÉ' : 'L’HÔTE A ACCEPTÉ · SIMULATION'}
       </Text>
-      <Countdown seconds={remaining} />
-      <FuseBar seconds={remaining} total={(journey.booking?.confirmationMinutes ?? 10) * 60} />
-      <Copy small>
+      <Countdown seconds={remaining} color={m.category === 'Sport' ? c.ink : c.light} />
+      <FuseBar color={paperInk} seconds={remaining} total={(journey.booking?.confirmationMinutes ?? 10) * 60} />
+      <Copy small color={paperInk}>
         {expired ? 'Votre place n’est plus retenue. Aucune caution réservée.' : `Vous avez ${journey.booking?.confirmationMinutes ?? 10} min pour confirmer. Après, la place est libérée.`}
       </Copy>
       <Tear />
-      <Text style={s.amount}>20 € de caution</Text>
-      <Copy>Rendue si présent ;
-        sinon 6,90 € pour Moment et 13,10 € pour l’hôte.</Copy>
-      <Copy small>L’invitation de {euros(m.price)} est offerte par l’hôte. La caution est distincte.</Copy>
+      <Text style={[s.amount, {color: paperInk}]}>20 € de caution</Text>
+      <Copy color={paperInk}>Rendue à votre arrivée ;
+        en cas d’absence, 6,90 € pour Moment et 13,10 € pour l’hôte.</Copy>
+      <Copy small color={paperInk}>L’invitation de {euros(m.price)} est offerte par l’hôte. La caution est distincte.</Copy>
     </TicketShell>
     <Action label={expired ? 'Trouver une autre place' : 'Confirmer · caution 20 €'} onPress={() => {
       if(expired)

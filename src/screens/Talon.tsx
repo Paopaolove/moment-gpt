@@ -22,16 +22,14 @@ export function Talon({ journey }: {
     <FlyingStub><View style={{ gap: 0, marginBottom: 16 }}><Ticket compact now={store.now} m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
       {booking?.status === 'confirmed' && <Stamp />}
     </Ticket>
-    <Stub>
+    <Stub category={m.category}>
       <Text style={[s.label, {
-        color: c.muted
+        color: m.category === 'Nuit' ? c.light : c.ink
       }]}>TALON N° {serialOf(id)} · MOMENT GPT FUNKY</Text>
-      <Copy>
-        {m.address}
-      </Copy>
-      <Copy small>
+      <Text style={{fontFamily: sans, color: m.category === 'Nuit' ? c.light : c.ink, fontSize:16, lineHeight:25}}>{m.address}</Text>
+      <Text style={{fontFamily: sans, color: m.category === 'Nuit' ? c.light : c.ink, fontSize:14, lineHeight:21}}>
         {booking?.deposit === 'split' ? 'Caution répartie : 6,90 € Moment, 13,10 € hôte.' : booking?.deposit === 'released' ? 'Caution de 20 € rendue (simulation).' : 'Caution de 20 € réservée (simulation).'}
-      </Copy>
+      </Text>
     </Stub></View></FlyingStub>
     {booking?.status === 'confirmed' ? <>
       {canAttend(m.startsAt, store.now) ? <Action label="Je suis là · rendre ma caution" onPress={() => store.act(id, 'present')} /> : <View style={s.locked}>
