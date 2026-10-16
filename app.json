@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Moment GPT 4",
+    "name": "Moment GPT Funky",
     "slug": "moment-paris",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#15110E",
+    "backgroundColor": "#24082F",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "fr.moment.paris"
@@ -14,7 +14,7 @@
       "package": "fr.moment.paris"
     },
     "web": {
-      "name": "Moment GPT 4 — La place libre"
+      "name": "Moment GPT Funky — Le Grand Bal"
     }
   }
 }

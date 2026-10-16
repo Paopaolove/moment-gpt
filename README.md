@@ -1,4 +1,16 @@
-# Moment GPT 4
+# Moment GPT Funky
+
+## Manifeste
+Paris a toujours des places libres. Ce soir, on en fait une fête : le Grand Bal des places libres. Quelqu’un vous offre une place à côté de lui. On rejoint un moment, pas un profil : IRL, Paris intramuros, sans dating. Une affiche de concert des années 70, du Palace à la Fête de la musique, avec des règles qui restent intactes.
+
+## Nouveautés Funky
+- Fraunces Black et Inter Tight Black, palette tomate, rose, soleil, outremer et prune.
+- Affiches sérigraphiées, stickers, bandeaux défilants, rideau et boule à facettes.
+- Roulette à trois rouleaux vers une vraie place disponible ; météo d’ambiance pour les 20 arrondissements.
+- Acceptation avec tampon éclaboussé, confettis et compte à rebours au beat ; talon qui s’envole et carnet de badges.
+- Préférence système de réduction des animations : fondus, sans rideau, pulsation ni confettis.
+- Caution 20 €, confirmation 10 minutes, présence H−15 et joker inchangés. Démonstration locale sans paiement.
+
 
 Prototype Expo SDK 57 / TypeScript, direction C de [VISION.md](VISION.md).
 Quelqu’un a une place à côté de lui : au bistrot, sur un terrain, dans une salle.

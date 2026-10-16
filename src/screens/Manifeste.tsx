@@ -1,3 +1,4 @@
+import { Opening, Marquee } from '../components/Funky';
 import { StyleSheet, Text, View } from 'react-native';
 import { Brand } from '../components/Brand';
 import { Action, Copy, SeatRow, Tear } from '../components/Primitives';
@@ -9,10 +10,11 @@ export function Manifeste({ journey }: {
 }) {
   const { step, setStep, go } = journey;
   return <View style={s.screen}>
-    <Brand large />
+    <Opening><Brand large /></Opening>
+    <Marquee text="LE GRAND BAL DES PLACES LIBRES · " />
     <Text style={s.label}>LA PLACE LIBRE · {String(step + 1).padStart(2, '0')} / 03</Text>
     <Text style={s.hero}>
-      {['Quelqu’un, ce soir, a une place à côté de lui.', 'Une chaise. Un siège. Une quatrième raquette.', 'Prenez la place. Partagez le moment.'][step]}
+      {['Paris a une chaise en trop. Vous avez une soirée.', 'Votre canapé s’en remettra. Promis.', 'Entrez dans la danse. Pas dans les DM.'][step]}
     </Text>
     <TicketShell>
       <SeatRow total={step === 1 ? 3 : 1} taken={step === 2 ? 1 : 0} />

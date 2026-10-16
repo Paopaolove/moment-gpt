@@ -1,14 +1,9 @@
-export const c = {
-  paper: '#15110E',
-  card: '#F3EADB',
-  line: '#BCAF9C',
-  ink: '#15110E',
-  muted: '#62564A',
-  accent: '#E2542B',
-  light: '#F3EADB'
-};
-export const display = 'FrauncesDisplay';
-export const serif = 'Fraunces_500Medium';
-export const medium = 'InterTight_500Medium';
-export const sans = 'InterTight_400Regular';
-export const typography = { title: { fontFamily: serif }, body: { fontFamily: sans }, label: { fontFamily: medium, fontSize: 13, letterSpacing: 1.8, textTransform: 'uppercase' as const } };
+export const c = { paper: '#24082F', card: '#FFF3E0', line: '#B39AB8', ink: '#24082F', muted: '#65436B', accent: '#FF4B1F', light: '#FFF3E0', pink: '#FF5FA2', yellow: '#FFD23F', blue: '#3D3BFF' };
+export const categoryColor = { Table: c.accent, Sport: c.yellow, Culture: c.pink };
+export const display = 'Fraunces_900Black';
+export const serif = display;
+export const medium = 'InterTight_900Black';
+export const sans = 'InterTight_700Bold';
+export const space = { xs: 4, sm: 8, md: 16, lg: 24, xl: 40, poster: 64 };
+export const typeScale = { body: 16, label: 14, title: 52, hero: 72, clock: 140 };
+export const typography = { title: { fontFamily: serif }, body: { fontFamily: sans }, label: { fontFamily: medium, fontSize: 14, letterSpacing: 1.8, textTransform: 'uppercase' as const } };

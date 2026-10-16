@@ -1,3 +1,5 @@
+import { categoryColor } from '../theme/tokens';
+import { ambiance } from '../theme/ambiance';
 import { TicketImpact } from './TicketImpact';
 import { formatDelay } from '../domain/presentation';
 import { arrondissement } from '../domain/rules';
@@ -9,7 +11,7 @@ import { feedback } from './haptics';
 import { Perforation } from './Perforation';
 import { PaperContext, SeatRow, Tear } from './Primitives';
 import { useReducedMotion } from './useReducedMotion';
-export function TicketShell({ children, index = 0, onPress, accessibilityLabel, compact = false }: {
+export function Poster({ children, index = 0, onPress, accessibilityLabel, compact = false }: {
   children: React.ReactNode;
   compact?: boolean;
   index?: number;
@@ -30,7 +32,7 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel, 
     friction: 7
   }).start();
   return <PaperContext.Provider value><TicketImpact.Provider value={strike}>
-    <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress ? () => { void feedback('selection'); onPress(); } : undefined} onPressIn={onPress ? () => press(1.018) : undefined} onPressOut={onPress ? () => press(1) : undefined}>
+    <Pressable accessible={!!onPress} accessibilityRole={onPress ? "button" : undefined} accessibilityLabel={accessibilityLabel} onPress={onPress ? () => { void feedback('selection'); onPress(); } : undefined} onPressIn={onPress && !reduced ? () => press(1.018) : undefined} onPressOut={onPress && !reduced ? () => press(1) : undefined}>
       <Animated.View style={[s.paper, compact && { padding: 16, gap: 8 }, {
         transform: [{ translateY: impact.interpolate({ inputRange: [0, 1], outputRange: [0, 3] }) }, { rotateZ: impact.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '0.5deg'] }) }, {
           rotate: lift.interpolate({
@@ -47,7 +49,7 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel, 
         <Perforation />
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>
           {Array.from({
-            length: 60
+            length: 100
           }, (_, i) => <View key={i} style={[s.grain, {
             left: `${i * 37 % 100}%`,
             top: `${i * 23 % 100}%`
@@ -58,6 +60,7 @@ export function TicketShell({ children, index = 0, onPress, accessibilityLabel, 
     </Pressable>
   </TicketImpact.Provider></PaperContext.Provider>;
 }
+export const TicketShell = Poster;
 export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featured = false, compact = false }: {
   m: Moment;
   now?: number;
@@ -75,7 +78,7 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
     minute: '2-digit'
   }).format(m.startsAt);
   if (compact) return <TicketShell compact>
-    <Text style={s.label}>{m.category} / {m.subtype}</Text>
+    <Text style={[s.label, { backgroundColor: categoryColor[m.category], color: c.ink, padding: 8 }]}>{m.category} / {m.subtype}</Text>
     <Text style={[s.title, { marginTop: 0, fontSize: 26, lineHeight: 30 }]}>{m.title}</Text>
     <Text style={[s.time, { fontSize: 72, lineHeight: 76 }]}>{time}</Text>
     <SeatRow total={m.seats} taken={taken} />
@@ -84,7 +87,7 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
   return <TicketShell index={index} onPress={onPress} accessibilityLabel={`Voir le billet : ${m.title}`}>
     {featured && <Text style={[s.label, { color: c.accent }]}>À LA UNE · {now !== undefined ? formatDelay(m.startsAt, now).toUpperCase() : ''}</Text>}
     <View style={s.row}>
-      <Text style={s.label}>{m.category} / {m.subtype}</Text>
+      <Text style={[s.label, { backgroundColor: categoryColor[m.category], color: c.ink, padding: 8 }]}>{m.category} / {m.subtype}</Text>
       <Text style={s.label}>P / {String(m.district).padStart(2, '0')}</Text>
     </View>
     <View style={s.face}>
@@ -101,6 +104,7 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
     </View>
     <Text style={s.body}>{dateLabel(m.startsAt)} · {m.host === 'Vous' ? 'votre place' : `avec ${m.host}`}</Text>
     {now !== undefined && !featured && <Text style={s.body}>{formatDelay(m.startsAt, now)}</Text>}
+    {(featured || !onPress) && <Text style={[s.body, { color: c.ink }]}>☀ MÉTÉO D’AMBIANCE · {ambiance(m.district)}</Text>}
     <Tear />
     <SeatRow total={m.seats} taken={taken} />
     <View style={s.row}>
@@ -120,15 +124,22 @@ export function Ticket({ m, children, taken = 0, index = 0, onPress, now, featur
 const s = StyleSheet.create({
   paper: {
     backgroundColor: c.card,
-    padding: 22,
+    padding: 20,
+    borderWidth: 2,
+    borderColor: c.pink,
+    shadowColor: c.blue,
+    shadowOffset: { width: 6, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 0,
     gap: 16,
     overflow: 'hidden',
     marginVertical: 5
   },
   grain: {
     position: 'absolute',
-    width: 2,
-    height: 1,
+    width: 3,
+    height: 3,
+    borderRadius: 2,
     backgroundColor: c.muted,
     opacity: 0.12
   },
@@ -141,7 +152,7 @@ const s = StyleSheet.create({
   },
   label: {
     fontFamily: medium,
-    fontSize: 13,
+    fontSize: 14,
     lineHeight: 20,
     letterSpacing: 1.2,
     textTransform: 'uppercase',
@@ -158,7 +169,7 @@ const s = StyleSheet.create({
     fontFamily: serif,
     fontSize: 120,
     lineHeight: 140,
-    color: '#EADFCF',
+    color: c.pink,
     letterSpacing: -4
   },
   title: {
@@ -179,7 +190,7 @@ const s = StyleSheet.create({
   },
   body: {
     fontFamily: sans,
-    fontSize: 13,
+    fontSize: 14,
     lineHeight: 21,
     color: c.muted
   },

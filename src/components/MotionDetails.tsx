@@ -19,9 +19,19 @@ export function Pulse({ dots = false }: {
 export function Countdown({ seconds }: {
   seconds: number;
 }) {
+  const reduced = useReducedMotion();
+  const beat = useRef(new Animated.Value(1)).current;
+  const fast = seconds <= 60;
+  useEffect(() => {
+    beat.setValue(1);
+    if (reduced || seconds <= 0) return;
+    const duration = fast ? 165 : 250;
+    const loop = Animated.loop(Animated.sequence([Animated.timing(beat, {toValue: 1.035, duration, useNativeDriver: true}), Animated.timing(beat, {toValue: 1, duration, useNativeDriver: true})]));
+    loop.start(); return () => loop.stop();
+  }, [beat, reduced, fast, seconds <= 0]);
   const value = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
   return <View accessibilityRole="timer" accessibilityLabel={`${Math.floor(seconds / 60)} min ${seconds % 60} s`} style={{ alignItems: 'center', marginVertical: 18 }}>
-    <View style={{ flexDirection: 'row', justifyContent: 'center' }}>{value.split('').map((digit, i) => <CountdownDigit key={i} digit={digit} />)}</View>
+    <Animated.View style={{ flexDirection: 'row', justifyContent: 'center', transform: [{scale: beat}] }}>{value.split('').map((digit, i) => <CountdownDigit key={i} digit={digit} />)}</Animated.View>
     <View style={{ flexDirection: 'row', width: 240, justifyContent: 'space-around' }}><Text style={{ color: c.muted }}>min</Text><Text style={{ color: c.muted }}>s</Text></View>
   </View>;
 }
@@ -34,7 +44,7 @@ function CountdownDigit({ digit }: { digit: string }) {
     animation.start();
     return () => animation.stop();
   }, [digit, reduced, flip]);
-  return <Animated.Text style={{ width: digit === ':' ? 24 : 51, textAlign: 'center', fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: [{ perspective: 500 }, { rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: [digit === ':' ? '0deg' : '-75deg', '0deg'] }) }] }}>{digit}</Animated.Text>;
+  return <Animated.Text style={{ width: digit === ':' ? 20 : 48, textAlign: 'center', fontFamily: display, fontSize: 96, lineHeight: 112, color: c.ink, fontVariant: ['tabular-nums'], transform: reduced ? [] : [{ perspective: 500 }, { rotateX: flip.interpolate({ inputRange: [0, 1], outputRange: [digit === ':' ? '0deg' : '-75deg', '0deg'] }) }] }}>{digit}</Animated.Text>;
 }
 
 export function FuseBar({ seconds }: { seconds: number }) {

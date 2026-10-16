@@ -1,3 +1,4 @@
+import { Marquee } from '../components/Funky';
 import { useEffect } from 'react';
 import { StyleSheet, Switch, Text, View } from 'react-native';
 import { Action, Copy, Input, Pills } from '../components/Primitives';
@@ -30,8 +31,8 @@ export function Offrir({ journey }: {
   const dayLabels = availableDays.map(d => d === today ? 'Aujourd’hui' : d === addDays(today, 1) ? 'Demain' : new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', weekday: 'long', day: 'numeric' }).format(Date.parse(d + 'T12:00:00Z')));
   return <View style={s.screen}>
     <Text style={s.label}>DE L’AUTRE CÔTÉ DU BILLET</Text>
-    <Text style={s.hero}>À côté de vous, une place.</Text>
-    <Copy>Offrir une place est gratuit. Sans abonnement hôte.</Copy>
+    <Text style={s.hero}>Faites place au grand soir.</Text>
+    <Marquee text="HÔTE GRATUIT · INVITEZ LA VIE · " /><Copy>Offrir une place est gratuit. Sans abonnement hôte.</Copy>
     <View style={{ flexDirection: 'row', gap: 8 }}>{['Quoi', 'Où · quand', 'Pour qui'].map((label, i) => <View key={label} accessibilityLabel={label + (i === stage ? ', étape active' : i < stage ? ', terminée' : ', à venir')} style={{ flex: 1, opacity: i > stage ? 0.5 : 1, borderBottomWidth: i === stage ? 2 : 0, borderColor: c.light, paddingBottom: 8 }}><Text numberOfLines={1} style={{ fontFamily: medium, fontSize: 13, lineHeight: 22, textAlign: 'center', color: i === stage ? c.ink : c.light, backgroundColor: i === stage ? c.light : 'transparent', paddingVertical: 8 }}>{i < stage ? '✓ ' : ''}{label}</Text></View>)}</View>
     {stage === 0 && <>
       <Pills items={['Table', 'Sport', 'Culture']} value={category} onChange={v => {

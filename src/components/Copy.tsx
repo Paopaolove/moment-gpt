@@ -21,7 +21,7 @@ const s = StyleSheet.create({
   },
   small: {
     ...typography.body,
-    fontSize: 13,
+    fontSize: 14,
     lineHeight: 21
   }
 });

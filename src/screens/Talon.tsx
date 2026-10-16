@@ -1,3 +1,4 @@
+import { FlyingStub } from '../components/Funky';
 import { StyleSheet, Text, View } from 'react-native';
 import { Carnet } from '../components/Carnet';
 import { Action, Copy, Link } from '../components/Primitives';
@@ -17,20 +18,20 @@ export function Talon({ journey }: {
     <Text style={s.hero}>
       {booking?.status === 'cancelled' ? 'La place est rendue.' : booking?.status === 'present' ? 'Vous êtes là.' : 'C’est votre place.'}
     </Text>
-    <View style={{ gap: 0, marginBottom: 16 }}><Ticket compact now={store.now} m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
+    <FlyingStub><View style={{ gap: 0, marginBottom: 16 }}><Ticket compact now={store.now} m={m} taken={booking && ['confirmed', 'present'].includes(booking.status) ? 1 : 0}>
       {booking?.status === 'confirmed' && <Stamp />}
     </Ticket>
     <Stub>
       <Text style={[s.label, {
         color: c.muted
-      }]}>TALON N° {serialOf(id)} · MOMENT GPT 4</Text>
+      }]}>TALON N° {serialOf(id)} · MOMENT GPT FUNKY</Text>
       <Copy>
         {m.address}
       </Copy>
       <Copy small>
         {booking?.deposit === 'split' ? 'Caution répartie : 6,90 € Moment, 13,10 € hôte.' : booking?.deposit === 'released' ? 'Caution de 20 € rendue (simulation).' : 'Caution de 20 € réservée (simulation).'}
       </Copy>
-    </Stub></View>
+    </Stub></View></FlyingStub>
     {booking?.status === 'confirmed' ? <>
       {canAttend(m.startsAt, store.now) ? <Action label="Je suis là · rendre ma caution" onPress={() => store.act(id, 'present')} /> : <View style={s.locked}>
         <View accessibilityElementsHidden style={{ width: 16, height: 22, alignItems: 'center' }}><View style={{ width: 10, height: 10, borderWidth: 1.5, borderColor: c.light, borderTopLeftRadius: 6, borderTopRightRadius: 6 }} /><View style={{ width: 16, height: 12, borderWidth: 1.5, borderColor: c.light, marginTop: -2 }} /></View>

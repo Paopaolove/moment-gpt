@@ -13,7 +13,10 @@ export function Action({ label, onPress, disabled = false }: {
 }
 const s = StyleSheet.create({
   action: {
-    backgroundColor: c.accent,
+    backgroundColor: c.yellow,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: c.ink,
     minHeight: 58,
     padding: 18,
     justifyContent: 'center'

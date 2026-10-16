@@ -1,3 +1,6 @@
+import { Entrance, Marquee } from '../components/Funky';
+import { Roulette } from '../components/Roulette';
+import { categoryColor } from '../theme/tokens';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Pulse } from '../components/MotionDetails';
 import { Copy, Link } from '../components/Primitives';
@@ -17,13 +20,13 @@ export function Places({ journey }: {
   const count = available.reduce((n, x) => n + x.seats, 0);
   return <View style={s.screen}>
     <View style={{ gap: 6 }}>
-      <Text style={s.hero}>{date.charAt(0).toUpperCase() + date.slice(1)}</Text>
-      <Copy>{count} place{count > 1 ? 's' : ''} libre{count > 1 ? 's' : ''} à Paris</Copy>
+      <Text style={s.hero}>CE SOIR À PARIS</Text>
+      <Copy>{date} · {count} place{count > 1 ? 's' : ''} libre{count > 1 ? 's' : ''} à Paris</Copy>
     </View>
-    <View style={s.filters}>
+    <Marquee /><Roulette moments={available.filter(x => !x.own)} onOpen={m => { setId(m.id); go('detail'); }} /><View style={s.filters}>
       {['Tout', 'Table', 'Sport', 'Culture', 'Maintenant'].map(label => {
         const active = label === 'Maintenant' ? urgent : filter === label;
-        return <Pressable key={label} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => label === 'Maintenant' ? setUrgent(!urgent) : setFilter(label)} style={[s.filter, active && { borderBottomColor: c.light }]}>
+        return <Pressable key={label} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => label === 'Maintenant' ? setUrgent(!urgent) : setFilter(label)} style={[s.filter, { backgroundColor: label in categoryColor ? categoryColor[label as keyof typeof categoryColor] : c.yellow, opacity: active ? 1 : 0.8, transform: [{ rotate: active ? '-4deg' : '2deg' }] }]}>
           {label === 'Maintenant' && <Pulse />}<Text style={s.filterText}>{label}</Text>
         </Pressable>;
       })}
@@ -35,7 +38,7 @@ export function Places({ journey }: {
         go(b.status === 'accepted' ? 'take' : 'confirmed');
       }} />)}
     </View>}
-    {ordered.map((x, index) => <MovingTicket index={index} key={x.id} m={store.moments.find(m => m.id === x.id)!} taken={store.bookings.filter(b => b.momentId === x.id && ['confirmed', 'present'].includes(b.status)).length} now={store.now} featured={x.id === tonight?.id} />)}
+    {ordered.map((x, index) => <Entrance key={x.id} index={index}><MovingTicket index={index} m={store.moments.find(m => m.id === x.id)!} taken={store.bookings.filter(b => b.momentId === x.id && ['confirmed', 'present'].includes(b.status)).length} now={store.now} featured={x.id === tonight?.id} /></Entrance>)}
     {!visible.length && <Copy>Aucune place pour ce filtre. Essayez une autre catégorie.</Copy>}
     <Copy small>Des invitations fictives, inspirées de lieux parisiens. Aucune réservation réelle.</Copy>
   </View>;
@@ -44,9 +47,9 @@ const s = StyleSheet.create({
   screen: {
     gap: 32
   },
-  filters: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 6 },
-  filter: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: 'transparent' },
-  filterText: { fontFamily: sans, fontSize: 12, color: c.light },
+  filters: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10 },
+  filter: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 40, borderBottomWidth: 1, borderBottomColor: 'transparent' },
+  filterText: { fontFamily: sans, fontSize: 14, color: c.ink },
   label: {
     fontFamily: medium,
     fontSize: 13,
@@ -58,8 +61,8 @@ const s = StyleSheet.create({
   },
   hero: {
     fontFamily: serif,
-    fontSize: 52,
-    lineHeight: 62,
+    fontSize: 64,
+    lineHeight: 64,
     letterSpacing: -1.8,
     color: c.light
   },

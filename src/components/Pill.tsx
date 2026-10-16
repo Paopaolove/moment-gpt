@@ -31,12 +31,12 @@ const s = StyleSheet.create({
   },
   compact: { width: '17%', paddingHorizontal: 0, alignItems: 'center', paddingVertical: 10 },
   selected: {
-    backgroundColor: c.card
+    backgroundColor: c.yellow
   },
   pillText: {
     color: c.light,
     fontFamily: medium,
-    fontSize: 13
+    fontSize: 14
   },
   selectedText: {
     color: c.ink

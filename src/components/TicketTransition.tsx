@@ -60,7 +60,7 @@ export function TicketTransitions({ journey, children }: {
     if(!flight?.to)
       return;
     progress.setValue(0);
-    const animation = Animated.timing(progress, { toValue: 1, duration: reduced ? 0 : 400, easing: Easing.out(Easing.cubic), useNativeDriver: true });
+    const animation = Animated.timing(progress, { toValue: 1, duration: reduced ? 250 : 400, easing: Easing.out(Easing.cubic), useNativeDriver: true });
     animation.start(({ finished }) => {
       if(finished)
         setFlight(null);
@@ -154,7 +154,7 @@ export function TicketScreenEntrance({ children }: { children: ReactNode }) {
   const enter = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     enter.setValue(0);
-    const animation = Animated.timing(enter, { toValue: 1, duration: reduced ? 0 : 400, easing: Easing.out(Easing.cubic), useNativeDriver: true });
+    const animation = Animated.timing(enter, { toValue: 1, duration: reduced ? 250 : 400, easing: Easing.out(Easing.cubic), useNativeDriver: true });
     animation.start();
     return () => animation.stop();
   }, [enter, reduced, transition?.fallback]);

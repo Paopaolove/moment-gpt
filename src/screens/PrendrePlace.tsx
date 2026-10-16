@@ -1,3 +1,4 @@
+import { Confetti, Marquee } from '../components/Funky';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Countdown, FuseBar, Pulse } from '../components/MotionDetails';
@@ -22,15 +23,15 @@ export function PrendrePlace({ journey }: {
   if(journey.booking?.status === 'requested')
     return <View style={s.screen}>
       <Text style={s.label}>03 / DEMANDE ENVOYÉE</Text>
-      <Text style={s.hero}>{m.host} lit votre demande.</Text><Pulse dots /><Copy small>Démo : l’hôte accepte automatiquement</Copy>
+      <Text style={s.hero}>Votre invitation entre en scène.</Text><Pulse dots /><Copy small>Démo : l’hôte accepte automatiquement</Copy>
       <Ticket m={m}><Stamp label="EN ATTENTE" /></Ticket>
       <Copy>Votre demande a été envoyée à {m.host}. Le délai de confirmation commencera après son acceptation.</Copy>
 
     </View>;
   return <View style={s.screen}>
-    <Text style={s.label}>03 / PRENDRE LA PLACE</Text>
+    {!expired && <Confetti category={m.category} />}<Text style={s.label}>03 / PRENDRE LA PLACE</Text><Marquee text="ACCEPTÉ · À VOUS DE JOUER · " />
     <Text style={s.hero}>
-      {expired ? 'Le temps a filé.' : 'Une place, à votre nom.'}
+      {expired ? 'Le temps a filé.' : 'Le grand oui !'}
     </Text>
     <Copy>{m.title} · {m.host}</Copy>
     <TicketShell>

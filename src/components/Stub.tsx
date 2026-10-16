@@ -10,10 +10,10 @@ export function Stub({ children }: {
   const reduced = useReducedMotion();
   const tear = useRef(new Animated.Value(0)).current;
   useEffect(() => {
-    tear.setValue(reduced ? 1 : 0);
+    tear.setValue(0);
     const animation = Animated.timing(tear, {
       toValue: 1,
-      duration: reduced ? 0 : 420,
+      duration: reduced ? 350 : 420,
       delay: reduced ? 0 : 220,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true
@@ -23,7 +23,8 @@ export function Stub({ children }: {
   }, [tear, reduced]);
   return <PaperContext.Provider value>
     <Animated.View style={[s.stub, {
-      transform: [{
+      opacity: tear,
+      transform: reduced ? [] : [{
         translateY: tear.interpolate({
           inputRange: [0, 1],
           outputRange: [0, 16]

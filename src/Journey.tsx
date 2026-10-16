@@ -29,7 +29,7 @@ export function Journey() {
   const listOffset = useRef(0);
   return <TicketTransitions journey={journey}><View style={s.root}>
     <View style={s.header}>
-      {journey.page !== 'home' && <Pressable accessibilityRole="button" accessibilityLabel="Accueil Moment GPT 4" onPress={() => {
+      {journey.page !== 'home' && <Pressable accessibilityRole="button" accessibilityLabel="Accueil Moment GPT Funky" onPress={() => {
         journey.setStep(0);
         journey.go('home');
       }}>
@@ -58,13 +58,14 @@ export function Journey() {
 const s = StyleSheet.create({
   root: {
     flex: 1,
+    overflow: 'hidden',
     backgroundColor: c.paper
   },
   header: {
     paddingHorizontal: 22,
     height: 54,
     borderBottomWidth: 1,
-    borderColor: '#504336',
+    borderColor: c.pink,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -87,7 +88,7 @@ const s = StyleSheet.create({
   nav: {
     flexDirection: 'row',
     borderTopWidth: 1,
-    borderColor: '#504336'
+    borderColor: c.pink
   },
   tab: {
     flex: 1,

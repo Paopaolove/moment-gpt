@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
-import { Animated, StyleSheet, Text } from 'react-native';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 import { TicketImpact } from './TicketImpact';
 import { c, medium } from '../theme/tokens';
 import { feedback } from './haptics';
@@ -13,8 +13,8 @@ export function Stamp({ label = 'RÉSERVÉ' }: {
   useEffect(() => {
     if(label === 'ACCEPTÉ' || label === 'RÉSERVÉ')
       void feedback('stamp');
-    hit.setValue(reduced ? 1 : 0);
-    const animation = Animated.spring(hit, {
+    hit.setValue(0);
+    const animation = reduced ? Animated.timing(hit, { toValue: 1, duration: 350, useNativeDriver: true }) : Animated.spring(hit, {
       toValue: 1,
       friction: 6,
       tension: 100,
@@ -26,7 +26,7 @@ export function Stamp({ label = 'RÉSERVÉ' }: {
   }, [hit, reduced, label]);
   return <Animated.View style={[s.stamp, {
     opacity: hit,
-    transform: [{
+    transform: reduced ? [] : [{
       scale: hit.interpolate({
         inputRange: [0, 1],
         outputRange: [1.6, 1]
@@ -38,6 +38,7 @@ export function Stamp({ label = 'RÉSERVÉ' }: {
       })
     }]
   }]}>
+    {Array.from({length: 12}, (_, i) => <View key={i} pointerEvents="none" style={{position:'absolute',width: 3 + i % 4,height: 5 + i % 5,borderRadius: 10,backgroundColor:c.accent,left: `${i * 29 % 100}%`,top: i % 2 ? -10 - i : 40 + i,transform:[{rotate:`${i * 31}deg`}]}} />)}
     <Text style={s.text}>{label}</Text>
   </Animated.View>;
 }

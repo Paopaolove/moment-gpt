@@ -20,7 +20,7 @@ const s = StyleSheet.create({
   label: {
     color: c.light,
     fontFamily: sans,
-    fontSize: 13,
+    fontSize: 14,
     lineHeight: 20,
     letterSpacing: 1
   },
