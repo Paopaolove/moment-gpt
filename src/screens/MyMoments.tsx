@@ -1,6 +1,7 @@
 import { View } from 'react-native';
 import { Banner, Button, EmptyState, ListRow, T, s } from '../components/UI';
 import { canMarkPresence } from '../domain/selectors';
+import { canReportNoShow } from '../domain/rules';
 import { RequestCard } from './RequestCard';
 import type { JourneyContext } from '../useJourney';
 export function MyMoments({ ctx }: {
@@ -33,14 +34,20 @@ export function MyMoments({ ctx }: {
         {activeHost.title}
       </T>
       <Button
-        title="Je suis là · hôte"
+        title="Je suis arrivé · hôte"
         disabled={!canMarkPresence(activeHost, now) || activeHost.hostPresentAt !== undefined}
         onPress={() => act({ type: 'markPresence', momentId: activeHost.id })} />
-      {state.requests.filter(r => r.momentId === activeHost.id).map(r => <ListRow
-        key={r.id}
-        title={state.users.find(u => u.id === r.guestId)?.name ?? 'Invité'}
-        detail={r.status}
-        onPress={r.status === 'requested' ? () => act({ type: 'accept', requestId: r.id }) : undefined} />)}
+      {state.requests.filter(r => r.momentId === activeHost.id).map(r => <View key={r.id}>
+        <ListRow
+          title={state.users.find(u => u.id === r.guestId)?.name ?? 'Invité'}
+          detail={r.presentAt ? 'Arrivé' : r.deposit === 'forfeited' ? 'Signalé « Pas venu »' : r.status}
+          onPress={r.status === 'requested' ? () => act({ type: 'accept', requestId: r.id }) : undefined} />
+        {r.status === 'confirmed' && r.deposit === 'held' && canReportNoShow(activeHost.startsAt, now, r.presentAt) && <Button
+          variant="secondary"
+          title="Pas venu"
+          onPress={() => act({ type: 'noShow', requestId: r.id })} />}
+      </View>)}
+      <T style={s.muted}>{'« Pas venu » uniquement si la place est vraiment vide, à partir de l’heure du moment. Sans signalement, la caution est rendue le lendemain.'}</T>
     </View>}
   </>;
 }

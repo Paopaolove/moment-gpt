@@ -16,7 +16,7 @@ export type Moment = {
   status: 'active' | 'closed' | 'cancelled'; hostPresentAt?: number;
 };
 export type Deposit = 'held' | 'released' | 'forfeited' | 'none';
-export type Request = { id: string; momentId: string; guestId: string; status: 'requested' | 'accepted' | 'confirmed' | 'expired' | 'cancelled' | 'declined'; deposit: Deposit; requestedAt: number; acceptedAt?: number; confirmedAt?: number; presentAt?: number };
+export type Request = { id: string; momentId: string; guestId: string; status: 'requested' | 'accepted' | 'confirmed' | 'expired' | 'cancelled' | 'declined'; deposit: Deposit; requestedAt: number; acceptedAt?: number; confirmedAt?: number; presentAt?: number; presencePhoto?: string; noShowAt?: number; noShowBy?: string };
 export type Credit = { id: string; owner: string; cents: number; consumed: boolean };
 export type Unexpected = { id: string; momentId: string; requestId: string; sender: string; recipient: string; phrase: string; status: 'pending' | 'accepted' | 'declined'; createdAt: number };
 export type Rating = { id: string; momentId: string; author: string; recipient: string; momentLevel: Level; venueLevel: Level };

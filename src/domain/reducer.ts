@@ -1,5 +1,5 @@
 import type { Credit, Draft, Moment, Partner, Photo, Rating, Request, Unexpected, User } from './types';
-import { confirmationExpired, MINUTE, monthKey, RULES } from './rules';
+import { canReportNoShow, confirmationExpired, depositReleaseDue, MINUTE, monthKey, RULES } from './rules';
 import { canMarkPresence } from './selectors';
 export type State = { users: User[]; partners: Partner[]; moments: Moment[]; requests: Request[]; unexpected: Unexpected[]; ratings: Rating[]; photos: Photo[]; platformCents: number; draft: Draft | null; signedInId: string | null };
 type Timed = { now: number; actor: string };
@@ -11,7 +11,8 @@ export type Action = Timed & (
   { type: 'expire' | 'tick' } |
   { type: 'unexpected'; requestId: string; id: string; phrase: string } |
   { type: 'resolveUnexpected'; id: string; accept: boolean } |
-  { type: 'markPresence' | 'close'; momentId: string } |
+  { type: 'markPresence'; momentId: string; photoUri?: string } | { type: 'close'; momentId: string } |
+  { type: 'noShow'; requestId: string } |
   { type: 'rate'; rating: Rating } | { type: 'addPhoto'; photo: Photo } |
   { type: 'consent'; photoId: string; granted: boolean } |
   { type: 'rebook'; momentId: string; startsAt: number; endsAt: number } |
@@ -62,8 +63,20 @@ export function reducer(state: State, action: Action): State {
     for (const r of s.requests) {
       const m = s.moments.find(m => m.id === r.momentId)!;
       if (r.status === 'accepted' && r.acceptedAt !== undefined && (confirmationExpired(r.acceptedAt, action.now) || (m.urgent && action.now > m.startsAt + 30 * MINUTE))) { r.status = 'expired'; changed = true; }
+      if (r.status === 'confirmed' && r.deposit === 'held' && r.presentAt === undefined && depositReleaseDue(m.startsAt, action.now)) { settle(s, r, false); changed = true; }
     }
     return changed ? s : state;
+  }
+  if (action.type === 'noShow') {
+    const r = s.requests.find(r => r.id === action.requestId);
+    const m = r && s.moments.find(m => m.id === r.momentId);
+    if (!r || !m || !user || m.status === 'cancelled') return state;
+    const partnerOwner = m.partnerId !== undefined && s.partners.some(p => p.id === m.partnerId && p.owner === user.id);
+    if ((m.hostId !== user.id && !partnerOwner) || r.status !== 'confirmed' || r.deposit !== 'held' || !canReportNoShow(m.startsAt, action.now, r.presentAt)) return state;
+    r.noShowAt = action.now; r.noShowBy = user.id; settle(s, r, true);
+    const guest = s.users.find(u => u.id === r.guestId)!;
+    guest.absences++; if (guest.absences >= 2) guest.priority = false; if (guest.absences >= 3) guest.accountStatus = 'closed';
+    return s;
   }
   if (action.type === 'signIn') {
     if (action.user.id !== action.actor || action.user.role === 'visiteur') return state;
@@ -148,7 +161,7 @@ export function reducer(state: State, action: Action): State {
       else {
         const r = s.requests.find(r => r.momentId === m.id && r.guestId === user.id && r.status === 'confirmed' && r.presentAt === undefined);
         if (!r) return state;
-        r.presentAt = action.now; settle(s, r, false); user.honoredMoments++;
+        r.presentAt = action.now; if (action.photoUri) r.presencePhoto = action.photoUri; settle(s, r, false); user.honoredMoments++;
       }
       return s;
     }
@@ -157,11 +170,8 @@ export function reducer(state: State, action: Action): State {
     const hostAbsent = m.hostPresentAt === undefined;
     if (hostAbsent) { user.hostWarnings++; if (user.hostWarnings >= 2) user.accountStatus = 'closed'; }
     for (const r of s.requests.filter(r => r.momentId === m.id)) {
-      if (r.status === 'confirmed' && r.presentAt === undefined) {
-        settle(s, r, true);
-        const guest = s.users.find(u => u.id === r.guestId)!;
-        guest.absences++; if (guest.absences >= 2) guest.priority = false; if (guest.absences >= 3) guest.accountStatus = 'closed';
-      } else if (r.status === 'accepted') r.status = 'expired';
+      if (r.status === 'confirmed') { /* Clôture sans effet sur la caution : seul « Pas venu » la fait perdre, sinon rendue le lendemain. */ }
+      else if (r.status === 'accepted') r.status = 'expired';
       else if (r.status === 'requested') r.status = 'declined';
     }
     return s;

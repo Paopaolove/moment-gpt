@@ -1,9 +1,14 @@
 # Décisions sur les points ambigus du brief
 
-## 1. « Trop tard » (perte de la caution)
-- La présence se marque de **H−15 à H+15**. Passé H+15 sans présence marquée, l'invité est **en retard**. À la clôture du moment, il est compté **absent**, et la caution est perdue (6,90 € Moment, 13,10 € hôte).
+## 1. Arrivée, « Pas venu » et caution (règle figée par Paolo, corrige l'hypothèse initiale)
+- « **Je suis arrivé** » se marque **dès H−15**, avec une **photo facultative**. Ce n'est **pas une obligation** : l'oubli de cliquer n'est jamais puni. La fenêtre technique du bouton reste H−15 → H+15.
+- La caution n'est perdue **que** si l'hôte (ou le partenaire du lieu) signale « **Pas venu** », **à partir de H** (jamais avant), et seulement si la place est réellement vide : le signalement est **refusé si l'invité a marqué sa présence**.
+- **Le silence profite à l'invité** : sans signalement, la caution de 20 € est **rendue automatiquement le lendemain** (changement de jour civil à Paris). Après restitution, « Pas venu » n'est plus possible. La clôture du moment n'a **aucun effet** sur la caution.
+- Absence confirmée par « Pas venu » : partage **6,90 € Moment / 13,10 € hôte** (crédit), absence comptée (2 → perte de priorité, 3 → compte fermé).
+- Une présence marquée rend la caution immédiatement (plus favorable à l'invité).
+- *Hypothèse abandonnée* : « pas de présence marquée à la clôture = caution perdue ».
 - **Annulation par l'invité** : à 3 h ou plus du début (start − now ≥ 3 h), la caution est rendue. À moins de 3 h, sans imprévu accepté ni joker, elle est **perdue** (même répartition).
-- Raison : 15 minutes, c'est le retard poli à Paris. Cette fenêtre est symétrique à l'ouverture de la présence à H−15. Le seuil de 3 h vient du brief.
+- Raison : ne jamais punir quelqu'un qui est venu mais a oublié de cliquer ; seul un signalement explicite de place vide coûte la caution. Le seuil de 3 h vient du brief.
 
 ## 2. Note sur 3 niveaux et « note ≥ 4 » pour Fiable
 - Le brief demande trois niveaux, mais fixe un seuil « ≥ 4 ». C'est incohérent sur une échelle de 3.
@@ -15,7 +20,7 @@
 - Un **abonnement invité** existe dans le modèle sous forme de stub (« Moment+ », non activé, aucun prix réel). Il est uniquement affiché dans Profil pour montrer que la caution en est distincte. Il ne conditionne aucune fonction.
 
 ## 4. Crédit
-- Un **crédit** est la part de caution versée à l'hôte (13,10 €) quand un invité est absent ou trop tard. C'est un avoir fictif, non encaissable. Moment garde 6,90 €.
+- Un **crédit** est la part de caution versée à l'hôte (13,10 €) quand l'hôte ou le partenaire signale « Pas venu » sur une place réellement vide. C'est un avoir fictif, non encaissable. Moment garde 6,90 €.
 - Un crédit a un identifiant unique et peut être **consommé une seule fois**, par exemple pour couvrir sa propre caution de 20 € sur un prochain moment (le complément reste « bloqué » en simulation). Une seconde consommation est refusée. C'est testé.
 - Pour l'imprévu et le joker, l'hôte ne touche rien et aucun crédit n'est créé.
 

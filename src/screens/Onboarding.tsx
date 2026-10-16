@@ -8,7 +8,7 @@ export function Onboarding({ ctx }: {
   ctx: JourneyContext;
 }) {
   const { now, onboarding, next } = ctx;
-  const slides = [['Une place libre.\nUn vrai moment.', 'Une table, un verre, une sortie. Retrouvez des gens autour d’un moment, à Paris.', '01 / 03'], ['On se dit oui.\nPuis on s’engage.', 'L’hôte accepte. Vous avez 10 minutes pour confirmer. Une caution de 20 € est rendue si vous êtes présent.', '02 / 03'], ['Moins de profils.\nPlus de moments.', 'Le quartier d’abord, l’adresse après le oui. À vous de choisir ce que vous partagerez.', '03 / 03']][onboarding.slide]!;
+  const slides = [['Une place libre.\nUn vrai moment.', 'Une table, un verre, une sortie. Retrouvez des gens autour d’un moment, à Paris.', '01 / 03'], ['On se dit oui.\nPuis on s’engage.', 'L’hôte accepte. Vous avez 10 minutes pour confirmer. Une caution de 20 € est bloquée, puis rendue le lendemain sauf absence signalée.', '02 / 03'], ['Moins de profils.\nPlus de moments.', 'Le quartier d’abord, l’adresse après le oui. À vous de choisir ce que vous partagerez.', '03 / 03']][onboarding.slide]!;
   return <View
     style={{
       flex: 1,

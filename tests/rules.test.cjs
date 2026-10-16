@@ -61,18 +61,19 @@ test('joker après refus : rendu sans crédit, un par mois civil Paris',()=>{
  assert.equal(act(again,'joker',{now}),again); assert.equal(act(again,'joker',{now:now+1000}).requests[0].deposit,'released');
  assert.notEqual(monthKey(now),monthKey(now+1000)); assert.equal(act(s,'joker',{actor:'h'}),s); assert.equal(act(accepted(),'joker').requests[0].deposit,'none');
 });
-test('clôture : absences invité, sanctions à 2 et 3, comptabilité idempotente',()=>{
+test('« Pas venu » : absences invité, sanctions à 2 et 3, comptabilité idempotente',()=>{
  for(const previous of [0,1,2]) {
  const s=confirmed(); guest(s).absences=previous;
- const c=closed(s); assert.equal(guest(c).absences,previous+1); assert.equal(guest(c).priority,previous<1); assert.equal(guest(c).accountStatus,previous===2?'closed':'active');
+ const c=act(closed(s),'noShow',{actor:'h',now:H+95*minute}); assert.equal(guest(c).absences,previous+1); assert.equal(guest(c).priority,previous<1); assert.equal(guest(c).accountStatus,previous===2?'closed':'active');
  assert.equal(c.requests[0].deposit,'forfeited'); assert.equal(c.platformCents,690); assert.equal(host(c).credits.length,1);
+ assert.equal(act(c,'noShow',{actor:'h',now:H+100*minute}),c);
  assert.equal(act(c,'close',{actor:'h',momentId:'m',now:H+100*minute}),c);
  }
  assert.equal(act(confirmed(),'close',{actor:'g',momentId:'m',now:H+100*minute}).moments[0].status,'active');
  assert.equal(act(confirmed(),'close',{actor:'h',momentId:'m',now:H}).moments[0].status,'active');
 });
-test('hôte absent : avertissement puis fermeture, sanctions distinctes pour chaque rôle',()=>{
- for(const warnings of [0,1]) { const s=confirmed(); host(s).hostWarnings=warnings; const c=closed(s,false); assert.equal(host(c).hostWarnings,warnings+1); assert.equal(host(c).accountStatus,warnings?'closed':'active'); assert.equal(c.requests[0].deposit,'forfeited'); assert.equal(host(c).credits.length,1); }
+test('hôte absent : avertissement puis fermeture ; la clôture seule ne prend jamais la caution',()=>{
+ for(const warnings of [0,1]) { const s=confirmed(); host(s).hostWarnings=warnings; const c=closed(s,false); assert.equal(host(c).hostWarnings,warnings+1); assert.equal(host(c).accountStatus,warnings?'closed':'active'); assert.equal(c.requests[0].deposit,'held'); assert.equal(host(c).credits.length,0); assert.equal(guest(c).absences,0); }
 });
 function attended() {
  let s=confirmed(); s=act(s,'markPresence',{momentId:'m',now:H}); return closed(s);

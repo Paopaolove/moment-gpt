@@ -88,8 +88,9 @@ export function RequestCard({ ctx, r, hero = false }: {
         </View>
       </Motion>
       <StatusPill
-        title={r.deposit === 'released' ? 'Caution rendue · 20 €' : 'Caution bloquée · 20 €'}
-        tone="success" />
+        title={r.deposit === 'released' ? 'Caution rendue · 20 €' : r.deposit === 'forfeited' ? 'Caution retenue · signalé « Pas venu »' : 'Caution bloquée · 20 €'}
+        tone={r.deposit === 'forfeited' ? 'error' : 'success'} />
+      {r.deposit === 'held' && <T style={s.muted}>{'Rendue automatiquement le lendemain, sauf si l’hôte signale « Pas venu » alors que votre place est vide. Marquer votre arrivée n’est pas obligatoire.'}</T>}
       <InfoRow
         icon={canChat(x, user, state.requests, now) ? 'check' : 'lock'}
         title="Conversation"
@@ -103,9 +104,14 @@ export function RequestCard({ ctx, r, hero = false }: {
           setSheet('chat');
         }} />}
       <Button
-        title={r.presentAt ? 'Présence confirmée' : canMarkPresence(x, now) ? 'Je suis là' : now > x.startsAt + 900000 ? 'Fenêtre de présence fermée' : `Disponible à ${time(x.startsAt - 900000)}`}
+        title={r.presentAt ? 'Présence confirmée' : canMarkPresence(x, now) ? 'Je suis arrivé' : now > x.startsAt + 900000 ? 'Fenêtre de présence fermée' : `Disponible à ${time(x.startsAt - 900000)}`}
         disabled={!!r.presentAt || !canMarkPresence(x, now)}
         onPress={() => act({ type: 'markPresence', momentId: x.id })} />
+      {!r.presentAt && canMarkPresence(x, now) && <Button
+        variant="text"
+        title="Je suis arrivé · ajouter une photo (facultatif)"
+        onPress={() => act({ type: 'markPresence', momentId: x.id, photoUri: 'stub://presence.jpg' })} />}
+      {r.presencePhoto && <T style={s.muted}>{'Photo d’arrivée ajoutée.'}</T>}
       {!r.presentAt && <Button
         variant="text"
         title="Un imprévu ? Annuler ou utiliser mon joker"

@@ -12,3 +12,9 @@ export const RULES = {
 export const MINUTE = 60000;
 export const monthKey = (now: number): string => new Intl.DateTimeFormat('fr-FR', { timeZone: RULES.timezone, year: 'numeric', month: '2-digit' }).format(now);
 export const confirmationExpired = (accepted: number, now: number) => now >= accepted + RULES.confirmationMinutes * MINUTE;
+
+export const parisDayKey = (t: number): string => new Intl.DateTimeFormat('fr-CA', { timeZone: RULES.timezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(t);
+/** Le silence profite à l'invité : sans « Pas venu », la caution est rendue le lendemain (heure de Paris). */
+export const depositReleaseDue = (startsAt: number, now: number): boolean => parisDayKey(now) > parisDayKey(startsAt);
+/** « Pas venu » : à partir de H, jamais si la présence est marquée, tant que la caution n'est pas rendue. */
+export const canReportNoShow = (startsAt: number, now: number, presentAt: number | undefined): boolean => presentAt === undefined && now >= startsAt && !depositReleaseDue(startsAt, now);

@@ -56,7 +56,7 @@ export function MomentDetail({ ctx }: {
       <T style={s.h}>{"Comment ça marche"}</T>
       <InfoRow icon="arrow" title="1. Demander" detail="Choisissez votre moment." />
       <InfoRow icon="check" title="2. L’hôte dit oui" detail="Sa réponse apparaît dans Mes moments." />
-      <InfoRow icon="clock" title="3. 10 min pour confirmer" detail="Caution de 20 € rendue si présent." />
+      <InfoRow icon="clock" title="3. 10 min pour confirmer" detail="Caution de 20 € rendue le lendemain, sauf « Pas venu » signalé par l’hôte." />
     </View>
     {request?.status === 'requested' && <Banner>
       Demande envoyée · en attente de
