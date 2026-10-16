@@ -65,7 +65,7 @@ const s = StyleSheet.create({
   hero: {
     fontFamily: serif,
     fontSize: 64,
-    lineHeight: 66,
+    lineHeight: 80,
     letterSpacing: -1.8,
     color: c.light
   },
