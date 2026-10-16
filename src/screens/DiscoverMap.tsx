@@ -14,33 +14,28 @@ const districts: [
     [11, 74, 46], [12, 80, 69], [13, 63, 83], [14, 37, 82], [15, 17, 72],
     [16, 6, 43], [17, 23, 12], [18, 49, 5], [19, 76, 17], [20, 88, 42]
   ];
-const neighborhoods: Record<string, [
-  number,
-  number
-]> = {
-  'Sainte-Marguerite': [77, 54],
-  'Porte-Saint-Martin': [59, 29],
-  'Saint-Germain-des-Prés': [42, 60],
-  'Combat': [75, 20],
-  'Sorbonne': [54, 64],
-  'Folie-Méricourt': [73, 39],
-  'Gare': [67, 82],
-  'Chaillot': [13, 40],
-  'Aligre': [77, 63],
-  'Pont-de-Flandre': [79, 10],
-  'Les Halles': [45, 42]
-};
 export function ParisMap({ moments, onSelect }: {
   moments: Moment[];
   onSelect: (id: string) => void;
 }) {
   const [peekId, setPeek] = useState<string | null>(null);
-  const peek = moments.find(m => m.id === peekId);
-  const groups = [...new Set(moments.map(m => m.neighborhood))].map(name => moments.filter(m => m.neighborhood === name));
+  const peek = moments.find(m => m.id === peekId) ?? moments[0];
+  const positions: { x: number; y: number }[] = [];
+  moments.forEach(moment => {
+    const district = districts.find(d => d[0] === moment.district) ?? districts[0]!;
+    let point = { x: Math.min(84, district[1]), y: Math.min(80, district[2] + 5) };
+    let distance = Infinity;
+    for (let y = 2; y <= 82; y += 15) for (let x = 0; x <= 84; x += 16) {
+      if (positions.some(p => Math.hypot((p.x - x) * 2.7, (p.y - y) * 3) < 44)) continue;
+      const candidate = Math.hypot(x - district[1], y - district[2]);
+      if (candidate < distance) { point = { x, y }; distance = candidate; }
+    }
+    positions.push(point);
+  });
   return <View style={s.stack}>
     <View
       style={{
-        height: 410,
+        minHeight: 490,
         padding: 12,
         backgroundColor: '#F4F5EF',
         borderRadius: 20,
@@ -48,31 +43,30 @@ export function ParisMap({ moments, onSelect }: {
       }}>
       <T style={{ fontSize: 11, color: c.secondary }}>{"PARIS · PLAN INDICATIF · NORD EN HAUT"}</T>
       <View style={{
-        flex: 1, marginTop: 12, marginRight: 30
+        height: 300, marginTop: 12, marginHorizontal: 12
       }}>
         <View
           style={{
             position: 'absolute',
             left: '3%',
-            top: '10%',
-            width: '105%',
-            height: '86%',
-            borderRadius: 140,
+            top: '3%',
+            width: '94%',
+            height: '92%',
+            borderTopLeftRadius: 100,
+            borderTopRightRadius: 75,
+            borderBottomRightRadius: 110,
+            borderBottomLeftRadius: 65,
+            transform: [{ rotate: '-12deg' }],
             borderWidth: 1,
             borderColor: '#D7DDCF',
             backgroundColor: '#E9EDDF'
           }} />
-        <View
-          style={{
-            position: 'absolute',
-            left: '1%',
-            top: '58%',
-            width: '110%',
-            height: 13,
-            borderRadius: 12,
-            backgroundColor: '#C2DCE5',
-            transform: [{ rotate: '16deg' }]
-          }} />
+        {Array.from({ length: 60 }, (_, i) => {
+          const x = 4 + i * 1.5;
+          const y = 57 + 9 * Math.sin((i / 59) * Math.PI * 2 - 0.7);
+          const nextY = 57 + 9 * Math.sin(((i + 1) / 59) * Math.PI * 2 - 0.7);
+          return <View key={`river-${i}`} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: '2%', height: 3, borderRadius: 2, backgroundColor: '#A8CDD9', transform: [{ rotate: `${Math.atan2((nextY - y) * 3, 4.5) * 180 / Math.PI}deg` }] }} />;
+        })}
         <T
           style={{
             position: 'absolute',
@@ -87,52 +81,21 @@ export function ParisMap({ moments, onSelect }: {
             position: 'absolute',
             left: `${x}%`,
             top: `${y}%`,
-            width: 37,
-            height: 37,
-            borderWidth: 1,
-            borderColor: '#D0D7C7',
-            borderRadius: 14,
-            backgroundColor: '#FFFFFFB8',
+            width: 18,
+            height: 18,
             alignItems: 'center',
             justifyContent: 'center'
-          }}><T style={{ fontSize: 12, color: '#555C50' }}>{n}</T></View>)}
-        {groups.map(matches => {
-          const first = matches[0]!;
-          const district = districts.find(d => d[0] === first.district)!;
-          const [x, y] = neighborhoods[first.neighborhood] ?? [district[1], district[2]];
-          return <Pressable
-            key={first.neighborhood}
-            accessibilityRole="button"
-            accessibilityLabel={first.neighborhood + ', ' + matches.length + ' moments. Afficher un aperçu.'}
-            accessibilityState={{ selected: peek?.neighborhood === first.neighborhood }}
-            onPress={() => {
-              const i = matches.findIndex(m => m.id === peekId);
-              setPeek(matches[(i + 1) % matches.length]!.id);
-            }}
-            style={{
-              position: 'absolute',
-              left: `${x}%`,
-              top: `${y}%`,
-              minWidth: 44,
-              minHeight: 44,
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}><View
-              style={{
-                width: 28,
-                height: 28,
-                borderRadius: 14,
-                borderWidth: 2,
-                borderColor: 'white',
-                backgroundColor: categoryColors[first.category],
-                alignItems: 'center',
-                justifyContent: 'center',
-                transform: [{ scale: peek?.neighborhood === first.neighborhood ? 1.15 : 1 }]
-              }}><T style={{ fontSize: 12, color: 'white' }}>{matches.length}</T></View></Pressable>;
+          }}><T style={{ fontSize: 10, color: '#838A7D' }}>{n}</T></View>)}
+        {moments.map((moment, positionIndex) => {
+          const { x, y } = positions[positionIndex]!;
+          const selected = peek?.id === moment.id;
+          return <Pressable key={moment.id} accessibilityRole="button" accessibilityLabel={`${moment.title}, ${moment.neighborhood}. Afficher un aperçu.`} accessibilityState={{ selected }} onPress={() => setPeek(moment.id)} style={{ position: 'absolute', left: `${x}%`, top: `${y}%`, width: 44, height: 44, alignItems: 'center', justifyContent: 'center', zIndex: selected ? 2 : 1 }}>
+            <View style={{ width: selected ? 34 : 26, height: selected ? 34 : 26, borderRadius: 20, borderWidth: 3, borderColor: 'white', backgroundColor: categoryColors[moment.category], alignItems: 'center', justifyContent: 'center' }}><T style={{ fontSize: 11, color: 'white' }}>{moment.category.slice(0, 1)}</T></View>
+          </Pressable>;
         })}
       </View>
+    {peek ? <Motion key={peek.id}><View style={[s.card, { padding: 12, gap: 4, backgroundColor: 'white' }] }><T style={s.h}>{peek.title}</T><T style={{ fontSize: 14, color: c.secondary }}>{peek.neighborhood}</T><Button title="Voir le moment" onPress={() => onSelect(peek.id)} /></View></Motion> : <T style={{ fontSize: 13, color: c.secondary }}>{"Touchez un repère pour découvrir le moment. "}</T>}
     </View>
-    {peek ? <Motion key={peek.id}><View style={s.card}><T style={s.h}>{peek.title}</T><T style={{ fontSize: 14, color: c.secondary }}>{peek.neighborhood}</T><Button title="Voir le moment" onPress={() => onSelect(peek.id)} /></View></Motion> : <T style={{ fontSize: 13, color: c.secondary }}>{"Touchez un repère pour découvrir le moment. Plusieurs moments dans un quartier : touchez à nouveau."}</T>}
     <T style={{ fontSize: 12, color: c.secondary }}>{"20 arrondissements · repères de quartier approximatifs. Aucune adresse exacte."}</T>
   </View>;
 }

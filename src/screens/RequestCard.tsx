@@ -9,9 +9,10 @@ const time = (n: number) => new Intl.DateTimeFormat('fr-FR', {
   timeZone: 'Europe/Paris', hour: '2-digit', minute: '2-digit'
 }).format(n);
 import type { JourneyContext } from '../useJourney';
-export function RequestCard({ ctx, r }: {
+export function RequestCard({ ctx, r, hero = false }: {
   ctx: JourneyContext;
   r: Request;
+  hero?: boolean;
 }) {
   const { state, user, now, act, setSheet, setSelected, select } = ctx;
   const x = state.moments.find(m => m.id === r.momentId)!;
@@ -26,7 +27,7 @@ export function RequestCard({ ctx, r }: {
   };
   return <View
     key={r.id}
-    style={[s.card, r.status === 'accepted' && {
+    style={[s.card, (hero || r.status === 'accepted') && {
       borderColor: c.accent, backgroundColor: "#FAFAF7", padding: 24
     }]}>
     <StatusPill

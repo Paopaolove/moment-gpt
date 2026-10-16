@@ -7,26 +7,26 @@ export function MyMoments({ ctx }: {
   ctx: JourneyContext;
 }) {
   const { state, user, now, act, setTab, setSheet, ownRequests, activeHost } = ctx;
+  const sections = ['À venir', 'Demandes', 'Passés'].map(title => ({
+    title,
+    rows: ownRequests.filter(r => {
+      const closed = state.moments.find(m => m.id === r.momentId)?.status === 'closed';
+      if (closed || ['cancelled', 'expired', 'declined'].includes(r.status)) return title === 'Passés';
+      return title === 'À venir' ? ['accepted', 'confirmed'].includes(r.status) : title === 'Demandes' && r.status === 'requested';
+    }).sort((a, b) => Number(b.status === 'accepted') - Number(a.status === 'accepted'))
+  }));
   return <>
-    <Button title="Démo" variant="text" onPress={() => setSheet("demo")} />
     {!user && <Banner>
       Explorez librement. Créez un compte pour retrouver vos demandes.
     </Banner>}
-    {['Demandes', 'À venir', 'Passés'].map((section) => {
-      const rows = ownRequests.filter(r => {
-        const closed = state.moments.find(m => m.id === r.momentId)?.status === 'closed';
-        return section === 'À venir' ? r.status === 'confirmed' && !closed : section === 'Demandes' ? ['requested', 'accepted'].includes(r.status) : closed || ['cancelled', 'expired', 'declined'].includes(r.status);
-      });
-      return <View key={section} style={s.section}>
-        <T style={s.title}>
-          {section}
-        </T>
-        {rows.length ? [...rows].sort((a, b) => Number(b.status === 'accepted') - Number(a.status === 'accepted')).map(r => <RequestCard key={r.id} ctx={ctx} r={r} />) : <EmptyState
-          onAction={() => setTab("Découvrir")}
-          title={section === 'À venir' ? 'Votre prochain moment est à trouver' : section === 'Demandes' ? 'Aucune demande en cours' : 'Tout commence par un premier moment'}
-          detail={section === 'À venir' ? 'Une place vous attend dans Découvrir.' : 'Vos moments apparaîtront ici.'} />}
-      </View>;
-    })}
+    {sections.filter(section => section.rows.length > 0).map(({ title, rows }) => <View key={title} style={s.section}>
+      <T style={s.title}>{title}</T>
+      {rows.map((r, index) => <RequestCard key={r.id} ctx={ctx} r={r} hero={title === 'À venir' && index === 0} />)}
+    </View>)}
+    {!ownRequests.length && !activeHost && <EmptyState
+      onAction={() => setTab('Découvrir')}
+      title="Votre prochain moment est à trouver"
+      detail="Une place vous attend dans Découvrir." />}
     {activeHost && <View style={s.card}>
       <T style={s.h}>{"Vous accueillez"}</T>
       <T>

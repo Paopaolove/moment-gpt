@@ -1,4 +1,5 @@
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
+import { Toast } from './components/Toast';
 import { Brand } from './components/Brand';
 import { Banner, Button, Field, Motion, RatingPicker, Sheet, StatusPill, T, TabBar, s } from './components/UI';
 import { monthKey } from './domain/rules';
@@ -62,15 +63,14 @@ export function Journey() {
       <View style={s.between}>
         <Brand />
       </View>
-      {notice && <Banner>
-        {notice}
-      </Banner>}
+
       <Motion key={tab} style={tab === 'Publier' ? { flex: 1 } : undefined}>
         <View style={[s.stack, tab === 'Publier' && { flex: 1 }]}>
           <View style={{ gap: 4 }}>
-            <T style={s.large}>
-              {tab}
-            </T>
+            <View style={s.between}>
+              <T style={s.large}>{tab}</T>
+              {tab === 'Mes moments' && <Pressable accessibilityRole="button" accessibilityLabel="Ouvrir le mode démo" onPress={() => setSheet('demo')} hitSlop={8} style={{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: c.surface }}><T style={{ fontSize: 12, color: c.secondary }}>Démo</T></Pressable>}
+            </View>
             <T style={s.muted}>
               {tab === 'Découvrir' ? 'Paris · ce soir' : tab === 'Mes moments' ? 'Vos moments à partager.' : tab === 'Publier' ? 'Une place libre, une belle idée.' : 'Votre place chez Moment.'}
             </T>
@@ -97,6 +97,7 @@ export function Journey() {
         </View>
       </Motion>
     </Content>
+    {notice && <Toast key={notice} message={notice} onDismiss={() => setNotice('')} />}
     <TabBar tab={tab} onChange={v => {
       setTab(v);
       setNotice('');

@@ -1,4 +1,4 @@
-import { ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { Chip, EmptyState, ErrorState, MomentCard, SegmentedControl, Skeleton, T, s } from '../components/UI';
 import { isUrgent } from '../domain/selectors';
 import type { Category } from '../domain/types';
@@ -25,13 +25,14 @@ export function Discover({ ctx }: {
     select,
     feed
   } = ctx;
+  const urgentCount = state.moments.filter(m => m.status === 'active' && now <= m.startsAt + 30 * 60000 && isUrgent(m, now)).length;
   return <>
-    {feed.some(m => isUrgent(m, now)) && <View
+    {urgentCount > 0 && <Pressable accessibilityRole="button" accessibilityLabel={`${urgentCount} moments urgents ce soir. Filtrer les urgents`} onPress={() => { setCategory('Tout'); setUrgent(true); }}
       style={{
-        padding: 16, borderRadius: 14, backgroundColor: "#FFF0ED"
+        padding: 16, borderRadius: 14, backgroundColor: "#FFF0ED", flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'
       }}>
-      <T style={{ color: c.error, fontFamily: "InterTight_600SemiBold" }}>{"Urgent · déjà sur place"}</T>
-    </View>}
+      <T style={{ color: c.error, fontFamily: "InterTight_600SemiBold" }}>{urgentCount} {urgentCount === 1 ? 'moment urgent' : 'moments urgents'} · ce soir</T><View style={{ transform: [{ rotate: '-45deg' }], width: 8, height: 8, borderRightWidth: 1.5, borderBottomWidth: 1.5, borderColor: c.error }} />
+    </Pressable>}
     <SegmentedControl value={mode} onChange={setMode} />
     <ScrollView
       horizontal
