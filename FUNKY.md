@@ -25,3 +25,14 @@ Avec la préférence « réduire les animations », tout devient fondus simples,
 
 ## Marque
 **« moment funky »** : un sticker-logo en forme d'étoile/soleil, écrit en serif noir sur jaune, avec un tampon « GPT FUNKY ». C'est le name de app.json et le titre du README.
+
+## Règles changées pour la version Funky (et seulement elle)
+Paolo a autorisé la version Funky à dépasser les règles figées. Le socle reste : IRL, Paris intramuros, pas un date, stubs sans paiement réel. Inchangés : caution 20 €, partage 6,90 € Moment / 13,10 € hôte, urgent H−90→H+30, présence dès H−15, option Femmes uniquement, hôte sans abonnement.
+
+| Règle | Avant (v1–v4) | Après (Funky) | Pourquoi |
+|---|---|---|---|
+| Catégories | Table, Sport, Culture | Table, Sport, Culture, **Nuit** (bal, karaoké, club, guinguette) | Le Grand Bal appelle la nuit parisienne. C'est là que les places libres sont les plus nombreuses et les plus spontanées. |
+| Montants d'invitation | Pills 10 / 20 / 30 / 40 €, max 50 € | Pills **0** / 10 / 20 / 30 / 40 €, max 50 €. **0 € = « juste la place »** | Un footing, une expo gratuite ou un bal populaire n'ont rien à payer. Offrir la place suffit. |
+| Délai de confirmation | 10 min | 10 min ; **5 min pour une place « Maintenant »** (fenêtre urgente) | Une place qui commence dans moins de 90 min ne peut pas rester bloquée 10 min. |
+| Places par moment | 1 à 3 | **1 à 4** | La « bande » : une tablée de cinq, un double au padel plus un remplaçant, un rang de quatre au ciné. |
+| Joker | 1 par mois civil | 1 par mois civil, **+1 joker gagné** après 3 présences dans le mois (max 2 par mois) | Récompenser la fiabilité plutôt que de seulement la punir. Le joker reste réservé à l'invité, sur une place confirmée, et libère toute la caution. |
