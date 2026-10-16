@@ -51,3 +51,16 @@ test('Je suis arrivé : dès H−15, photo facultative', () => {
   const withPhoto = act(s, 'markPresence', { momentId: 'm', now: H - 10 * minute, photoUri: 'stub://table.jpg' });
   assert.equal(withPhoto.requests[0].presencePhoto, 'stub://table.jpg');
 });
+
+test('Je suis arrivé : retardataire accepté à H+20', () => {
+  const s = act(confirmed(), 'markPresence', { momentId: 'm', now: H + 20 * minute });
+  assert.notEqual(s.requests[0].presentAt, undefined); assert.equal(s.requests[0].deposit, 'released');
+  assert.equal(act(s, 'noShow', { actor: 'h', now: H + 30 * minute }), s);
+});
+
+test('Je suis arrivé : refusé après la fin du moment', () => {
+  const s = confirmed();
+  const end = s.moments[0].endsAt;
+  assert.notEqual(act(s, 'markPresence', { momentId: 'm', now: end }).requests[0].presentAt, undefined);
+  assert.equal(act(s, 'markPresence', { momentId: 'm', now: end + 1 }), s);
+});

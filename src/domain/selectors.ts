@@ -14,7 +14,7 @@ export function addressFor(moment: Moment, viewer: User | null, requests: readon
   return moment.privateAddress + ((viewer.id === moment.hostId || r?.status === 'confirmed') && moment.accessDetails ? ` — ${moment.accessDetails}` : '');
 }
 export const isUrgent = (moment: Moment, now: number) => now >= moment.startsAt - 90 * MINUTE && now <= moment.startsAt + 30 * MINUTE;
-export const canMarkPresence = (moment: Moment, now: number) => moment.status === 'active' && now >= moment.startsAt - 15 * MINUTE && now <= moment.startsAt + 15 * MINUTE;
+export const canMarkPresence = (moment: Moment, now: number) => moment.status === 'active' && now >= moment.startsAt - 15 * MINUTE && now <= moment.endsAt;
 export function canChat(moment: Moment, viewer: User | null, requests: readonly Request[], now: number): boolean {
   return !!viewer && viewer.role !== 'visiteur' && viewer.accountStatus === 'active' && moment.status === 'active' && now >= moment.startsAt - 60 * MINUTE && now <= moment.endsAt && requests.some(r => r.momentId === moment.id && r.status === 'confirmed' && (viewer.id === moment.hostId || viewer.id === r.guestId));
 }

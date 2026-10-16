@@ -2,7 +2,7 @@ export type { Category } from './types';
 export const RULES = {
   deposit: 2000, momentShare: 690, hostShare: 1310, confirmationMinutes: 10,
   urgentBeforeMinutes: 90, urgentAfterMinutes: 30, presenceBeforeMinutes: 15,
-  presenceAfterMinutes: 15, chatBeforeMinutes: 60, freeCancellationHours: 3,
+  chatBeforeMinutes: 60, freeCancellationHours: 3,
   pricePills: [1000, 2000, 3000, 4000], maxInvitation: 5000, minSeats: 1, maxSeats: 3,
   jokerPerMonth: 1, unexpectedPerMoment: 1, phraseMin: 10, phraseMax: 140,
   reliableMoments: 5, reliableAverage: 4, guestPriorityLoss: 2, guestClosure: 3,

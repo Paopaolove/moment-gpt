@@ -21,7 +21,7 @@ test('une caution ne se rend pas avant H−15', () => {
  const s=confirmed(); assert.equal(act(s,'markPresence',{momentId:'m',now:H-15*minute-1}),s);
  const present=act(s,'markPresence',{momentId:'m',now:H-15*minute}); assert.equal(present.requests[0].deposit,'released');
  assert.equal(act(present,'markPresence',{momentId:'m',now:H}),present);
- assert.equal(act(s,'markPresence',{momentId:'m',now:H+15*minute+1}),s);
+ assert.equal(act(s,'markPresence',{momentId:'m',now:H+90*minute+1}),s);
 });
 test('un invité ne peut pas annuler comme hôte', () => {
  const s=confirmed(); assert.equal(act(s,'cancel',{as:'host'}),s); assert.equal(act(s,'cancel',{actor:'other',as:'guest'}),s);

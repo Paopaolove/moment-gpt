@@ -104,7 +104,7 @@ export function RequestCard({ ctx, r, hero = false }: {
           setSheet('chat');
         }} />}
       <Button
-        title={r.presentAt ? 'Présence confirmée' : canMarkPresence(x, now) ? 'Je suis arrivé' : now > x.startsAt + 900000 ? 'Fenêtre de présence fermée' : `Disponible à ${time(x.startsAt - 900000)}`}
+        title={r.presentAt ? 'Présence confirmée' : canMarkPresence(x, now) ? 'Je suis arrivé' : now > x.endsAt ? 'Fenêtre de présence fermée' : `Disponible à ${time(x.startsAt - 900000)}`}
         disabled={!!r.presentAt || !canMarkPresence(x, now)}
         onPress={() => act({ type: 'markPresence', momentId: x.id })} />
       {!r.presentAt && canMarkPresence(x, now) && <Button

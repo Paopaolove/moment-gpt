@@ -1,7 +1,7 @@
 # Décisions sur les points ambigus du brief
 
 ## 1. Arrivée, « Pas venu » et caution (règle figée par Paolo, corrige l'hypothèse initiale)
-- « **Je suis arrivé** » se marque **dès H−15**, avec une **photo facultative**. Ce n'est **pas une obligation** : l'oubli de cliquer n'est jamais puni. La fenêtre technique du bouton reste H−15 → H+15.
+- « **Je suis arrivé** » se marque **dès H−15**, avec une **photo facultative**. Ce n'est **pas une obligation** : l'oubli de cliquer n'est jamais puni. Le bouton reste ouvert **de H−15 jusqu'à la fin du moment** (validé par Paolo) pour les retardataires ; il est refusé après la fin.
 - La caution n'est perdue **que** si l'hôte (ou le partenaire du lieu) signale « **Pas venu** », **à partir de H** (jamais avant), et seulement si la place est réellement vide : le signalement est **refusé si l'invité a marqué sa présence**.
 - **Le silence profite à l'invité** : sans signalement, la caution de 20 € est **rendue automatiquement le lendemain** (changement de jour civil à Paris). Après restitution, « Pas venu » n'est plus possible. La clôture du moment n'a **aucun effet** sur la caution.
 - Absence confirmée par « Pas venu » : partage **6,90 € Moment / 13,10 € hôte** (crédit), absence comptée (2 → perte de priorité, 3 → compte fermé).
