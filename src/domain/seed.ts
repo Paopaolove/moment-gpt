@@ -27,7 +27,7 @@ export function seed(now: number): Moment[] {
       ['Le bal du Balajo', 'Nuit', 'Bal', 'Léa', 11, '9 rue de Lappe, 75011 Paris', 0, 4, 2000, false, 'On danse au Balajo. Soirée et disponibilité simulées.'],
       ['Le micro de Pigalle', 'Nuit', 'Karaoké', 'Inès', 9, '8 boulevard de Clichy, 75009 Paris', 0, 2, 0, false, 'Karaoké à Pigalle : juste la place, même les fausses notes sont invitées. Démo.'],
       ['Minuit au Rex', 'Nuit', 'Club', 'Paul', 2, '5 boulevard Poissonnière, 75002 Paris', 0, 2, 2000, false, 'Une nuit au Rex Club, programmation fictive.'],
-      ['Un air de guinguette', 'Nuit', 'Guinguette', 'Rose', 19, '2 rue de l’Ourcq, 75019 Paris', 0, 3, 0, false, 'À la Petite Halle, esprit Chez Gégène : une guinguette imaginée à Paris. Chez Gégène est hors Paris ; aucun rendez-vous n’y est proposé. Démo.'],
+      ['Un air de guinguette', 'Nuit', 'Guinguette', 'Rose', 19, '2 rue de l’Ourcq, 75019 Paris', 0, 3, 0, false, 'Accordéon, lampions et canal de l’Ourcq : une guinguette comme avant, sans quitter Paris. Une place pour valser ou juste regarder.'],
     ];
   const slots = [['19:30', '20:30', '21:00'], ['12:30', '19:00'], ['20:15'], ['08:00', '19:00'], ['12:30'], ['20:00'], ['18:30'], ['20:00'], ['19:30', '20:30', '21:00'], ['21:00'], ['21:30'], ['23:30'], ['18:00']];
   const moments: Moment[] = rows.map(([title, category, subtype, host, district, address, minutes, seats, price, womenOnly, description], i) => ({ id: `place-${i}`, hostId: `host-${i}`, title, category, subtype, host, district, address, startsAt: nextSlot(now, slots[i]!), seats, price, womenOnly, description }));
