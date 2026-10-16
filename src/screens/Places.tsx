@@ -26,7 +26,7 @@ export function Places({ journey }: {
     <Marquee /><ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.filters}>
       {['Tout', 'Table', 'Sport', 'Culture', 'Nuit', 'Maintenant'].map(label => {
         const active = label === 'Maintenant' ? urgent : filter === label;
-        return <Pressable key={label} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => label === 'Maintenant' ? setUrgent(!urgent) : setFilter(label)} style={[s.filter, { backgroundColor: label in categoryColor ? categoryColor[label as keyof typeof categoryColor] : c.yellow, opacity: active ? 1 : 0.8, transform: [{ rotate: active ? '-6deg' : '2deg' }, {scale: active ? 1.06 : 1}] }]}>
+        return <Pressable key={label} accessibilityRole="button" accessibilityState={{ selected: active }} onPress={() => label === 'Maintenant' ? setUrgent(!urgent) : setFilter(label)} style={[s.filter, { backgroundColor: label in categoryColor ? categoryColor[label as keyof typeof categoryColor] : c.yellow, transform: [{ rotate: active ? '-6deg' : '2deg' }, {scale: active ? 1.06 : 1}] }]}>
           {label === 'Maintenant' && <Pulse />}<Text style={[s.filterText, { color: label === 'Nuit' ? c.light : c.ink }]}>{label === 'Maintenant' ? '● Maintenant' : label}</Text>
         </Pressable>;
       })}
@@ -65,7 +65,7 @@ const s = StyleSheet.create({
   hero: {
     fontFamily: serif,
     fontSize: 64,
-    lineHeight: 58,
+    lineHeight: 66,
     letterSpacing: -1.8,
     color: c.light
   },
